@@ -58,7 +58,7 @@ public class AuthServiceHelper {
 
     public ResponseEntity<ApiMessageDto> handleRefreshToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            return new ResponseEntity<>(new ApiMessageDto("Error: No refresh token provided)"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiMessageDto("Error: No refresh token provided"), HttpStatus.BAD_REQUEST);
         }
         try {
             Claims claims = validateRefreshToken(refreshToken);
