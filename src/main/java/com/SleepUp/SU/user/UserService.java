@@ -1,5 +1,7 @@
 package com.SleepUp.SU.user;
 
+import com.SleepUp.SU.user.dto.UserMapperDto;
+import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.utils.UserSecurityUtils;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserServiceHelper userServiceHelper;
-
+    private final UserMapperDto userMapperDto;
 
     @Transactional
     @Override
@@ -30,4 +32,13 @@ public class UserService implements UserDetailsService {
 
         return UserSecurityUtils.createUserByUserDetails(user, authorities);
     }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(userMapperDto::fromEntity)
+                .toList();
+    }
 }
+
