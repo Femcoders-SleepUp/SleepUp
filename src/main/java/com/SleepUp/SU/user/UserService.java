@@ -40,5 +40,13 @@ public class UserService implements UserDetailsService {
                 .map(userMapperDto::fromEntity)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public UserResponse getUserById(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        return optionalUser
+                .map(userMapperDto::fromEntity)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+    }
 }
 
