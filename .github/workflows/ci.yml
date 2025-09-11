@@ -34,6 +34,8 @@ jobs:
       SPRING_DATASOURCE_URL: ${{ secrets.DB_URL_TEST }}
       SPRING_DATASOURCE_USERNAME: test_user
       SPRING_DATASOURCE_PASSWORD: test_password
+      SERVER_PORT: 8080
+
     steps:
       # 1. Check the repository
       - name: Check out code
