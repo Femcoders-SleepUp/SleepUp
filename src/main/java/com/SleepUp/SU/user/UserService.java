@@ -53,15 +53,45 @@ public class UserService implements UserDetailsService {
             userServiceHelper.checkUsername(request.username());
             userServiceHelper.checkEmail(request.email());
 
-            User user = UserMapperDto.INSTANCE.toEntity(request);
+            User user = userMapperDto.toEntity(request);
             user.setPassword(userServiceHelper.getEncodePassword(request.password()));
             user.setRoles(Set.of(Role.USER));
 
             User savedUser = userRepository.save(user);
 
-            return UserMapperDto.INSTANCE.fromEntity(savedUser);
+            return userMapperDto.fromEntity(savedUser);
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("Username or email already exists");
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<ApiMessageDto> userLogout(HttpServletRequest request, HttpServletResponse response){
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.badRequest()
+                        .body(new ApiMessageDto("Error: No active session found"));
+            }
+
+            String username = authentication.getName();
+
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remover "Bearer "
+
+                tokenBlacklistService.addToBlacklist(token);
+            }
+
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+
+            return ResponseEntity.ok()
+                    .body(new ApiMessageDto("Logout successful for user: " + username));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(new ApiMessageDto("Error during logout: " + e.getMessage()));
         }
     }
 
@@ -95,34 +125,6 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
     }
 
-    @Transactional
-    public ResponseEntity<ApiMessageDto> userLogout(HttpServletRequest request, HttpServletResponse response){
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.badRequest()
-                        .body(new ApiMessageDto("Error: No active session found"));
-            }
-
-            String username = authentication.getName();
-
-            String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7); // Remover "Bearer "
-
-                tokenBlacklistService.addToBlacklist(token);
-            }
-
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
-
-            return ResponseEntity.ok()
-                    .body(new ApiMessageDto("Logout successful for user: " + username));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(new ApiMessageDto("Error during logout: " + e.getMessage()));
-        }
-    }
 }
 

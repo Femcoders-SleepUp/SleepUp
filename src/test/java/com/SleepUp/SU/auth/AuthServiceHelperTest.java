@@ -73,35 +73,35 @@ class AuthServiceHelperTest {
         @Test
         void when_handleRefreshTokenTest_return_valid() {
             String refreshToken = authServiceHelper.generateRefreshToken("user");
-            ResponseEntity<ApiMessageDto> response = authServiceHelper.handleRefreshToken(refreshToken);
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken(refreshToken);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertNotNull(response.getBody().string());
+            assertNotNull(response.getBody().get("accessToken"));
         }
 
         @Test
         void when_handleRefreshTokenTest_return_invalid() {
-            ResponseEntity<ApiMessageDto> response = authServiceHelper.handleRefreshToken("invalid-refresh-token");
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken("invalid-refresh-token");
 
             assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-            assertEquals("Error: Refresh invalid token", response.getBody().string());
+            assertEquals("Refresh invalid token", response.getBody().get("error"));
 
         }
 
         @Test
         void when_handleRefreshTokenIsBlank_return_noRefreshTokenProvided() {
-            ResponseEntity<ApiMessageDto> response = authServiceHelper.handleRefreshToken("");
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken("");
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-            assertEquals("Error: No refresh token provided", response.getBody().string());
+            assertEquals("No refresh token provided", response.getBody().get("error"));
         }
 
         @Test
         void when_handleRefreshTokenIsNull_return_noRefreshTokenProvided() {
-            ResponseEntity<ApiMessageDto> response = authServiceHelper.handleRefreshToken(null);
+            ResponseEntity<Map<String, String>> response = authServiceHelper.handleRefreshToken(null);
 
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-            assertEquals("Error: No refresh token provided", response.getBody().string());
+            assertEquals("No refresh token provided", response.getBody().get("error"));
         }
     }
 
