@@ -21,11 +21,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.SleepUp.SU.auth.TokenJwtConfig.*;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
-
     private final AuthServiceHelper authServiceHelper;
 
     public JwtValidationFilter(AuthenticationManager authenticationManager, AuthServiceHelper authServiceHelper) {
@@ -57,8 +58,9 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             chain.doFilter(request,response);
         } catch (JwtException e) {
-            ApiMessageDto body =new ApiMessageDto("Error: " + e.getMessage() +
-                "\nMessage: Invalid token");
+            Map<String, String> body =new HashMap<>();
+            body.put("error", e.getMessage());
+            body.put("message", "Invalid token");
 
             response.getWriter().write(new ObjectMapper().writeValueAsString(body));
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
