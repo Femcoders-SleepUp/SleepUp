@@ -19,7 +19,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: sleepUpTest
+          MYSQL_DATABASE: sleepuptest
           MYSQL_USER: test_user
           MYSQL_PASSWORD: test_password
 
