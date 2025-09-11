@@ -169,6 +169,33 @@ public class UserServiceTest {
         }
     }
 
+    @Nested
+    class CrudUserServiceTest {
+
+        @Test
+        void should_returnAllUsers() {
+            User user1 = new User();
+            user1.setId(1L);
+            user1.setUsername("userOne");
+            user1.setEmail("user1@test.com");
+
+            User user2 = new User();
+            user2.setId(2L);
+            user2.setUsername("userTwo");
+            user2.setEmail("user2@test.com");
+
+            when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+
+            List<UserResponse> result = userService.getAllUsers();
+
+            assertEquals(2, result.size());
+            assertEquals("userOne", result.get(0).username());
+            assertEquals("userTwo", result.get(1).username());
+        }
+    }
+
+
+
 
 
 }
