@@ -1,25 +1,33 @@
 package com.SleepUp.SU.user;
 
+import com.SleepUp.SU.auth.TokenBlacklistService;
 import com.SleepUp.SU.user.dto.USER.UserRequest;
 import com.SleepUp.SU.user.dto.UserMapperDto;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserSecurityUtils;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
+import com.SleepUp.SU.utils.ApiMessageDto;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +36,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserServiceHelper userServiceHelper;
     private final UserMapperDto userMapperDto;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Transactional
     @Override
@@ -54,7 +63,6 @@ public class UserService implements UserDetailsService {
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("Username or email already exists");
         }
-
     }
 
     public User getAuthenticatedUser() {
@@ -85,6 +93,36 @@ public class UserService implements UserDetailsService {
         return optionalUser
                 .map(userMapperDto::fromEntity)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+    }
+
+    @Transactional
+    public ResponseEntity<ApiMessageDto> userLogout(HttpServletRequest request, HttpServletResponse response){
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.badRequest()
+                        .body(new ApiMessageDto("Error: No active session found"));
+            }
+
+            String username = authentication.getName();
+
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remover "Bearer "
+
+                tokenBlacklistService.addToBlacklist(token);
+            }
+
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+
+            return ResponseEntity.ok()
+                    .body(new ApiMessageDto("Logout successful for user: " + username));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(new ApiMessageDto("Error during logout: " + e.getMessage()));
+        }
     }
 }
 

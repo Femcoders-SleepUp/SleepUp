@@ -2,7 +2,7 @@ package com.SleepUp.SU.auth.filter;
 
 import com.SleepUp.SU.auth.AuthServiceHelper;
 import com.SleepUp.SU.auth.SimpleGrantedAuthorityJsonCreator;
-import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.auth.TokenBlacklistService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -28,10 +28,12 @@ import static com.SleepUp.SU.auth.TokenJwtConfig.*;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
     private final AuthServiceHelper authServiceHelper;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public JwtValidationFilter(AuthenticationManager authenticationManager, AuthServiceHelper authServiceHelper) {
+    public JwtValidationFilter(AuthenticationManager authenticationManager, AuthServiceHelper authServiceHelper, TokenBlacklistService tokenBlacklistService) {
         super(authenticationManager);
         this.authServiceHelper = authServiceHelper;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
@@ -45,6 +47,17 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
 
         String token = header.replace(prefixToken, "");
         try {
+            if (tokenBlacklistService.isTokenInBlacklist(token)) {
+                Map<String, String> body = new HashMap<>();
+                body.put("error", "Token has been invalidated");
+                body.put("message", "Please login again");
+
+                response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+                response.setStatus(401);
+                response.setContentType(contentType);
+                return;
+            }
+
             Claims claims = authServiceHelper.validateAccessToken(token);
 
             String username = claims.getSubject();
