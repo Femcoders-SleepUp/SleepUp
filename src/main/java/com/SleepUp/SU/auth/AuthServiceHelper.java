@@ -56,9 +56,9 @@ public class AuthServiceHelper {
                 .getPayload();
     }
 
-    public ResponseEntity<ApiMessageDto> handleRefreshToken(String refreshToken) {
+    public ResponseEntity<Map<String, String>> handleRefreshToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            return new ResponseEntity<>(new ApiMessageDto("Error: No refresh token provided"), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(Map.of("error", "No refresh token provided"));
         }
         try {
             Claims claims = validateRefreshToken(refreshToken);
@@ -67,9 +67,9 @@ public class AuthServiceHelper {
 
             String newAccessToken = generateAccessToken(username, claims);
 
-            return new ResponseEntity<>(new ApiMessageDto("AccessToken " + newAccessToken), HttpStatus.OK);
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
         } catch (JwtException e) {
-            return new ResponseEntity<>(new ApiMessageDto("Error: Refresh invalid token"), HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh invalid token"));
         }
     }
 

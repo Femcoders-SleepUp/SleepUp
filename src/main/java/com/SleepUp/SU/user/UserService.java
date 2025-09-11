@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,12 +47,6 @@ public class UserService implements UserDetailsService {
         return UserSecurityUtils.createUserByUserDetails(user, authorities);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username);
-        return new CustomUserDetails(user);
-    }
-
     public UserResponse registerUser(UserRequest request) {
         try {
             userServiceHelper.checkUsername(request.username());
@@ -68,6 +63,20 @@ public class UserService implements UserDetailsService {
             throw new DataIntegrityViolationException("Username or email already exists");
         }
     }
+
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No authenticated user found");
+        }
+
+        String username = authentication.getName();
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username " + username));
+    }
+
 
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
