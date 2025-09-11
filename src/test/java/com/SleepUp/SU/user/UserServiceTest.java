@@ -1,14 +1,17 @@
 package com.SleepUp.SU.user;
 
 import com.SleepUp.SU.user.dto.USER.UserRequest;
+import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,13 +19,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +38,9 @@ public class UserServiceTest {
 
     @Mock
     private UserServiceHelper userServiceHelper;
+
+    @Mock
+    private UserRepository userRepository;
 
 
     @Nested
@@ -79,4 +88,85 @@ public class UserServiceTest {
         }
 
     }
+
+    @Nested
+    class RegisterNewUserTest {
+
+        @Test
+        void should_registerNewUser_fromRequest(){
+            UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
+
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+
+            User userSaved = new User();
+            userSaved.setId(1L);
+            userSaved.setUsername("userTest");
+            userSaved.setEmail("usertest@test.com");
+            userSaved.setPassword("password123");
+            userSaved.setRoles(Set.of(Role.USER));
+
+
+            when(userRepository.save(any(User.class))).thenReturn(userSaved);
+
+            UserResponse userResponse = userService.registerUser(userRequest);
+
+            assertEquals("userTest", userResponse.username());
+            assertEquals("usertest@test.com", userResponse.email());
+
+        }
+
+        @Test
+        void should_registerNewUser_throw_exceptionUsername(){
+
+            User userSaved = new User();
+            userSaved.setId(1L);
+            userSaved.setUsername("userTest");
+            userSaved.setEmail("usertest@test.com");
+            userSaved.setPassword("password123");
+            userSaved.setRoles(Set.of(Role.USER));
+
+            UserRequest userRequest = new UserRequest("userTest", "nameTest",  "usertest@test.com", "password123");
+
+            doThrow(new RuntimeException("UsernameAlreadyExistException"))
+                    .when(userServiceHelper).checkUsername(userRequest.username());
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUser(userRequest));
+            assertEquals(new RuntimeException("UsernameAlreadyExistException").getMessage(), exception.getMessage());
+        }
+
+        @Test
+        void should_registerNewUser_throw_exceptionEmail(){
+
+            User userSaved = new User();
+            userSaved.setId(1L);
+            userSaved.setUsername("userTest");
+            userSaved.setEmail("usertest@test.com");
+            userSaved.setPassword("password123");
+            userSaved.setRoles(Set.of(Role.USER));
+
+            UserRequest userRequest = new UserRequest("userTest", "nameTest",  "usertest@test.com", "password123");
+
+            doThrow(new RuntimeException("EmailAlreadyExistException"))
+                    .when(userServiceHelper).checkEmail(userRequest.email());
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.registerUser(userRequest));
+            assertEquals(new RuntimeException("EmailAlreadyExistException").getMessage(), exception.getMessage());
+        }
+
+        @Test
+        void should_RegisterNewUser_throw_dataIntegrityViolationException() throws Exception {
+            UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
+
+            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
+            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+
+            when(userRepository.save(any(User.class)))
+                    .thenThrow(new DataIntegrityViolationException("Username or email already exists"));
+
+            DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class, () -> userService.registerUser(userRequest));
+            assertEquals("Username or email already exists", exception.getMessage());
+        }
+    }
+
 }
