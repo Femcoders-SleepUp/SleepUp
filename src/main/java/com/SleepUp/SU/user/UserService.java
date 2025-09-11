@@ -1,10 +1,13 @@
 package com.SleepUp.SU.user;
 
+import com.SleepUp.SU.user.dto.USER.UserRequest;
 import com.SleepUp.SU.user.dto.UserMapperDto;
 import com.SleepUp.SU.user.dto.UserResponse;
+import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserSecurityUtils;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,24 @@ public class UserService implements UserDetailsService {
         List<GrantedAuthority> authorities = UserSecurityUtils.getAuthoritiesRole(user);
 
         return UserSecurityUtils.createUserByUserDetails(user, authorities);
+    }
+
+    public UserResponse registerUser(UserRequest request) {
+        try {
+            userServiceHelper.checkUsername(request.username());
+            userServiceHelper.checkEmail(request.email());
+
+            User user = UserMapperDto.INSTANCE.toEntity(request);
+            user.setPassword(userServiceHelper.getEncodePassword(request.password()));
+            user.setRoles(Set.of(Role.USER));
+
+            User savedUser = userRepository.save(user);
+
+            return UserMapperDto.INSTANCE.fromEntity(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException("Username or email already exists");
+        }
+
     }
 
     @Transactional(readOnly = true)
