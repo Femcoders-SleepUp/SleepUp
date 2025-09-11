@@ -23,15 +23,13 @@ jobs:
           MYSQL_USER: test_user
           MYSQL_PASSWORD: test_password
 
-        ports:
-          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
     env:
-      DB_URL_TEST: jdbc:mysql://mysql:3306/sleepUpTest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_URL_TEST: jdbc:mysql://mysql:3306/sleepuptest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD: password
       SERVER_PORT: 8080
@@ -61,15 +59,24 @@ jobs:
       - name: Build with Maven
         run: mvn clean compile
 
+      - name: Wait before ping
+        run: sleep 20
+
       - name: Wait for MySQL to be ready
         run: |
-          until mysqladmin ping -h "mysql" --silent; do
-            echo "Waiting for MySQL..."
-            sleep 5
+          for i in {1..30}; do
+            if mysqladmin ping -h "mysql" --silent; then
+              echo "MySQL is up!"
+              exit 0
+            else
+              echo "Waiting for MySQL... ($i/30)"
+              sleep 5
+            fi
           done
-        
+          echo "MySQL did not start in time."
+          exit 1
 
-        # 5. Run tests
+      # 5. Run tests
       - name: Run Tests
         run: mvn test -Dspring.profiles.active=test -X
 
