@@ -31,9 +31,9 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     env:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/sleepUpTest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: test_user
-      SPRING_DATASOURCE_PASSWORD: test_password
+      DB_URL_TEST: jdbc:mysql://mysql:3306/sleepUpTest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USER: test_user
+      DB_PASSWORD: test_password
       SERVER_PORT: 8080
 
     steps:
@@ -61,7 +61,18 @@ jobs:
       - name: Build with Maven
         run: mvn clean compile
 
-      # 5. Run tests
+      - name: Wait 15 seg for DB
+        run: sleep 15
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h "mysql" --silent; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+        
+
+        # 5. Run tests
       - name: Run Tests
         run: mvn test -Dspring.profiles.active=test -X
 

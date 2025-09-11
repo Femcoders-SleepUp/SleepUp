@@ -7,7 +7,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @SpringBootTest
-@EnableScheduling
 class SuApplicationTests {
 
 	@Test
