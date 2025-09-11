@@ -1,5 +1,6 @@
 package com.SleepUp.SU.user;
 
+import com.SleepUp.SU.auth.TokenBlacklistService;
 import com.SleepUp.SU.user.dto.USER.UserRequest;
 import com.SleepUp.SU.user.dto.UserMapperDto;
 import com.SleepUp.SU.user.dto.UserResponse;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static sun.tools.jconsole.Messages.ERROR;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +36,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserServiceHelper userServiceHelper;
     private final UserMapperDto userMapperDto;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Transactional
     @Override
@@ -96,7 +97,32 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public ResponseEntity<ApiMessageDto> userLogout(HttpServletRequest request, HttpServletResponse response){
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.badRequest()
+                        .body(new ApiMessageDto("Error: No active session found"));
+            }
+
+            String username = authentication.getName();
+
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7); // Remover "Bearer "
+
+                tokenBlacklistService.addToBlacklist(token);
+            }
+
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+
+            return ResponseEntity.ok()
+                    .body(new ApiMessageDto("Logout successful for user: " + username));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(new ApiMessageDto("Error during logout: " + e.getMessage()));
+        }
     }
 }
 
