@@ -1,6 +1,7 @@
 package com.SleepUp.SU.user;
 
 import com.SleepUp.SU.user.dto.USER.UserRequest;
+import com.SleepUp.SU.user.dto.UserMapperDto;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
@@ -20,9 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +32,7 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
+
     @InjectMocks
     private UserService userService;
 
@@ -41,6 +41,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserMapperDto userMapperDto;
 
 
     @Nested
@@ -96,24 +99,38 @@ public class UserServiceTest {
         void should_registerNewUser_fromRequest(){
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
 
+            User mappedUser = new User();
+            mappedUser.setUsername(userRequest.username());
+            mappedUser.setEmail(userRequest.email());
+            mappedUser.setName(userRequest.name());
+            mappedUser.setPassword(userRequest.password());
+
             doNothing().when(userServiceHelper).checkUsername(userRequest.username());
             doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+            when(userMapperDto.toEntity(userRequest)).thenReturn(mappedUser);
 
             User userSaved = new User();
             userSaved.setId(1L);
             userSaved.setUsername("userTest");
+            userSaved.setName("nameTest");
             userSaved.setEmail("usertest@test.com");
             userSaved.setPassword("password123");
             userSaved.setRoles(Set.of(Role.USER));
 
-
             when(userRepository.save(any(User.class))).thenReturn(userSaved);
+
+            UserResponse userResponseMock = new UserResponse(
+                    userSaved.getId(),
+                    userSaved.getUsername(),
+                    userSaved.getEmail(),
+                    Collections.singleton(userSaved.getRoles().toString())
+            );
+            when(userMapperDto.fromEntity(userSaved)).thenReturn(userResponseMock);
 
             UserResponse userResponse = userService.registerUser(userRequest);
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-
         }
 
         @Test
@@ -157,10 +174,17 @@ public class UserServiceTest {
         @Test
         void should_RegisterNewUser_throw_dataIntegrityViolationException() throws Exception {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
+            User mappedUser = new User();
+            mappedUser.setUsername(userRequest.username());
+            mappedUser.setEmail(userRequest.email());
+            mappedUser.setName(userRequest.name());
+            mappedUser.setPassword(userRequest.password());
+
 
             doNothing().when(userServiceHelper).checkUsername(userRequest.username());
             doNothing().when(userServiceHelper).checkEmail(userRequest.email());
 
+            when(userMapperDto.toEntity(userRequest)).thenReturn(mappedUser);
             when(userRepository.save(any(User.class)))
                     .thenThrow(new DataIntegrityViolationException("Username or email already exists"));
 
