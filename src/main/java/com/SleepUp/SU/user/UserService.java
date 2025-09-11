@@ -1,74 +1,38 @@
 package com.SleepUp.SU.user;
 
-import com.SleepUp.SU.user.dto.USER.UserRequest;
-import com.SleepUp.SU.user.dto.UserMapperDto;
+import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
-import com.SleepUp.SU.user.role.Role;
-import com.SleepUp.SU.user.utils.UserSecurityUtils;
-import com.SleepUp.SU.user.utils.UserServiceHelper;
+import com.SleepUp.SU.utils.EntityMapperUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final EntityMapperUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
-    private final UserMapperDto userMapperDto;
 
-    @Transactional
+
+    public List<UserResponse> getAllUsers() {
+        return mapperUtil.mapEntitiesToDTOs(userRepository.findAll(), userMapper::toResponse);
+    }
+
+    public UserResponse getUserById(Long userId) {
+        return userMapper.toResponse(userServiceHelper.findById(userId));
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = userServiceHelper.getUserLogin(username);
-        User user = optionalUser.orElseThrow();
-        List<GrantedAuthority> authorities = UserSecurityUtils.getAuthoritiesRole(user);
-
-        return UserSecurityUtils.createUserByUserDetails(user, authorities);
-    }
-
-    public UserResponse registerUser(UserRequest request) {
-        try {
-            userServiceHelper.checkUsername(request.username());
-            userServiceHelper.checkEmail(request.email());
-
-            User user = UserMapperDto.INSTANCE.toEntity(request);
-            user.setPassword(userServiceHelper.getEncodePassword(request.password()));
-            user.setRoles(Set.of(Role.USER));
-
-            User savedUser = userRepository.save(user);
-
-            return UserMapperDto.INSTANCE.fromEntity(savedUser);
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("Username or email already exists");
-        }
-
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(userMapperDto::fromEntity)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public UserResponse getUserById(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        return optionalUser
-                .map(userMapperDto::fromEntity)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+        User user = userServiceHelper.findByUsername(username);
+        return new CustomUserDetails(user);
     }
 }
 
