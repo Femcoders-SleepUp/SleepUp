@@ -20,8 +20,8 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: sleepuptest
-          MYSQL_USER: test_user
-          MYSQL_PASSWORD: test_password
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
 
         options: >-
           --health-cmd="mysqladmin ping --silent"
