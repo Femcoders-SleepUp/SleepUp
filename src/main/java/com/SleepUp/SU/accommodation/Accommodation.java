@@ -52,7 +52,4 @@ public class Accommodation {
     @ManyToOne
     @JoinColumn(name = "managed_by_user_id")
     private User managedBy;
-
-    @Column
-    private String imageUrl;
 }
