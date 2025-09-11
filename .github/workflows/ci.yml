@@ -31,7 +31,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     env:
-      SPRING_DATASOURCE_URL: ${{ secrets.DB_URL_TEST }}
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/sleepUpTest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: test_user
       SPRING_DATASOURCE_PASSWORD: test_password
       SERVER_PORT: 8080
