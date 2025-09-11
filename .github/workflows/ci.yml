@@ -61,9 +61,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean compile
 
-      - name: Wait 15 seg for DB
-        run: sleep 15
-
       - name: Wait for MySQL to be ready
         run: |
           until mysqladmin ping -h "mysql" --silent; do
