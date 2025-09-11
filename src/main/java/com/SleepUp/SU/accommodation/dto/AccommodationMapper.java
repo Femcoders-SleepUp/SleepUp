@@ -6,4 +6,8 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface AccommodationMapper {
     AccommodationResponseSummary toSummary(Accommodation accommodation);
+
+    Accommodation toEntity(AccommodationRequest accommodationRequest);
+
+    AccommodationResponseDetail toDetail(Accommodation accommodation);
 }
