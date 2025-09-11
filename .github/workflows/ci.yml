@@ -18,22 +18,20 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: sleepuptest
           MYSQL_USER: testuser
           MYSQL_PASSWORD: testpassword
-        ports:
-          - 3306:3306
+
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-
     env:
-      DB_URL_TEST: jdbc:mysql://127.0.0.1:3306/sleepuptest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_URL_TEST: jdbc:mysql://mysql:3306/sleepuptest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
-      DB_PASSWORD: testpassword
+      DB_PASSWORD: password
       SERVER_PORT: 8080
 
     steps:
@@ -75,7 +73,9 @@ jobs:
           done
           echo "MySQL did not start in time."
           exit 1
+      
 
       # 6. Run tests
       - name: Run Tests
-        run: mvn test -Dspring.profiles.active=test
+        run: mvn test -Dspring.profiles.active=test -X
+
