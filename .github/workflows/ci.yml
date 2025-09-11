@@ -32,8 +32,8 @@ jobs:
           --health-retries=5
     env:
       DB_URL_TEST: jdbc:mysql://mysql:3306/sleepUpTest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      DB_USER: test_user
-      DB_PASSWORD: test_password
+      DB_USER: root
+      DB_PASSWORD: password
       SERVER_PORT: 8080
 
     steps:
