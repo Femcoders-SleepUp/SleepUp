@@ -20,8 +20,8 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: sleepUpTest
-          MYSQL_USER: ${{ secrets.DB_USER }}
-          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
 
         ports:
           - 3306:3306
@@ -32,8 +32,8 @@ jobs:
           --health-retries=5
     env:
       SPRING_DATASOURCE_URL: ${{ secrets.DB_URL_TEST }}
-      SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
-      SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      SPRING_DATASOURCE_USERNAME: test_user
+      SPRING_DATASOURCE_PASSWORD: test_password
     steps:
       # 1. Check the repository
       - name: Check out code
