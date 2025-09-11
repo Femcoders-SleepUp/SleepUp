@@ -30,7 +30,6 @@ import java.util.Map;
 import static com.SleepUp.SU.auth.TokenJwtConfig.*;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     private AuthenticationManager authenticationManager;
     private AuthServiceHelper authServiceHelper;
 
@@ -77,12 +76,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.addHeader(headerAuthorization, prefixToken + accessToken);
 
-        AuthResponse body = new AuthResponse(
-                String.format("Session started successfully. Hello " + username),
-                accessToken,
-                username,
-                refreshToken
-        );
+        Map<String, String> body = new HashMap<>();
+        body.put("token", accessToken);
+        body.put("username", username);
+        body.put("message", String.format("Session started successfully. Hello " + username));
+        body.put("refreshToken", refreshToken);
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setContentType(contentType);
@@ -91,12 +89,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        ApiMessageDto body = new ApiMessageDto("Message: Authentication failed.\n" +
-                "Error: " + failed.getMessage());
+        Map<String, String> body = new HashMap<>();
+        body.put("message", "Authentication failed.");
+        body.put("error", failed.getMessage());
 
         response.getWriter().write(new ObjectMapper().writeValueAsString((body)));
         response.setContentType(contentType);
         response.setStatus(401);
     }
-
 }

@@ -34,6 +34,9 @@ public class Accommodation {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false, name = "image_url")
+    private String imageUrl;
+
     @Column(name = "check_in_time")
     private LocalTime checkInTime;
 
@@ -49,7 +52,4 @@ public class Accommodation {
     @ManyToOne
     @JoinColumn(name = "managed_by_user_id")
     private User managedBy;
-
-    @Column
-    private String imageUrl;
 }

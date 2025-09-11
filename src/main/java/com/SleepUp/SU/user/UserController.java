@@ -42,8 +42,8 @@ public class UserController {
     }
 
     @PostMapping("/auth/refresh")
-    public ResponseEntity<ApiMessageDto> refreshToken(@RequestBody String body) {
-        return authServiceHelper.handleRefreshToken(body);
+    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> body) {
+        return authServiceHelper.handleRefreshToken(body.get("refreshToken"));
     }
 }
 

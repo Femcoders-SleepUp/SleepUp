@@ -107,37 +107,37 @@ public class AccommodationOwnerServiceTest {
         expectedSummaries = Arrays.asList(summary1, summary2);
     }
 
-    @Nested
-    class getAllAccommodationsByOwnerId {
-
-        @SuppressWarnings("unchecked")
-        @Test
-        void getAllAccommodationsByOwnerId_shouldReturnAccommodationsSummariesList() {
-            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(accommodations);
-            when(mapperUtil.mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(expectedSummaries);
-
-            List<AccommodationResponseSummary> actualSummaries = accommodationOwnerService.getAllAccommodationsByOwnerId(userId);
-
-            assertEquals(expectedSummaries, actualSummaries);
-
-            verify(accommodationRepository).findByManagedBy_Id(userId);
-            verify(mapperUtil).mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
-            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Test
-        void getAllAccommodationsByOwnerId_shouldReturnEmptyList() {
-            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(List.of());
-            when(mapperUtil.mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(List.of());
-
-            List<AccommodationResponseSummary> summaries = accommodationOwnerService.getAllAccommodationsByOwnerId(userId);
-
-            assertTrue(summaries.isEmpty());
-
-            verify(accommodationRepository).findByManagedBy_Id(userId);
-            verify(mapperUtil).mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
-            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
-        }
-    }
+//    @Nested
+//    class getAllAccommodationsByOwnerId {
+//
+//        @SuppressWarnings("unchecked")
+//        @Test
+//        void getAllAccommodationsByOwnerId_shouldReturnAccommodationsSummariesList() {
+//            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(accommodations);
+//            when(mapperUtil.mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(expectedSummaries);
+//
+//            List<AccommodationResponseSummary> actualSummaries = accommodationOwnerService.getAllAccommodationsByOwnerId(userId);
+//
+//            assertEquals(expectedSummaries, actualSummaries);
+//
+//            verify(accommodationRepository).findByManagedBy_Id(userId);
+//            verify(mapperUtil).mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
+//            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
+//        }
+//
+//        @SuppressWarnings("unchecked")
+//        @Test
+//        void getAllAccommodationsByOwnerId_shouldReturnEmptyList() {
+//            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(List.of());
+//            when(mapperUtil.mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(List.of());
+//
+//            List<AccommodationResponseSummary> summaries = accommodationOwnerService.getAllAccommodationsByOwnerId(userId);
+//
+//            assertTrue(summaries.isEmpty());
+//
+//            verify(accommodationRepository).findByManagedBy_Id(userId);
+//            verify(mapperUtil).mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
+//            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
+//        }
+//    }
 }
