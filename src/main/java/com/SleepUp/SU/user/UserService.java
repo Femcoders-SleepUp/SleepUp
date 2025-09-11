@@ -6,18 +6,27 @@ import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserSecurityUtils;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
+import com.SleepUp.SU.utils.ApiMessageDto;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static sun.tools.jconsole.Messages.ERROR;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +46,12 @@ public class UserService implements UserDetailsService {
         return UserSecurityUtils.createUserByUserDetails(user, authorities);
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = findByUsername(username);
+        return new CustomUserDetails(user);
+    }
+
     public UserResponse registerUser(UserRequest request) {
         try {
             userServiceHelper.checkUsername(request.username());
@@ -52,7 +67,6 @@ public class UserService implements UserDetailsService {
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("Username or email already exists");
         }
-
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +83,11 @@ public class UserService implements UserDetailsService {
         return optionalUser
                 .map(userMapperDto::fromEntity)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+    }
+
+    @Transactional
+    public ResponseEntity<ApiMessageDto> userLogout(HttpServletRequest request, HttpServletResponse response){
+
     }
 }
 
