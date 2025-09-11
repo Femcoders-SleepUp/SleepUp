@@ -29,11 +29,19 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     env:
       DB_URL_TEST: jdbc:mysql://127.0.0.1:3306/sleepuptest?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
       DB_PASSWORD: password
       SERVER_PORT: 8080
+      # Cloudinary dummy variables for testing
+      CLOUDINARY_CLOUD_NAME: dummy_cloud_name
+      CLOUDINARY_API_KEY: dummy_api_key
+      CLOUDINARY_API_SECRET: dummy_api_secret
+      # Email dummy variables for testing
+      EMAIL: test@example.com
+      EMAIL_PASSWORD: dummy_password
 
     steps:
       # 1. Check the repository
@@ -74,9 +82,13 @@ jobs:
           done
           echo "MySQL did not start in time."
           exit 1
-      
 
-      # 6. Run tests
+      # 6. Create database schema and data (since ddl-auto=none in test profile)
+      - name: Initialize database
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -ppassword sleepuptest < src/test/resources/schema.sql || echo "Schema already exists or file not found"
+          mysql -h 127.0.0.1 -P 3306 -u root -ppassword sleepuptest < src/test/resources/data.sql || echo "Data already exists or file not found"
+
+      # 7. Run tests with test profile
       - name: Run Tests
-        run: mvn test -Dspring.profiles.active=test -X
-
+        run: mvn test -Dspring.profiles.active=test
