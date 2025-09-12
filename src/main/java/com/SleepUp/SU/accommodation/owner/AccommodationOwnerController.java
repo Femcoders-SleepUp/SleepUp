@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/accommodations")
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class AccommodationOwnerController {
     private final AccommodationOwnerService accommodationOwnerService;
 

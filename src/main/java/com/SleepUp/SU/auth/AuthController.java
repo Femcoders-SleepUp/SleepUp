@@ -1,31 +1,46 @@
 package com.SleepUp.SU.auth;
 
-import com.SleepUp.SU.user.UserService;
-import com.SleepUp.SU.user.dto.USER.UserRequest;
+import com.SleepUp.SU.auth.dto.*;
+import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.ApiMessageDto;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
-    private final AuthServiceHelper authServiceHelper;
+    private final AuthService authService;
 
-    @PostMapping("/logout")
-    public ResponseEntity<ApiMessageDto> logout(
-            HttpServletRequest request,
-            HttpServletResponse response) {
-        return userService.userLogout(request, response);
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse register(@Valid @RequestBody UserRequest request) {
+        return authService.register(request);
     }
 
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
+    }
+
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthResponse refresh(@Valid @RequestBody RefreshRequest request,
+                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return authService.refresh(request, customUserDetails);
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiMessageDto logout(HttpServletRequest request) {
+        return authService.logout(request);
+    }
 }

@@ -1,6 +1,6 @@
 package com.SleepUp.SU.auth;
 
-import io.jsonwebtoken.Claims;
+import com.SleepUp.SU.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,13 +14,11 @@ public class TokenBlacklistService {
 
     private final ConcurrentHashMap<String, Long> blacklistedTokens = new ConcurrentHashMap<>();
 
-    private final AuthServiceHelper authServiceHelper;
+    private final JwtService jwtService;
 
     public void addToBlacklist(String token) {
         try {
-            Claims claims = authServiceHelper.validateAccessToken(token);
-
-            Date expiration = claims.getExpiration();
+            Date expiration = jwtService.extractExpiration(token);
             blacklistedTokens.put(token, expiration.getTime());
         } catch (Exception e){
             long expirationTime = System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000);
