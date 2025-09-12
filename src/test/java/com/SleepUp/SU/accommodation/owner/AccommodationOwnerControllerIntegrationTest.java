@@ -56,13 +56,14 @@ class AccommodationOwnerControllerIntegrationTest {
     void setUp() {
 
         User userUnsaved = User.builder()
-                .id(1L)
-                .username("userTest")
+                .username("user")
                 .name("nameTest")
                 .email("usertest@test.com")
                 .password("password123")
                 .role(Role.USER)
                 .build();
+
+        userRepository.save(userUnsaved);
 
         User user = userRepository.findByUsername("user").get();
         customUserDetails = new CustomUserDetails(user);
