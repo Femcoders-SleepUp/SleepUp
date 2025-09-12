@@ -1,4 +1,4 @@
-package com.SleepUp.SU.user.dto.ADMIN;
+package com.SleepUp.SU.user.dto;
 
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

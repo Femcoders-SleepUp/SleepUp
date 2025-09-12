@@ -61,7 +61,7 @@ class AccommodationOwnerControllerIntegrationTest {
                 .name("nameTest")
                 .email("usertest@test.com")
                 .password("password123")
-                .roles(Set.of(Role.USER))
+                .role(Role.USER)
                 .build();
 
         User user = userRepository.findByUsername("user").get();

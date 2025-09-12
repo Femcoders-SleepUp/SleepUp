@@ -1,11 +1,9 @@
 package com.SleepUp.SU.user;
 
-import com.SleepUp.SU.user.dto.USER.UserRequest;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserMapperDto;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
-import com.SleepUp.SU.user.utils.UserServiceHelper;
-import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,13 +15,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -105,8 +100,7 @@ public class UserServiceTest {
             mappedUser.setName(userRequest.name());
             mappedUser.setPassword(userRequest.password());
 
-            doNothing().when(userServiceHelper).checkUsername(userRequest.username());
-            doNothing().when(userServiceHelper).checkEmail(userRequest.email());
+            doNothing().when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
             when(userMapperDto.toEntity(userRequest)).thenReturn(mappedUser);
 
             User userSaved = new User();
@@ -115,7 +109,7 @@ public class UserServiceTest {
             userSaved.setName("nameTest");
             userSaved.setEmail("usertest@test.com");
             userSaved.setPassword("password123");
-            userSaved.setRoles(Set.of(Role.USER));
+            userSaved.setRole(Role.USER);
 
             when(userRepository.save(any(User.class))).thenReturn(userSaved);
 

@@ -9,7 +9,7 @@ INSERT INTO users (username, name, email, password) VALUES
 ('david_brown', 'name', 'david@example.com', '$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2');
 
 -- Insert user roles
-INSERT INTO user_role (user_id, roles) VALUES
+INSERT INTO user_role (user_id, role) VALUES
 (1, 'ADMIN'),
 (2, 'USER'),
 (3, 'USER'),
