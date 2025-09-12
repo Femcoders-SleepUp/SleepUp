@@ -26,7 +26,7 @@ public class CustomUserDetails implements UserDetails {
         if (user.getRole() == null) {
             return List.of();
         }
-        return List.of(new SimpleGrantedAuthority(user.getRole().getName()));
+        return List.of(new SimpleGrantedAuthority(user.getRole().getRoleName()));
     }
 
     @Override

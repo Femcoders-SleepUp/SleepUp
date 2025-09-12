@@ -4,7 +4,7 @@ public enum Role {
     USER,
     ADMIN;
 
-    public String getName() {
+    public String getRoleName() {
         return "ROLE_" + this.name();
     }
 }

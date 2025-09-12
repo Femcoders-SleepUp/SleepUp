@@ -22,8 +22,7 @@ public class AccommodationOwnerController {
 
     @GetMapping("/my-user")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('USER')")
-    public List<AccommodationResponseSummary> getAllOwnerAccommodations(){
-        return accommodationOwnerService.getAllAccommodationsByOwnerId();
+    public List<AccommodationResponseSummary> getAllOwnerAccommodations(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return accommodationOwnerService.getAllAccommodationsByOwnerId(customUserDetails.getId());
     }
 }

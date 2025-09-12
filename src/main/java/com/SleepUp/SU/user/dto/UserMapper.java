@@ -10,11 +10,10 @@ public interface UserMapper {
 
     UserResponse toResponse(User user);
 
-    @Mapping(target = "name", source = "userRequest.name")
     @Mapping(target = "password", source = "encodedPassword")
     User toEntity(UserRequest userRequest,  String encodedPassword, Role role);
 
-    @Mapping(target = "name", source = "userRequestAdmin.name")
     @Mapping(target = "password", source = "encodedPassword")
     User toEntityAdmin(UserRequestAdmin userRequestAdmin, String encodedPassword);
+
 }
