@@ -53,18 +53,9 @@ class AccommodationOwnerControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
         accommodationRepository.deleteAll();
 
-        User userUnsaved = User.builder()
-                .username("user")
-                .name("nameTest")
-                .email("usertest@test.com")
-                .password("password123")
-                .role(Role.USER)
-                .build();
-
-        User savedUser = userRepository.save(userUnsaved);
+        User savedUser = userRepository.findByUsername("TestUser").get();
 
         customUserDetails = new CustomUserDetails(savedUser);
 

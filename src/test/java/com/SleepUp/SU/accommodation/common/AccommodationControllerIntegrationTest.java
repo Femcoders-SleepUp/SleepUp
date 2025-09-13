@@ -1,5 +1,6 @@
 package com.SleepUp.SU.accommodation.common;
 
+import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.user.CustomUserDetails;
@@ -42,19 +43,27 @@ class AccommodationControllerIntegrationTest {
 
     private CustomUserDetails customUserDetails;
     private AccommodationRequest accommodationRequest;
+    private Accommodation accommodation1;
 
     @BeforeEach
     void setUp() {
+        User savedUser = userRepository.findByUsername("TestUser").get();
 
-        User userUnsaved = User.builder()
-                .username("Newuser")
-                .name("nameTest")
-                .email("usertnest@test.com")
-                .password("password123")
-                .role(Role.USER)
+        accommodation1 = Accommodation.builder()
+                .name("Sea View Apartment")
+                .price(150.0)
+                .guestNumber(4)
+                .location("Beach")
+                .description("A lovely sea view apartment")
+                .checkInTime(LocalTime.of(14, 0))
+                .checkOutTime(LocalTime.of(11, 0))
+                .availableFrom(LocalDate.of(2025, 6, 1))
+                .availableTo(LocalDate.of(2025, 12, 31))
+                .managedBy(savedUser)
+                .imageUrl("image1.jpg")
                 .build();
 
-        User savedUser = userRepository.save(userUnsaved);
+        accommodationRepository.save(accommodation1);
 
         customUserDetails = new CustomUserDetails(savedUser);
 
