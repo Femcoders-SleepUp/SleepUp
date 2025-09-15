@@ -5,7 +5,6 @@ import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
-import com.SleepUp.SU.user.user.UserUserService;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class UserAdminServiceTest {
 
     @InjectMocks
-    private UserUserService userService;
+    private UserAdminService userService;
 
     @Mock
     private UserServiceHelper userServiceHelper;

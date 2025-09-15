@@ -1,5 +1,6 @@
 package com.SleepUp.SU.user.user;
 
+import com.SleepUp.SU.user.admin.UserAdminService;
 import com.SleepUp.SU.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserUserController {
 
-    private final UserUserService userService;
+    private final UserAdminService userService;
 
     @GetMapping
     public List<UserResponse> listAllUsers() {

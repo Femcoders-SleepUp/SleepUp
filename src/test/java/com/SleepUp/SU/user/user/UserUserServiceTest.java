@@ -1,6 +1,7 @@
 package com.SleepUp.SU.user.user;
 
 import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.admin.UserAdminService;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class UserUserServiceTest {
 
     @InjectMocks
-    private UserUserService userService;
+    private UserAdminService userService;
 
     @Mock
     private UserServiceHelper userServiceHelper;
