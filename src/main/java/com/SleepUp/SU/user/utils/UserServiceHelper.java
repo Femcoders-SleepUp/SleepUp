@@ -1,5 +1,7 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.utils;
 
+import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

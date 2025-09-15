@@ -2,7 +2,7 @@ package com.SleepUp.SU.security.jwt;
 
 import com.SleepUp.SU.auth.TokenBlacklistService;
 import com.SleepUp.SU.security.RestAuthenticationEntryPoint;
-import com.SleepUp.SU.user.UserService;
+import com.SleepUp.SU.user.user.UserUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserUserService userService;
     private final TokenBlacklistService tokenBlacklistService;
 
     @Override
