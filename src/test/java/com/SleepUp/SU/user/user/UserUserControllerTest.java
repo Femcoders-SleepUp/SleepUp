@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -149,6 +150,26 @@ public class UserUserControllerTest {
                                     .accept(MediaType.APPLICATION_JSON)
                     )
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class deleteLoggedUser {
+
+        @Test
+        void when_authenticated_then_delete_logged_user() throws Exception {
+            mockMvc.perform(delete("/api/users/my-user")
+                            .with(user(customUserDetails))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("Account deleted!!"));
+        }
+
+        @Test
+        void when_not_authenticated_then_delete_fails_with_unauthorized() throws Exception {
+            mockMvc.perform(delete("/api/users/my-user")
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isUnauthorized());
         }
     }
 
