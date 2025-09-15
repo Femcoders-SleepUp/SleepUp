@@ -4,7 +4,7 @@ import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
-import com.SleepUp.SU.utils.EntityMapperUtil;
+import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccommodationOwnerService {
     private final AccommodationRepository accommodationRepository;
-    private final EntityMapperUtil mapperUtil;
+    private final EntityUtil mapperUtil;
     private final AccommodationMapper accommodationMapper;
 
     public List<AccommodationResponseSummary> getAllAccommodationsByOwnerId(Long userId){
