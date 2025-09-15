@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class EntityMapperUtil {
+public class EntityUtil {
 
     public <ENTITY, DTO> List<DTO> mapEntitiesToDTOs(Collection<ENTITY> entities, Function<ENTITY, DTO> mapper) {
         return entities.stream()
