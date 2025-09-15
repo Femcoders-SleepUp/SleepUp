@@ -1,4 +1,4 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.user;
 
 import com.SleepUp.SU.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +11,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserUserController {
 
-    private final UserService userService;
+    private final UserUserService userService;
 
     @GetMapping
     public List<UserResponse> listAllUsers() {
@@ -27,9 +27,5 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-//    @PostMapping("/auth/refresh")
-//    public ResponseEntity<ApiMessageDto> refreshToken(@RequestBody String body) {
-//        return authServiceHelper.handleRefreshToken(body);
-//    }
 }
 

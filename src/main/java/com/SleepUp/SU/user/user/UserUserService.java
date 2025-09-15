@@ -1,5 +1,9 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.user;
 
+import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.EntityMapperUtil;
@@ -13,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserUserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;

@@ -1,6 +1,8 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.utils;
 
 
+import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
