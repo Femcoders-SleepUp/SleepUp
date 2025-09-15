@@ -3,6 +3,7 @@ package com.SleepUp.SU.user.user;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
+import com.SleepUp.SU.utils.ApiMessageDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,5 +28,12 @@ public class UserUserController {
     public UserResponse putLoggedUser(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                       @RequestBody @Valid UserRequest userRequest){
         return userUserService.updateLoggedUser(userRequest, customUserDetails.getId());
+    }
+
+    @DeleteMapping("/my-user")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiMessageDto deleteLoggedUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        userUserService.deleteMyUser(customUserDetails.getId());
+        return new ApiMessageDto("Account deleted!!");
     }
 }

@@ -133,4 +133,32 @@ public class UserUserServiceTest {
         }
     }
 
+    @Nested
+    class deleteLoggedUser {
+        @Test
+        void when_user_exists_then_delete_successfully() {
+            User user = new User(99L, "deleteUser", "Delete Name", "delete@email.com", "password", Role.USER);
+
+            when(userServiceHelper.findById(99L)).thenReturn(user);
+
+            userUserService.deleteMyUser(99L);
+
+            verify(userRepository).deleteById(99L);
+        }
+
+        @Test
+        void when_user_not_found_then_throw_exception() {
+            when(userServiceHelper.findById(99L))
+                    .thenThrow(new IllegalArgumentException("User not found"));
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                userUserService.deleteMyUser(99L);
+            });
+
+            verify(userRepository, never()).deleteById(anyLong());
+        }
+
+
+    }
+
 }

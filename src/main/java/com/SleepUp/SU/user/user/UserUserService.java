@@ -28,4 +28,8 @@ public class UserUserService {
         userServiceHelper.updateUserData(userRequest, user);
         return (userMapper.toResponse(user));
     }
+
+    public void deleteMyUser(Long id){
+        userRepository.deleteById(userServiceHelper.findById(id).getId());
+    }
 }
