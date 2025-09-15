@@ -6,7 +6,6 @@ import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
-import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -54,18 +52,11 @@ class AccommodationOwnerControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        accommodationRepository.deleteAll();
 
-        User userUnsaved = User.builder()
-                .id(1L)
-                .username("userTest")
-                .name("nameTest")
-                .email("usertest@test.com")
-                .password("password123")
-                .roles(Set.of(Role.USER))
-                .build();
+        User savedUser = userRepository.findByUsername("TestUser").get();
 
-        User user = userRepository.findByUsername("user").get();
-        customUserDetails = new CustomUserDetails(user);
+        customUserDetails = new CustomUserDetails(savedUser);
 
         accommodation1 = Accommodation.builder()
                 .name("Sea View Apartment")
@@ -77,7 +68,7 @@ class AccommodationOwnerControllerIntegrationTest {
                 .checkOutTime(LocalTime.of(11, 0))
                 .availableFrom(LocalDate.of(2025, 6, 1))
                 .availableTo(LocalDate.of(2025, 12, 31))
-                .managedBy(user)
+                .managedBy(savedUser)
                 .imageUrl("image1.jpg")
                 .build();
 
@@ -91,7 +82,7 @@ class AccommodationOwnerControllerIntegrationTest {
                 .checkOutTime(LocalTime.of(10, 0))
                 .availableFrom(LocalDate.of(2025, 7, 1))
                 .availableTo(LocalDate.of(2025, 11, 30))
-                .managedBy(user)
+                .managedBy(savedUser)
                 .imageUrl("image2.jpg")
                 .build();
 

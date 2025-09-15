@@ -5,10 +5,8 @@ import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.utils.EntityMapperUtil;
+import com.SleepUp.SU.utils.EntityUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,11 +16,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Arrays;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AccommodationOwnerServiceTest {
@@ -31,7 +27,7 @@ public class AccommodationOwnerServiceTest {
     private AccommodationRepository accommodationRepository;
 
     @Mock
-    private EntityMapperUtil mapperUtil;
+    private EntityUtil mapperUtil;
 
     @Mock
     private AccommodationMapper accommodationMapper;

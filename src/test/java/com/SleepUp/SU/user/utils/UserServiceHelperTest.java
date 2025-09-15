@@ -1,5 +1,6 @@
 package com.SleepUp.SU.user.utils;
 
+
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import org.junit.jupiter.api.Nested;
@@ -8,19 +9,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class UserServiceHelperTest {
+
     @InjectMocks
     private UserServiceHelper userServiceHelper;
 
@@ -28,29 +32,61 @@ public class UserServiceHelperTest {
     private UserRepository userRepository;
 
     @Nested
-    class getUserLogin {
+    class findById{
 
         @Test
-        void when_getUserLogin_return_user() {
+        void when_checkUserId_return_user() {
             User user = new User();
             user.setId(99L);
             user.setUsername("test");
-            when(userRepository.findByUsername("test")).thenReturn(Optional.of(user));
+            when(userRepository.findById(99L)).thenReturn(Optional.of(user));
 
-            Optional<User> result = userServiceHelper.getUserLogin("test");
-            User userResponse = result.get();
+            User result = userServiceHelper.findById(99L);
+
             assertNotNull(result);
-            assertDoesNotThrow(() ->userServiceHelper.getUserLogin("test"));
-            assertEquals(99L, userResponse.getId());
-            assertEquals("test", userResponse.getUsername());
-        }
-
-        @Test
-        void when_getUserLogin_throw_UsernameNotFoundException() {
-            when(userRepository.findByUsername("test")).thenReturn(Optional.empty());
-
-            assertThrows(UsernameNotFoundException.class, () -> userServiceHelper.getUserLogin("test"));
+            assertDoesNotThrow(() ->userServiceHelper.findById(99L));
+            assertEquals(99L, result.getId());
+            assertEquals("test", result.getUsername());
         }
     }
 
+    @Nested
+    class validateUserDoesNotExist {
+
+        @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
+        void when_validateUserDoesNotExist_then_noExceptionThrow() {
+            when(userRepository.existsByUsername("testUser")). thenReturn(false);
+            when(userRepository.existsByUsername("testUser@email.com")). thenReturn(false);
+
+            userServiceHelper.validateUserDoesNotExist("testUser", "testUser@email.com");
+        }
+
+        @Test
+        void when_username_exists_then_throw_exception() {
+            when(userRepository.existsByUsername("testUser")).thenReturn(true);
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> userServiceHelper.validateUserDoesNotExist("testUser", "testUser@email.com")
+            );
+
+            assertEquals("already exists username", exception.getMessage());
+        }
+
+        @Test
+        void when_email_exists_then_throw_exception() {
+            when(userRepository.existsByUsername("testUser")).thenReturn(false);
+            when(userRepository.existsByEmail("testUser@email.com")).thenReturn(true);
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> userServiceHelper.validateUserDoesNotExist("testUser", "testUser@email.com")
+            );
+
+            assertEquals("already exists email", exception.getMessage());
+        }
+
+
+    }
 }

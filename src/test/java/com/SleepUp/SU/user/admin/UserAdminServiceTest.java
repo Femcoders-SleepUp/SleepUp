@@ -1,16 +1,17 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.admin;
 
+import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
-import com.SleepUp.SU.user.dto.UserResponse;
-import com.SleepUp.SU.user.role.Role;
+import com.SleepUp.SU.user.utils.UserServiceHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,10 +27,10 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserAdminServiceTest {
 
     @InjectMocks
-    private UserService userService;
+    private UserAdminService userService;
 
     @Mock
     private UserServiceHelper userServiceHelper;
@@ -42,10 +43,10 @@ public class UserServiceTest {
 
 
     @Nested
-    class LoginUserTest {
+    class LoadUserTest {
 
         @Test
-        void should_loginExistingUser_fromRequest() {
+        void should_loadExistingUser_fromRequest() {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
             User userSaved = new User();
             userSaved.setId(1L);
@@ -73,7 +74,7 @@ public class UserServiceTest {
         }
 
         @Test
-        void should_loginExistingUser_throw_exception() {
+        void should_loadExistingUser_throw_exception() {
 
             when(userServiceHelper.findByUsername("userTest"))
                     .thenThrow(new UsernameNotFoundException("userTest does not exist."));
