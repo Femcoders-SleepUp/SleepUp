@@ -24,11 +24,25 @@ public class AccommodationController {
         return accommodationService.getAllAccommodations();
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccommodationResponseDetail getAccommodationDetailById(@PathVariable Long id) {
+        return accommodationService.getAccommodationById(id);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccommodationResponseDetail createAccommodation(
             @RequestBody @Valid AccommodationRequest accommodationRequest,
             @AuthenticationPrincipal CustomUserDetails customUserDetails){
         return accommodationService.createAccommodation(accommodationRequest, customUserDetails.getUser());
+    }
+
+    @PutMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccommodationResponseDetail updateAccommodation(
+            @PathVariable Long id,
+            @RequestBody @Valid AccommodationRequest accommodationRequest){
+        return accommodationService.updateAccommodation(id, accommodationRequest);
     }
 }

@@ -1,32 +1,39 @@
 package com.SleepUp.SU.user.user;
 
-import com.SleepUp.SU.user.admin.UserAdminService;
+import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
+import com.SleepUp.SU.utils.ApiMessageDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserUserController {
 
-    private final UserAdminService userService;
+    private final UserUserService userUserService;
 
-    @GetMapping
-    public List<UserResponse> listAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping("/my-user")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getLoggedUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return userUserService.getLoggedUser(customUserDetails.getId());
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        UserResponse userResponse = userService.getUserById(id);
-        return ResponseEntity.ok(userResponse);
+    @PutMapping("/my-user")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse putLoggedUser(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                      @RequestBody @Valid UserRequest userRequest){
+        return userUserService.updateLoggedUser(userRequest, customUserDetails.getId());
     }
 
+    @DeleteMapping("/my-user")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiMessageDto deleteLoggedUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        userUserService.deleteMyUser(customUserDetails.getId());
+        return new ApiMessageDto("Account deleted!!");
+    }
 }
-
