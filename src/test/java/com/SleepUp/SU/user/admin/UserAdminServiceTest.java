@@ -3,7 +3,9 @@ package com.SleepUp.SU.user.admin;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
-import com.SleepUp.SU.user.dto.UserMapper;
+import com.SleepUp.SU.user.dto.UserMapperDto;
+import com.SleepUp.SU.user.dto.UserMapper
+import com.SleepUp.SU.user.dto.UserMapperDtoImpl;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import org.junit.jupiter.api.Nested;
@@ -39,7 +41,7 @@ public class UserAdminServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserMapper userMapper;
+    private UserMapperDtoImpl userMapper;
 
 
     @Nested
@@ -82,5 +84,76 @@ public class UserAdminServiceTest {
             assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("userTest"));
         }
 
+    }
+
+    @Nested
+    class GetAllUsersTest {
+        @Test
+        void should_returnAllUsers() {
+            User user1 = new User();
+            user1.setId(1L);
+            user1.setUsername("userOne");
+            user1.setEmail("user1@test.com");
+
+            User user2 = new User();
+            user2.setId(2L);
+            user2.setUsername("userTwo");
+            user2.setEmail("user2@test.com");
+
+            when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+
+            when(userMapper.fromEntity(user1)).thenReturn(new com.SleepUp.SU.user.dto.UserResponse(
+                    user1.getId(), user1.getUsername(), user1.getEmail(), null
+            ));
+
+            when(userMapper.fromEntity(user2)).thenReturn(new com.SleepUp.SU.user.dto.UserResponse(
+                    user2.getId(), user2.getUsername(), user2.getEmail(), null
+            ));
+
+            List<com.SleepUp.SU.user.dto.UserResponse> result = userService.getAllUsers();
+
+            assertEquals(2, result.size());
+            assertEquals("userOne",result.get(0).username());
+            assertEquals("userTwo", result.get(1).username());
+
+            verify(userRepository, times(1)).findAll();
+
+        }
+    }
+
+    @Nested
+    class GetUserByIdTest {
+
+        @Test
+        void should_returnUserById_whenExists() {
+
+            User user = new User();
+            user.setId(1L);
+            user.setUsername("userOne");
+            user.setEmail("user1@test.com");
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(userMapper.fromEntity(user)).thenReturn(new com.SleepUp.SU.user.dto.UserResponse(
+                    user.getId(), user.getUsername(), user.getEmail(), null
+            ));
+
+            com.SleepUp.SU.user.dto.UserResponse result = userService.getUserById(1L);
+
+            assertEquals("userOne", result.username());
+            assertEquals("user1@test.com", result.email());
+
+            verify(userRepository, times(1)).findById(1L);
+
+        }
+
+        @Test
+        void should_trowException_whenUserNotFound() {
+
+            when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(RuntimeException.class, () -> userService.getUserById(99L));
+
+            verify(userRepository, times(1)).findById(99L);
+        }
     }
 }
