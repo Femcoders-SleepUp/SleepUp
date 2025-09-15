@@ -44,13 +44,13 @@ public class UserService implements UserDetailsService {
             userServiceHelper.checkUsername(request.username());
             userServiceHelper.checkEmail(request.email());
 
-            User user = UserMapperDto.INSTANCE.toEntity(request);
+            User user = userMapperDto.toEntity(request);
             user.setPassword(userServiceHelper.getEncodePassword(request.password()));
             user.setRoles(Set.of(Role.USER));
 
             User savedUser = userRepository.save(user);
 
-            return UserMapperDto.INSTANCE.fromEntity(savedUser);
+            return userMapperDto.fromEntity(savedUser);
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("Username or email already exists");
         }

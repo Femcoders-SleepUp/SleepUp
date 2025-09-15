@@ -1,6 +1,7 @@
 package com.SleepUp.SU.user;
 
 import com.SleepUp.SU.user.dto.USER.UserRequest;
+import com.SleepUp.SU.user.dto.UserMapperDto;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
@@ -38,6 +39,9 @@ public class UserServiceTest {
 
     @Mock
     private UserServiceHelper userServiceHelper;
+
+    @Mock
+    private UserMapperDto userMapperDto;
 
     @Mock
     private UserRepository userRepository;
@@ -190,6 +194,7 @@ public class UserServiceTest {
             user2.setRoles(Set.of(Role.USER));
 
             when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+            when(userService.getAllUsers()).thenReturn(List.of(userMapperDto.fromEntity(user1),userMapperDto.fromEntity(user2)));
 
             List<UserResponse> result = userService.getAllUsers();
 
