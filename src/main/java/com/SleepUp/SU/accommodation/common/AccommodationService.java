@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,10 @@ public class AccommodationService {
     public List<AccommodationResponseSummary> getAllAccommodations(){
         List<Accommodation> accommodations = accommodationRepository.findAll();
         return accommodations.stream().map(accommodationMapper::toSummary).toList();
+    }
+    
+    public Optional<AccommodationResponseDetail> getAccommodationById(Long id) {
+        return accommodationRepository.findById(id).map(accommodationMapper :: toDetail);
     }
 
     public AccommodationResponseDetail createAccommodation(AccommodationRequest accommodationRequest, User user){
