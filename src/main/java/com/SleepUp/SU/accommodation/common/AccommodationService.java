@@ -7,6 +7,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.User;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,14 @@ public class AccommodationService {
         return accommodations.stream().map(accommodationMapper::toSummary).toList();
     }
     
-    public Optional<AccommodationResponseDetail> getAccommodationById(Long id) {
-        return accommodationRepository.findById(id).map(accommodationMapper :: toDetail);
+    public AccommodationResponseDetail fetchAccommodationById(Long id) {
+        Accommodation accommodation = fetchAccommodationEntityById(id);
+        return accommodationMapper.toDetail(accommodation);
+    }
+
+    public Accommodation fetchAccommodationEntityById(Long id) {
+        return accommodationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Accommodation not found with id: " + id));
     }
 
     public AccommodationResponseDetail createAccommodation(AccommodationRequest accommodationRequest, User user){

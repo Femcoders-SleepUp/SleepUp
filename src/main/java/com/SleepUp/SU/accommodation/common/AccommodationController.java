@@ -29,8 +29,8 @@ public class AccommodationController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<AccommodationResponseDetail> getAccommodationDetailById(@PathVariable Long id) {
-        return accommodationService.getAccommodationById(id);
+    public AccommodationResponseDetail getAccommodationDetailById(@PathVariable Long id) {
+        return accommodationService.fetchAccommodationById(id);
     }
 
     @PostMapping
