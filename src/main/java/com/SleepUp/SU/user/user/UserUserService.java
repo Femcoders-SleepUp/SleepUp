@@ -1,7 +1,9 @@
 package com.SleepUp.SU.user.user;
 
+import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.utils.EntityMapperUtil;
@@ -19,5 +21,11 @@ public class UserUserService {
 
     public UserResponse getLoggedUser(Long id){
         return userMapper.toResponse(userServiceHelper.findById(id));
+    }
+
+    public UserResponse updateLoggedUser(UserRequest userRequest, Long id){
+        User user = userServiceHelper.findById(id);
+        userServiceHelper.updateUserData(userRequest, user);
+        return (userMapper.toResponse(user));
     }
 }
