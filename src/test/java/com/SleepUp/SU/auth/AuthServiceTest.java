@@ -90,6 +90,7 @@ public class AuthServiceTest {
             UserResponse userResponseMock = new UserResponse(
                     userSaved.getId(),
                     userSaved.getUsername(),
+                    userSaved.getName(),
                     userSaved.getEmail(),
                     userSaved.getRole()
             );
