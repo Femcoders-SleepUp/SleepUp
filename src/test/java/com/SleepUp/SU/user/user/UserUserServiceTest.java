@@ -4,6 +4,7 @@ import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.admin.UserAdminService;
 import com.SleepUp.SU.user.dto.UserMapper;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
@@ -69,6 +70,66 @@ public class UserUserServiceTest {
 
             assertEquals("Username by id does not exist", exception.getMessage());
 
+        }
+    }
+
+    @Nested
+    class updateLoggedUser {
+
+        @Test
+        void when_updateLoggedUser_with_new_data_then_return_updated_response() {
+            User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER);
+            UserRequest request = new UserRequest("newUsername", "","new@email.com", "newPassword");
+
+            User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER);
+            UserResponse expectedResponse = new UserResponse(99L, "newUsername", "oldName", "new@email.com", Role.USER);
+
+            when(userServiceHelper.findById(99L)).thenReturn(user);
+            doAnswer(invocation -> {
+                user.setUsername("newUsername");
+                user.setEmail("new@email.com");
+                user.setPassword("encodedPassword");
+                return null;
+            }).when(userServiceHelper).updateUserData(request, user);
+            when(userMapper.toResponse(user)).thenReturn(expectedResponse);
+
+            UserResponse response = userUserService.updateLoggedUser(request, 99L);
+
+            assertEquals("newUsername", response.username());
+            assertEquals("new@email.com", response.email());
+            assertEquals("oldName", response.name());
+        }
+
+        @Test
+        void when_updateLoggedUser_with_empty_request_then_return_same_response() {
+            User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER);
+            UserRequest request = new UserRequest("", "", "", "");
+
+            UserResponse expectedResponse = new UserResponse(99L, "sameUsername", "sameName", "same@email.com", Role.USER);
+
+            when(userServiceHelper.findById(99L)).thenReturn(user);
+            doAnswer(invocation -> {
+                return null;
+            }).when(userServiceHelper).updateUserData(request, user);
+            when(userMapper.toResponse(user)).thenReturn(expectedResponse);
+
+            UserResponse response = userUserService.updateLoggedUser(request, 99L);
+
+            assertEquals("sameUsername", response.username());
+            assertEquals("same@email.com", response.email());
+            assertEquals("sameName", response.name());
+        }
+
+        @Test
+        void when_updateLoggedUser_user_not_found_then_throw_exception() {
+            UserRequest request = new UserRequest("any", "any", "any", "any");
+
+            when(userServiceHelper.findById(99L))
+                    .thenThrow(new IllegalArgumentException("User not found"));
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                userUserService.updateLoggedUser(request, 99L);
+            });
         }
     }
 
