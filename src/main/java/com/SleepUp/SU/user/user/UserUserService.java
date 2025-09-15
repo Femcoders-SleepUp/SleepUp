@@ -6,7 +6,7 @@ import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
-import com.SleepUp.SU.utils.EntityMapperUtil;
+import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ public class UserUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final EntityMapperUtil mapperUtil;
+    private final EntityUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
 
     public UserResponse getLoggedUser(Long id){
