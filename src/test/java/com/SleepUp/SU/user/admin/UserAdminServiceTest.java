@@ -3,10 +3,10 @@ package com.SleepUp.SU.user.admin;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
-import com.SleepUp.SU.user.dto.UserMapperDto;
-import com.SleepUp.SU.user.dto.UserMapper
 import com.SleepUp.SU.user.dto.UserMapperDtoImpl;
 import com.SleepUp.SU.user.dto.UserRequest;
+import com.SleepUp.SU.user.dto.UserResponse;
+import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
@@ -93,24 +92,24 @@ public class UserAdminServiceTest {
             User user1 = new User();
             user1.setId(1L);
             user1.setUsername("userOne");
+            user1.setName("User One");
             user1.setEmail("user1@test.com");
 
             User user2 = new User();
             user2.setId(2L);
             user2.setUsername("userTwo");
+            user2.setName("User Two");
             user2.setEmail("user2@test.com");
 
             when(userRepository.findAll()).thenReturn(List.of(user1, user2));
 
-            when(userMapper.fromEntity(user1)).thenReturn(new com.SleepUp.SU.user.dto.UserResponse(
-                    user1.getId(), user1.getUsername(), user1.getEmail(), null
+            when(userMapper.fromEntity(user1)).thenReturn(new UserResponse(user1.getId(), user1.getUsername(), user1.getName(), user1.getEmail(), Role.USER
             ));
 
-            when(userMapper.fromEntity(user2)).thenReturn(new com.SleepUp.SU.user.dto.UserResponse(
-                    user2.getId(), user2.getUsername(), user2.getEmail(), null
+            when(userMapper.fromEntity(user2)).thenReturn(new UserResponse(user2.getId(), user2.getUsername(), user2.getName(), user2.getEmail(), Role.USER
             ));
 
-            List<com.SleepUp.SU.user.dto.UserResponse> result = userService.getAllUsers();
+            List<UserResponse> result = userService.getAllUsers();
 
             assertEquals(2, result.size());
             assertEquals("userOne",result.get(0).username());
@@ -130,14 +129,14 @@ public class UserAdminServiceTest {
             User user = new User();
             user.setId(1L);
             user.setUsername("userOne");
+            user.setName("User One");
             user.setEmail("user1@test.com");
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(userMapper.fromEntity(user)).thenReturn(new com.SleepUp.SU.user.dto.UserResponse(
-                    user.getId(), user.getUsername(), user.getEmail(), null
+            when(userMapper.fromEntity(user)).thenReturn(new UserResponse(user.getId(), user.getUsername(), user.getName(), user.getEmail(), Role.USER
             ));
 
-            com.SleepUp.SU.user.dto.UserResponse result = userService.getUserById(1L);
+          UserResponse result = userService.getUserById(1L);
 
             assertEquals("userOne", result.username());
             assertEquals("user1@test.com", result.email());
