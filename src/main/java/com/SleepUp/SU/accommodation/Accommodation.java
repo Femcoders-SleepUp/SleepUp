@@ -28,6 +28,9 @@ public class Accommodation {
     @Column(nullable = false, name = "guest_number")
     private int guestNumber;
 
+    @Column(nullable = false, name = "pet_friendly")
+    private boolean petFriendly;
+
     @Column(nullable = false, length = 50)
     private String location;
 

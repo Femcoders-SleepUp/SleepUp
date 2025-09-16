@@ -16,6 +16,8 @@ public record AccommodationRequest (
         @Positive
         int guestNumber,
 
+        boolean petFriendly,
+
         @NotEmpty
         String location,
 

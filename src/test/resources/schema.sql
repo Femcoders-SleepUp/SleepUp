@@ -31,6 +31,7 @@ CREATE TABLE accommodations (
   check_in_time TIME, -- H2 does not support TIME(6)
   check_out_time TIME,
   guest_number INT NOT NULL,
+  pet_friendly BOOLEAN NOT NULL,
   price DOUBLE NOT NULL,
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   managed_by_user_id BIGINT,

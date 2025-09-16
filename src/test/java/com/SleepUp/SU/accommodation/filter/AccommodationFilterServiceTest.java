@@ -37,7 +37,7 @@ class AccommodationFilterServiceTest {
     void testGetAllFilteredAccommodationsWithPagination() {
         FilterAccommodationDTO filter = new FilterAccommodationDTO("Hotel", "Nice place", 50.0, 200.0, 2, "New York", LocalDate.now(), LocalDate.now().plusDays(5));
         Pageable pageable = PageRequest.of(0, 10);
-        AccommodationResponseSummary expectedDto = new AccommodationResponseSummary( "Hotel ABC", 10.0, 1, "Park Av", "image.url");
+        AccommodationResponseSummary expectedDto = new AccommodationResponseSummary( 1L, "Hotel ABC", 10.0, 1, true, "Park Av", "image.url");
         Accommodation accommodation = Accommodation.builder()
                 .id(1L)
                 .name("Hotel ABC")
