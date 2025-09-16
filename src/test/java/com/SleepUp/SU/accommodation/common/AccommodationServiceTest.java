@@ -181,4 +181,14 @@ class AccommodationServiceTest {
         verify(accommodationMapper).toDetail(updatedAccommodation);
         assertEquals(result, updatedAccommodationResponseDetail);
     }
+
+    @Test
+    void deleteAccommodation_success() {
+        when(accommodationRepository.findById(1L)).thenReturn(Optional.of(existingAccommodation));
+
+        accommodationService.deleteAccommodation(1L);
+
+        verify(accommodationRepository).findById(1L);
+        verify(accommodationRepository).delete(existingAccommodation);
+    }
 }
