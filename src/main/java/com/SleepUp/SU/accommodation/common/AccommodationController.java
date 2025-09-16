@@ -7,6 +7,7 @@ import com.SleepUp.SU.user.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,4 +46,12 @@ public class AccommodationController {
             @RequestBody @Valid AccommodationRequest accommodationRequest){
         return accommodationService.updateAccommodation(id, accommodationRequest);
     }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Object> deleteAccommodation(@PathVariable Long id){
+        accommodationService.deleteAccommodation(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
