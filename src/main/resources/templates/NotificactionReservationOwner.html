@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reservation Notification</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f7;
+          margin: 0;
+          padding: 0;
+        }
+        .email-container {
+          max-width: 600px;
+          margin: 40px auto;
+          background-color: #ffffff;
+          border-radius: 10px;
+          padding: 30px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+          color: #76599d;
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+        p {
+          color: #555555;
+          line-height: 1.6;
+        }
+        ul {
+          color: #555555;
+          padding-left: 20px;
+        }
+        .button, button {
+          display: inline-block;
+          background-color: #76599d;
+          color: #ffffff;
+          text-decoration: none;
+          padding: 6px 10px;
+          border-radius: 5px;
+          font-weight: bold;
+        }
+        .footer {
+          margin-top: 30px;
+          font-size: 0.9em;
+          color: #888888;
+          text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <h1 th:text="'Hello, ' + ${ownerName} + '!'">Hello, Owner!</h1>
+
+    <p>Your accommodation has just been booked:</p>
+    <ul>
+        <li><b>Accommodation:</b> <span th:text="${accommodationName}">Accommodation Name</span></li>
+        <li><b>Location:</b> <span th:text="${location}">Location</span></li>
+        <li><b>Guest Name:</b> <span th:text="${guestName}">Guest Name</span></li>
+        <li><b>Check-in Date:</b> <span th:text="${checkInDate}">Check-in</span></li>
+        <li><b>Check-out Date:</b> <span th:text="${checkOutDate}">Check-out</span></li>
+    </ul>
+    <p>
+        You can view the reservation details and manage your property by logging into your SleepUp dashboard.
+    </p>
+
+    <button>
+    <a th:href="${dashboardUrl}" class="button">View Reservation</a>
+    </button>
+    <p class="footer">
+        Thank you for hosting with SleepUp.<br />
+        We’ll keep you updated with all your upcoming bookings.<br />
+        — The SleepUp Team ☁
+    </p>
+</div>
+</body>
+</html>

@@ -11,6 +11,8 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -35,12 +37,14 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserServiceHelper userServiceHelper;
+    private final EmailService emailService;
 
     @Transactional
-    public UserResponse register(UserRequest request) {
+    public UserResponse register(UserRequest request) throws MessagingException {
         userServiceHelper.validateUserDoesNotExist(request.username(), request.email());
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = userMapper.toEntity(request, encodedPassword, Role.USER);
+        emailService.sendWelcomeEmail(request.email(), request.username());
         return userMapper.toResponse(userRepository.save(user));
     }
 

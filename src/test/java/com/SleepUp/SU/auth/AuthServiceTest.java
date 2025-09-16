@@ -13,6 +13,7 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.ApiMessageDto;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,7 @@ public class AuthServiceTest {
     class RegisterNewUserTest {
 
         @Test
-        void should_registerNewUser_fromRequest(){
+        void should_registerNewUser_fromRequest() throws MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
 
             User mappedUser = new User();

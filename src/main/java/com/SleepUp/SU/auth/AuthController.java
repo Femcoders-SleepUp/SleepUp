@@ -5,6 +5,7 @@ import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.ApiMessageDto;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@Valid @RequestBody UserRequest request) {
+    public UserResponse register(@Valid @RequestBody UserRequest request) throws MessagingException {
         return authService.register(request);
     }
 
