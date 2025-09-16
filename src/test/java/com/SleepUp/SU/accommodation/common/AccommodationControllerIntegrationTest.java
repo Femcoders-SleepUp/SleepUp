@@ -128,6 +128,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].price").value(150.0))
                 .andExpect(jsonPath("$[0].guestNumber").value(2))
                 .andExpect(jsonPath("$[0].location").value("New York"));
+
     }
 
     @Test
