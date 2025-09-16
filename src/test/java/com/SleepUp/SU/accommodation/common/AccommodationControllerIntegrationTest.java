@@ -122,10 +122,10 @@ class AccommodationControllerIntegrationTest {
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Sea View Apartment"))
-                .andExpect(jsonPath("$[0].price").value(150.0))
-                .andExpect(jsonPath("$[0].guestNumber").value(4))
-                .andExpect(jsonPath("$[0].location").value("Beach"));
+                .andExpect(jsonPath("$[0].name").value("Test Apartment"))
+                .andExpect(jsonPath("$[0].price").value(120.0))
+                .andExpect(jsonPath("$[0].guestNumber").value(3))
+                .andExpect(jsonPath("$[0].location").value("Downtown"));
     }
 
     @Test
