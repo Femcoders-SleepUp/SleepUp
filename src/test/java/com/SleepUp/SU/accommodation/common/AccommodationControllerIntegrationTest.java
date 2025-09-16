@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class AccommodationControllerIntegrationTest {
 
     @Autowired
@@ -122,10 +124,11 @@ class AccommodationControllerIntegrationTest {
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Test Apartment"))
-                .andExpect(jsonPath("$[0].price").value(120.0))
-                .andExpect(jsonPath("$[0].guestNumber").value(3))
-                .andExpect(jsonPath("$[0].location").value("Downtown"));
+                .andExpect(jsonPath("$[0].name").value("Hotel ABC"))
+                .andExpect(jsonPath("$[0].price").value(150.0))
+                .andExpect(jsonPath("$[0].guestNumber").value(2))
+                .andExpect(jsonPath("$[0].location").value("New York"));
+
     }
 
     @Test
