@@ -60,6 +60,7 @@ class AccommodationControllerIntegrationTest {
                 .name("Sea View Apartment")
                 .price(150.0)
                 .guestNumber(4)
+                .petFriendly(true)
                 .location("Beach")
                 .description("A lovely sea view apartment")
                 .checkInTime(LocalTime.of(14, 0))
@@ -78,6 +79,7 @@ class AccommodationControllerIntegrationTest {
                 .name("Sea View Apartment")
                 .price(150.0)
                 .guestNumber(4)
+                .petFriendly(true)
                 .location("Beach")
                 .description("A lovely sea view apartment")
                 .checkInTime(LocalTime.of(14, 0))
@@ -96,6 +98,7 @@ class AccommodationControllerIntegrationTest {
                 "Test Apartment",
                 120.0,
                 3,
+                true,
                 "Downtown",
                 "A nice place to stay",
                 LocalTime.of(14, 0),
@@ -109,6 +112,7 @@ class AccommodationControllerIntegrationTest {
                 "Updated Apartment",
                 130.0,
                 3,
+                true,
                 "New Downtown",
                 "Updated description",
                 LocalTime.of(15, 0),
@@ -128,6 +132,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].name").value("Hotel ABC"))
                 .andExpect(jsonPath("$[0].price").value(150.0))
                 .andExpect(jsonPath("$[0].guestNumber").value(2))
+                .andExpect(jsonPath("$[0].petFriendly").value(true))
                 .andExpect(jsonPath("$[0].location").value("New York"));
 
     }
@@ -141,6 +146,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Sea View Apartment"))
                 .andExpect(jsonPath("$.price").value(150.0))
                 .andExpect(jsonPath("$.guestNumber").value(4))
+                .andExpect(jsonPath("$.petFriendly").value(true))
                 .andExpect(jsonPath("$.location").value("Beach"))
                 .andExpect(jsonPath("$.description").value("A lovely sea view apartment"))
                 .andExpect(jsonPath("$.checkInTime").value("14:00:00"))
@@ -161,6 +167,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Test Apartment"))
                 .andExpect(jsonPath("$.price").value(120.0))
                 .andExpect(jsonPath("$.guestNumber").value(3))
+                .andExpect(jsonPath("$.petFriendly").value(true))
                 .andExpect(jsonPath("$.location").value("Downtown"))
                 .andExpect(jsonPath("$.description").value("A nice place to stay"))
                 .andExpect(jsonPath("$.checkInTime").value("14:00:00"))
@@ -181,6 +188,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Updated Apartment"))
                 .andExpect(jsonPath("$.price").value(130.0))
                 .andExpect(jsonPath("$.guestNumber").value(3))
+                .andExpect(jsonPath("$.petFriendly").value(true))
                 .andExpect(jsonPath("$.location").value("New Downtown"))
                 .andExpect(jsonPath("$.description").value("Updated description"))
                 .andExpect(jsonPath("$.checkInTime").value("15:00:00"))

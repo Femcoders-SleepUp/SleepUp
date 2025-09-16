@@ -85,17 +85,21 @@ public class AccommodationOwnerServiceTest {
         accommodations = Arrays.asList(accommodation1, accommodation2);
 
         summary1 = new AccommodationResponseSummary(
+                1L,
                 "Sea View Apartment",
                 150.0,
                 4,
+                true,
                 "Beach",
                 "image1.jpg"
         );
 
         summary2 = new AccommodationResponseSummary(
+                1L,
                 "Mountain Cabin",
                 200.0,
                 6,
+                true,
                 "Mountains",
                 "image2.jpg"
         );

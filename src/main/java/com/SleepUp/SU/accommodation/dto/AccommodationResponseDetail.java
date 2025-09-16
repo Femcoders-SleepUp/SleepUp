@@ -4,6 +4,7 @@ public record AccommodationResponseDetail(
         String name,
         Double price,
         int guestNumber,
+        boolean petFriendly,
         String location,
         String description,
         String checkInTime,

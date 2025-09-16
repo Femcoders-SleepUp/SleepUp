@@ -36,9 +36,9 @@ public class AccommodationFilterControllerIntegrationTest {
                 .andExpect(jsonPath("$.content[0].name").value("Hotel ABC"))
                 .andExpect(jsonPath("$.content[0].price").value(150.0))
                 .andExpect(jsonPath("$.content[0].guestNumber").value(2))
+                .andExpect(jsonPath("$.content[0].petFriendly").value(true))
                 .andExpect(jsonPath("$.content[0].location").value("New York"))
                 .andExpect(jsonPath("$.content[0].imageUrl").value("http://example.com/images/hotel_abc.jpg"));
-
     }
 }
 
