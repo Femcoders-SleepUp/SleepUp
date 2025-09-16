@@ -29,8 +29,9 @@ public class AccommodationSpecification {
         };
     }
 
-    public static Specification<Accommodation> guestNumber(int guestNumber) {
-        return (root, query, cb) -> cb.equal(root.get("guestNumber"), guestNumber);
+    public static Specification<Accommodation> guestNumber(Integer guestNumber) {
+        return (root, query, cb) ->
+                guestNumber == null ? null : cb.equal(root.get("guestNumber"), guestNumber);
     }
 
     public static Specification<Accommodation> locatedAt(String location) {
