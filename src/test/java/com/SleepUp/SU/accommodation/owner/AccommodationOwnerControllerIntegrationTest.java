@@ -63,6 +63,7 @@ class AccommodationOwnerControllerIntegrationTest {
                 .name("Sea View Apartment")
                 .price(150.0)
                 .guestNumber(4)
+                .petFriendly(true)
                 .location("Beach")
                 .description("A lovely sea view apartment")
                 .checkInTime(LocalTime.of(14, 0))
@@ -77,6 +78,7 @@ class AccommodationOwnerControllerIntegrationTest {
                 .name("Mountain Cabin")
                 .price(200.0)
                 .guestNumber(6)
+                .petFriendly(true)
                 .location("Mountains")
                 .description("Cozy cabin in the mountains")
                 .checkInTime(LocalTime.of(15, 0))
@@ -104,12 +106,14 @@ class AccommodationOwnerControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].name").value("Sea View Apartment"))
                 .andExpect(jsonPath("$[0].price").value(150.0))
                 .andExpect(jsonPath("$[0].guestNumber").value(4))
+                .andExpect(jsonPath("$[0].petFriendly").value(true))
                 .andExpect(jsonPath("$[0].location").value("Beach"))
                 .andExpect(jsonPath("$[0].imageUrl").value("image1.jpg"))
 
                 .andExpect(jsonPath("$[1].name").value("Mountain Cabin"))
                 .andExpect(jsonPath("$[1].price").value(200.0))
                 .andExpect(jsonPath("$[1].guestNumber").value(6))
+                .andExpect(jsonPath("$[1].petFriendly").value(true))
                 .andExpect(jsonPath("$[1].location").value("Mountains"))
                 .andExpect(jsonPath("$[1].imageUrl").value("image2.jpg"));
     }
