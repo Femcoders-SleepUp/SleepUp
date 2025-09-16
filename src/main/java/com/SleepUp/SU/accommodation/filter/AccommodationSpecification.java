@@ -3,9 +3,11 @@ package com.SleepUp.SU.accommodation.filter;
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
 import org.springframework.data.jpa.domain.Specification;
 import com.SleepUp.SU.accommodation.Accommodation;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+@Component
 public class AccommodationSpecification {
 
     public static Specification<Accommodation> hasName(String name) {
