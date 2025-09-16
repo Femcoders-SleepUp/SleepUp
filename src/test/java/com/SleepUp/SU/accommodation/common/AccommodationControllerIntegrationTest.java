@@ -24,6 +24,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -187,5 +188,12 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
                 .andExpect(jsonPath("$.imageUrl").value("updated-image.jpg"));
+    }
+
+    @Test
+    void deleteAccommodation_shouldReturnNoContent() throws Exception {
+        mockMvc.perform(delete("/api/accommodations/{id}", existingAccommodationId)
+                .with(user(customUserDetails)))
+                .andExpect(status().isNoContent());
     }
 }
