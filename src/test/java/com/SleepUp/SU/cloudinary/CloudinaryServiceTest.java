@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 
 @ActiveProfiles("tests")
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +55,21 @@ public class CloudinaryServiceTest {
             Map result = cloudinaryService.uploadFile(image);
 
             assertEquals("http://cloudinary.com/image/upload/example.jpg", result.get("secure_url"));
+        }
+    }
+
+    @Nested
+    class deleteFile {
+        @Test
+        void deleteFile_success() throws IOException {
+
+            Map<String, String> response = new HashMap<>();
+            response.put("result", "ok");
+
+            Mockito.when(cloudinary.uploader()).thenReturn(uploader);
+            Mockito.when(uploader.destroy(eq("image"), anyMap())).thenReturn(response);
+
+            assertDoesNotThrow(() -> cloudinaryService.deleteFile("image"));
         }
     }
 }
