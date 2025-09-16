@@ -28,7 +28,6 @@ public class UserAdminService implements UserDetailsService {
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
 
-
     public List<UserResponse> getAllUsers() {
         return mapperUtil.mapEntitiesToDTOs(userRepository.findAll(), userMapper::toResponse);
     }
