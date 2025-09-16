@@ -7,14 +7,14 @@
     <style>
         body {
           font-family: Arial, sans-serif;
-          background-color: #f4f4f7;
+          background-color: #ffffff;
           margin: 0;
           padding: 0;
         }
         .email-container {
           max-width: 600px;
           margin: 40px auto;
-          background-color: #ffffff;
+          background-color: #F4F5F4;
           border-radius: 10px;
           padding: 30px;
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -53,6 +53,8 @@
 <div class="email-container">
     <h1 th:text="'Hello, ' + ${ownerName} + '!'">Hello, Owner!</h1>
 
+    <img src="https://i.postimg.cc/RZrQfDFs/LOGO.png" alt="SleepUp Logo" style="float: right; width: 80px; height: auto; margin-top: -10px; margin-bottom: 10px;" />
+
     <p>Your accommodation has just been booked:</p>
     <ul>
         <li><b>Accommodation:</b> <span th:text="${accommodationName}">Accommodation Name</span></li>
@@ -66,12 +68,14 @@
     </p>
 
     <button>
-    <a th:href="${dashboardUrl}" class="button">View Reservation</a>
+    <a th:href="${dashboardUrl}" style="color: white;" class="button">View Reservation</a>
     </button>
     <p class="footer">
         Thank you for hosting with SleepUp.<br />
         We’ll keep you updated with all your upcoming bookings.<br />
-        — The SleepUp Team ☁
+        — The SleepUp Team ☁<br />
+        📧 <a href="mailto:sleepup.backend@gmail.com" style="color: #888888;">sleepup.backend@gmail.com</a> &nbsp;|&nbsp;
+        📞 <a href="tel:+1234567890" style="color: #888888;">+1 234 567 890</a>
     </p>
 </div>
 </body>
