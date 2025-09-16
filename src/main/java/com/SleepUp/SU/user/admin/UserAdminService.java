@@ -37,7 +37,7 @@ public class UserAdminService implements UserDetailsService {
     }
 
     public UserResponse createUser(com.SleepUp.SU.user.dto.UserRequestAdmin userRequestAdmin) {
-        if (UserRepository.findByUsername(UserRequestAdmin.username()).isPresent()) {
+        if (UserRepository.findByUsername(userRequestAdmin.username()).isPresent()) {
             throw new RuntimeException("Username already exists" + userRequestAdmin.username());
         }
 
