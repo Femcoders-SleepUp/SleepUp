@@ -3,6 +3,8 @@ package com.SleepUp.SU.user.admin;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.dto.UserRequest;
+import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
@@ -23,6 +25,8 @@ public class UserAdminService implements UserDetailsService {
     private final UserMapper userMapper;
     private final EntityUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
 
 
     public List<UserResponse> getAllUsers() {
@@ -31,6 +35,17 @@ public class UserAdminService implements UserDetailsService {
 
     public UserResponse getUserById(Long userId) {
         return userMapper.toResponse(userServiceHelper.findById(userId));
+    }
+
+    public UserResponse createUser(com.SleepUp.SU.user.dto.UserRequestAdmin userRequestAdmin) {
+        if (UserRepository.findByUsername(UserRequestAdmin.username()).isPresent()) {
+            throw new RuntimeException("Username already exists" + userRequestAdmin.username());
+        }
+
+        String encodedPassword = passwordEncoder.encode(userRequestAdmin.password());
+        User user = userMapper.toEntityAdmin(userRequestAdmin, encodedPassword);
+        User savedUser = userRepository.save(user);
+        return userMapper.toResponse(savedUser);
     }
 
     @Override
