@@ -61,4 +61,9 @@ public class AccommodationService {
         Accommodation savedAccommodation = accommodationRepository.save(accommodation);
         return accommodationMapper.toDetail(savedAccommodation);
     }
+
+    public void deleteAccommodation(Long id) {
+        Accommodation accommodation = getAccommodationEntityById(id);
+        accommodationRepository.delete(accommodation);
+    }
 }
