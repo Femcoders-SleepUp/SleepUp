@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/accommodations").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/filter**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reservations/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

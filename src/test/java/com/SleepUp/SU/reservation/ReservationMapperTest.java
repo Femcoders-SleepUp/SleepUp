@@ -72,7 +72,7 @@ public class ReservationMapperTest {
 
     @Test
     public void testToEntityMapping() {
-        Reservation entity = reservationMapper.toEntity(reservationRequest, bookingStatus);
+        Reservation entity = reservationMapper.toEntity(reservationRequest, bookingStatus, );
         assertNotNull(entity);
         assertEquals(reservationRequest.guestNumber(), entity.getGuestNumber());
         assertEquals(reservationRequest.checkInDate(), entity.getCheckInDate());
