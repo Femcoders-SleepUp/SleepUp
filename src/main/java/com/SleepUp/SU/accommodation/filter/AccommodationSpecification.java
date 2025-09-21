@@ -57,9 +57,6 @@ public class AccommodationSpecification {
 
     public static Specification<Accommodation> noBookingOverlap(LocalDate newStartDate, LocalDate newEndDate) {
         return (root, query, cb) -> {
-            if (query == null) {
-                query = cb.createQuery(root.getJavaType());
-            }
             if (newStartDate == null || newEndDate == null) {
                 return null;
             }
