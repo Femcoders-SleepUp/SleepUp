@@ -11,16 +11,11 @@ services:
     # Set working directory inside container
     working_dir: /src
 
-    # Mount source code and create writable target directory
+    # Mount source code (writable for Maven build)
     volumes:
       - type: bind
         source: . # Current directory (project root)
         target: /src # Mount point inside container
-        read_only: true # Prevent modifications to source code
-      # Add writable volume for Maven target directory
-      - type: volume
-        source: maven-target
-        target: /src/target # Maven build output directory
 
     # Run Maven test command
     entrypoint: ["mvn", "clean", "test", "--no-transfer-progress"]
@@ -92,7 +87,3 @@ services:
 networks:
   sleepUp-network:
     driver: bridge # Use bridge driver for container-to-container communication
-
-# Volume configuration
-volumes:
-  maven-target: # Volume for Maven build artifacts
