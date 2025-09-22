@@ -16,7 +16,6 @@ services:
       - type: bind
         source: . # Current directory (project root)
         target: /src # Mount point inside container
-        read_only: true # Prevent modifications to source code
 
     # Run Maven test command with test profile
     # Using -Ptest profile to avoid building JAR files (allows read-only source mounting)
