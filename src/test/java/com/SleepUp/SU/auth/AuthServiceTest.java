@@ -14,6 +14,7 @@ import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.ApiMessageDto;
 import com.SleepUp.SU.utils.EmailService;
+import com.SleepUp.SU.utils.EmailServiceHelper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Nested;
@@ -65,7 +66,7 @@ public class AuthServiceTest {
     private UserServiceHelper userServiceHelper;
 
     @Mock
-    private EmailService emailService;
+    private EmailServiceHelper emailService;
 
     @Nested
     class RegisterNewUserTest {
@@ -107,7 +108,7 @@ public class AuthServiceTest {
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-            verify(emailService).sendWelcomeEmail(userResponse.email(), userResponse.username());
+            verify(emailService).sendWelcomeEmail(userRequest, mappedUser);
         }
 
         @Test
