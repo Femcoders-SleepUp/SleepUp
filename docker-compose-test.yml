@@ -11,15 +11,19 @@ services:
     # Set working directory inside container
     working_dir: /src
 
-    # Mount source code as read-only volume for testing
+    # Mount source code and create writable target directory
     volumes:
       - type: bind
         source: . # Current directory (project root)
         target: /src # Mount point inside container
+        read_only: true # Prevent modifications to source code
+      # Add writable volume for Maven target directory
+      - type: volume
+        source: maven-target
+        target: /src/target # Maven build output directory
 
-    # Run Maven test command with test profile
-    # Using -Ptest profile to avoid building JAR files (allows read-only source mounting)
-    entrypoint: ["mvn", "-Ptest", "clean", "verify", "--no-transfer-progress"]
+    # Run Maven test command
+    entrypoint: ["mvn", "clean", "test", "--no-transfer-progress"]
 
     # Custom container name for easier identification
     container_name: sleepUp-test
@@ -39,14 +43,6 @@ services:
     depends_on:
       sleepUp-test-db:
         condition: service_healthy # Wait for DB health check to pass
-
-    # Health check configuration for the SpringBoot application
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"] # Health check command
-      interval: 30s # Check every 30 seconds
-      timeout: 10s # Timeout after 10 seconds
-      retries: 3 # Retry 3 times before marking as unhealthy
-      start_period: 60s # Wait 60 seconds before starting health checks
 
     # Connect to custom network
     networks:
@@ -96,3 +92,7 @@ services:
 networks:
   sleepUp-network:
     driver: bridge # Use bridge driver for container-to-container communication
+
+# Volume configuration
+volumes:
+  maven-target: # Volume for Maven build artifacts
