@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface AccommodationMapper {
     AccommodationResponseSummary toSummary(Accommodation accommodation);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "managedBy", source = "user")
     @Mapping(target = "name", source = "accommodationRequest.name")
     Accommodation toEntity(AccommodationRequest accommodationRequest, User user);
