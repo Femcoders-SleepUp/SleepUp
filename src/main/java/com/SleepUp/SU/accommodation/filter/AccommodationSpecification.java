@@ -1,6 +1,10 @@
 package com.SleepUp.SU.accommodation.filter;
 
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
+import com.SleepUp.SU.reservation.Reservation;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 import com.SleepUp.SU.accommodation.Accommodation;
 import org.springframework.stereotype.Component;
@@ -51,6 +55,24 @@ public class AccommodationSpecification {
         };
     }
 
+    public static Specification<Accommodation> noBookingOverlap(LocalDate newStartDate, LocalDate newEndDate) {
+        return (root, query, cb) -> {
+            if (newStartDate == null || newEndDate == null) {
+                return null;
+            }
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<Reservation> reservationRoot = subquery.from(Reservation.class);
+            subquery.select(cb.count(reservationRoot));
+            Predicate sameResource = cb.equal(reservationRoot.get("resource").get("id"), root.get("id"));
+            Predicate overlap = cb.not(cb.or(
+                    cb.greaterThan(reservationRoot.get("startDate"), newEndDate),
+                    cb.lessThan(reservationRoot.get("endDate"), newStartDate)
+            ));
+            subquery.where(cb.and(sameResource, overlap));
+            return cb.equal(subquery, 0L);
+        };
+    }
+
     public Specification<Accommodation> buildSpecification(FilterAccommodationDTO filter) {
         return Specification.<Accommodation>unrestricted()
                 .and(AccommodationSpecification.hasName(filter.name()))
@@ -58,6 +80,7 @@ public class AccommodationSpecification {
                 .and(AccommodationSpecification.priceBetween(filter.minPrice(), filter.maxPrice()))
                 .and(AccommodationSpecification.guestNumber(filter.guestNumber()))
                 .and(AccommodationSpecification.locatedAt(filter.location()))
-                .and(AccommodationSpecification.availableBetween(filter.fromDate(), filter.toDate()));
+                .and(AccommodationSpecification.availableBetween(filter.fromDate(), filter.toDate()))
+                .and(noBookingOverlap(filter.fromDate(), filter.toDate()));
     }
 }

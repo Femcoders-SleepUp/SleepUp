@@ -1,5 +1,8 @@
 package com.SleepUp.SU.utils;
 
+import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.user.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @Service
@@ -35,6 +39,27 @@ public class EmailService {
 
         helper.setTo(toEmail);
         helper.setSubject("Welcome to SleepUp!");
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
+
+    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        Context context = new Context();
+        context.setVariable("ownerName", accommodation.getManagedBy().getName());
+        context.setVariable("accommodationName", accommodation.getName());
+        context.setVariable("location", accommodation.getLocation());
+        context.setVariable("guestName", user.getName());
+        context.setVariable("checkInDate", reservation.getCheckInDate());
+        context.setVariable("checkOutDate", reservation.getCheckOutDate());
+
+        String htmlContent = templateEngine.process("NotificationReservationOwner", context);
+
+        helper.setTo(accommodation.getManagedBy().getEmail());
+        helper.setSubject("Your property has just been booked!");
         helper.setText(htmlContent, true);
 
         mailSender.send(message);
@@ -95,20 +120,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    public void sendOwnerReservedNotification(String toEmail, Map<String, Object> variables) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        Context context = new Context();
-        context.setVariables(variables);
-
-        String htmlContent = templateEngine.process("NotificationReservationOwner", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Your property has just been booked!");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-    }
 
 }

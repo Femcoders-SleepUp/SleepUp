@@ -8,6 +8,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.utils.EntityUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class AccommodationService {
         return accommodationMapper.toDetail(getAccommodationEntityById(id));
     }
 
+    @Transactional
     public AccommodationResponseDetail createAccommodation(AccommodationRequest accommodationRequest, User user){
         accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
         Accommodation accommodation = accommodationMapper.toEntity(accommodationRequest, user);

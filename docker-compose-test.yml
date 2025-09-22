@@ -1,0 +1,80 @@
+# Docker Compose configuration for sleepUp testing with Maven image
+# This configuration runs tests using the official Maven Docker image
+# without building a custom container image
+
+services:
+  # Test service using official Maven image
+  sleepUp-test:
+    # Use official Maven image with Eclipse Temurin JDK 21
+    image: maven:3.9.11-eclipse-temurin-21
+
+    # Set working directory inside container
+    working_dir: /src
+
+    # Mount source code (writable for Maven build)
+    volumes:
+      - type: bind
+        source: . # Current directory (project root)
+        target: /src # Mount point inside container
+
+    # Run Maven test command
+    entrypoint: ["mvn", "clean", "test", "--no-transfer-progress"]
+
+    # Custom container name for easier identification
+    container_name: sleepUp-test
+
+    # Environment variables passed to the SpringBoot application
+    environment:
+      - SHOW_SQL=false
+      - SERVER_PORT=8080 # Sets the server port inside container
+      - DB_URL_TEST=jdbc:mysql://sleepUp-test-db:3306/sleepUp # Database connection URL using service name
+      - DB_USER=sleepUp # Database username
+      - DB_PASSWORD=sleepUp123 # Database password
+
+    # Restart policy - never restart (single-run test container)
+    restart: no
+
+    # Service dependencies - ensures database is healthy before starting app
+    depends_on:
+      sleepUp-test-db:
+        condition: service_healthy # Wait for DB health check to pass
+
+    # Connect to custom network
+    networks:
+      - sleepUp-network
+
+  # MySQL database service for testing
+  sleepUp-test-db:
+    # Use official MySQL 8.0 image from Docker Hub
+    image: mysql:8.0
+
+    # Custom container name for easier identification
+    container_name: sleepUp-test-db
+
+    # MySQL environment variables for database initialization
+    environment:
+      MYSQL_DATABASE: sleepUp # Creates database
+      MYSQL_USER: sleepUp # Creates user
+      MYSQL_PASSWORD: sleepUp123 # Sets password
+      MYSQL_ROOT_PASSWORD: root123 # Sets root user password
+
+    # Restart policy - never restart (single-run test container)
+    # No external port mapping - database only accessible from within the network
+    restart: no
+
+    # Health check configuration for MySQL database
+    healthcheck:
+      test: [ "CMD-SHELL", "mysql --user=sleepUp --password=sleepUp123 --execute 'SELECT 1;' || exit 1" ]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+
+    # Connect to custom network
+    networks:
+      - sleepUp-network
+
+# Network configuration
+networks:
+  sleepUp-network:
+    driver: bridge # Use bridge driver for container-to-container communication
