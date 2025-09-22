@@ -1,7 +1,9 @@
 package com.SleepUp.SU.reservation;
 
+import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +74,7 @@ public class ReservationMapperTest {
 
     @Test
     public void testToEntityMapping() {
-        Reservation entity = reservationMapper.toEntity(reservationRequest, bookingStatus, );
+        Reservation entity = reservationMapper.toEntity(reservationRequest, bookingStatus, new User(),new Accommodation(),false);
         assertNotNull(entity);
         assertEquals(reservationRequest.guestNumber(), entity.getGuestNumber());
         assertEquals(reservationRequest.checkInDate(), entity.getCheckInDate());
