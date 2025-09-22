@@ -33,6 +33,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+        if (shouldSkipFilter(requestURI, request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -61,6 +68,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             restAuthenticationEntryPoint.commence(request, response, exception);
         }
+    }
+
+
+    private boolean shouldSkipFilter(String requestURI, String method) {
+        return (requestURI.equals("/api/auth/login") && "POST".equals(method)) ||
+                (requestURI.equals("/api/auth/register") && "POST".equals(method));
     }
 }
 

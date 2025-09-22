@@ -1,12 +1,24 @@
 package com.SleepUp.SU.reservation.dto;
 
+import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.user.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {
     ReservationResponseSummary toSummary(Reservation reservation);
+
+    @Mapping(target = "userName", source = "user.name")
+    @Mapping(target = "accommodationName", source = "accommodation.name")
     ReservationResponseDetail toDetail(Reservation reservation);
-    Reservation toEntity(ReservationRequest reservationRequest, BookingStatus bookingStatus);
+
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "accommodation", source = "accommodation")
+    @Mapping(target = "guestNumber", source = "reservationRequest.guestNumber")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "emailSent", source = "emailSent")
+    Reservation toEntity(ReservationRequest reservationRequest, BookingStatus bookingStatus, User user, Accommodation accommodation, Boolean emailSent);
 }
