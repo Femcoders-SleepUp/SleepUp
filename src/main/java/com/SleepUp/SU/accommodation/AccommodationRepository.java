@@ -10,4 +10,5 @@ import java.util.List;
 public interface AccommodationRepository extends JpaRepository <Accommodation, Long>, JpaSpecificationExecutor<Accommodation> {
     List<Accommodation> findByManagedBy_Id(Long userId);
     boolean existsByName(String name);
+    boolean existsByIdAndManagedBy_Id(Long accommodationId, Long userId);
 }
