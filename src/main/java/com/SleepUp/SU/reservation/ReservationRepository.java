@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation;
 
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -60,4 +61,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                                   @Param("checkInDate") LocalDate checkInDate,
                                                                   @Param("checkOutDate") LocalDate checkOutDate,
                                                                   @Param("cancelledStatus") BookingStatus cancelledStatus);
+
+    List<Reservation> findByAccommodationId(Long id);
+
 }
