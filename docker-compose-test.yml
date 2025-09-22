@@ -27,7 +27,7 @@ services:
     environment:
       - SHOW_SQL=false
       - SERVER_PORT=8080 # Sets the server port inside container
-      - DB_URL=jdbc:mysql://sleepUp-test-db:3306/sleepUp # Database connection URL using service name
+      - DB_URL_TEST=jdbc:mysql://sleepUp-test-db:3306/sleepUp # Database connection URL using service name
       - DB_USERNAME=sleepUp # Database username
       - DB_PASSWORD=sleepUp123 # Database password
 
