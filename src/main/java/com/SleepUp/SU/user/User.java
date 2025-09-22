@@ -38,8 +38,4 @@ public class User {
 
     @OneToMany(mappedBy = "managedBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Accommodation> accommodations = new HashSet<>();
-
-
-    public User(long l, String usernameTest, String nameTest, String mail, String testPassword, Role role) {
-    }
 }
