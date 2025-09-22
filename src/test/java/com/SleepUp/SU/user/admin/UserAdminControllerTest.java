@@ -1,7 +1,5 @@
 package com.SleepUp.SU.user.admin;
 
-package com.SleepUp.SU.user.admin;
-
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.dto.UserResponse;
