@@ -11,8 +11,6 @@ import com.SleepUp.SU.utils.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -46,4 +44,15 @@ public class ReservationService {
         return reservationMapper.toDetail(savedReservation);
     }
 
+    public ReservationResponseDetail cancelReservation(Long reservationId, Long userId) {
+        Reservation reservation = reservationServiceHelper.findReservationByIdAndUser(reservationId, userId);
+
+        reservationServiceHelper.validateReservationCancellable(reservation);
+
+        reservation.setBookingStatus(BookingStatus.CANCELLED);
+
+        Reservation savedReservation = reservationRepository.save(reservation);
+
+        return reservationMapper.toDetail(savedReservation);
+    }
 }
