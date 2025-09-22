@@ -147,4 +147,36 @@ public class ReservationOwnerControllerTest {
         }
 
     }
+
+    @Nested
+    class getReservationByIdTest {
+
+        @Test
+        void getReservationById_authorized_shouldReturnOk() throws Exception {
+            Long id = 101L;
+
+            ReservationResponseDetail detailDto = new ReservationResponseDetail(
+                    101L,
+                    "charlie",
+                    3,
+                    "Lake Cabin",
+                    LocalDate.of(2025, 11, 1),
+                    LocalDate.of(2025, 11, 5),
+                    BookingStatus.CONFIRMED,
+                    true,
+                    LocalDateTime.of(2025, 10, 20, 9, 15)
+            );
+
+            when(reservationOwnerService.getReservationById(id))
+                    .thenReturn(detailDto);
+
+            mockMvc.perform(post("/api/reservations/{id}", id)
+                            .with(user(principal))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
+        }
+
+    }
+
 }
