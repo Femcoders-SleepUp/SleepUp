@@ -5,6 +5,7 @@ import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
+import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -56,6 +59,7 @@ class AccommodationServiceTest {
                 "Old Name",
                 100.0,
                 2,
+                true,
                 "Old Location",
                 "Old Description",
                 LocalTime.of(14, 0),
@@ -69,6 +73,7 @@ class AccommodationServiceTest {
                 "New Name",
                 150.0,
                 3,
+                true,
                 "New Location",
                 "New Description",
                 LocalTime.of(15, 0),
@@ -110,6 +115,7 @@ class AccommodationServiceTest {
                 "New Name",
                 150.0,
                 3,
+                true,
                 "New Location",
                 "New Description",
                 "15:00",
@@ -119,6 +125,28 @@ class AccommodationServiceTest {
                 null,
                 "new-image.jpg"
         );
+    }
+
+    @Test
+    void getAllAccommodations_success() {
+        when(accommodationRepository.findAll()).thenReturn(java.util.List.of(existingAccommodation));
+
+        List<AccommodationResponseSummary> result = accommodationService.getAllAccommodations();
+
+        assertThat(result).hasSize(1);
+        verify(accommodationRepository).findAll();
+    }
+
+    @Test
+    void getAccommodationById_success() {
+        when(accommodationRepository.findById(1L)).thenReturn(Optional.of(existingAccommodation));
+        when(accommodationMapper.toDetail(existingAccommodation)).thenReturn(updatedAccommodationResponseDetail);
+
+        AccommodationResponseDetail result = accommodationService.getAccommodationById(1L);
+
+        assertEquals(updatedAccommodationResponseDetail, result);
+        verify(accommodationRepository).findById(1L);
+        verify(accommodationMapper).toDetail(existingAccommodation);
     }
 
     @Test
@@ -155,5 +183,15 @@ class AccommodationServiceTest {
         verify(accommodationRepository).save(existingAccommodation);
         verify(accommodationMapper).toDetail(updatedAccommodation);
         assertEquals(result, updatedAccommodationResponseDetail);
+    }
+
+    @Test
+    void deleteAccommodation_success() {
+        when(accommodationRepository.findById(1L)).thenReturn(Optional.of(existingAccommodation));
+
+        accommodationService.deleteAccommodation(1L);
+
+        verify(accommodationRepository).findById(1L);
+        verify(accommodationRepository).delete(existingAccommodation);
     }
 }

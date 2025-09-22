@@ -13,6 +13,8 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,11 +64,14 @@ public class AuthServiceTest {
     @Mock
     private UserServiceHelper userServiceHelper;
 
+    @Mock
+    private EmailService emailService;
+
     @Nested
     class RegisterNewUserTest {
 
         @Test
-        void should_registerNewUser_fromRequest(){
+        void should_registerNewUser_fromRequest() throws MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
 
             User mappedUser = new User();
@@ -102,6 +107,7 @@ public class AuthServiceTest {
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
+            verify(emailService).sendWelcomeEmail(userResponse.email(), userResponse.username());
         }
 
         @Test
@@ -161,7 +167,6 @@ public class AuthServiceTest {
             when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                     .thenReturn(mockAuthentication);
             when(mockAuthentication.getPrincipal()).thenReturn(mockCustomUserDetails);
-//            when(mockCustomUserDetails.getUsername()).thenReturn("userTest");
             when(jwtService.generateAccessToken(mockCustomUserDetails)).thenReturn("access-token");
             when(jwtService.generateRefreshToken(mockCustomUserDetails)).thenReturn("refresh-token");
 

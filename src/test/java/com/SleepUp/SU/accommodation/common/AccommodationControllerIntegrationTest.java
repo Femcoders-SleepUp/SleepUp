@@ -15,18 +15,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 class AccommodationControllerIntegrationTest {
 
     @Autowired
@@ -56,6 +60,7 @@ class AccommodationControllerIntegrationTest {
                 .name("Sea View Apartment")
                 .price(150.0)
                 .guestNumber(4)
+                .petFriendly(true)
                 .location("Beach")
                 .description("A lovely sea view apartment")
                 .checkInTime(LocalTime.of(14, 0))
@@ -74,6 +79,7 @@ class AccommodationControllerIntegrationTest {
                 .name("Sea View Apartment")
                 .price(150.0)
                 .guestNumber(4)
+                .petFriendly(true)
                 .location("Beach")
                 .description("A lovely sea view apartment")
                 .checkInTime(LocalTime.of(14, 0))
@@ -92,6 +98,7 @@ class AccommodationControllerIntegrationTest {
                 "Test Apartment",
                 120.0,
                 3,
+                true,
                 "Downtown",
                 "A nice place to stay",
                 LocalTime.of(14, 0),
@@ -105,6 +112,7 @@ class AccommodationControllerIntegrationTest {
                 "Updated Apartment",
                 130.0,
                 3,
+                true,
                 "New Downtown",
                 "Updated description",
                 LocalTime.of(15, 0),
@@ -113,6 +121,39 @@ class AccommodationControllerIntegrationTest {
                 LocalDate.of(2025, 12, 31),
                 "updated-image.jpg"
         );
+    }
+
+    @Test
+    void getAccommodations_shouldReturnListOfAccommodations() throws Exception {
+        mockMvc.perform(get("/api/accommodations")
+                        .with(user(customUserDetails))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Hotel ABC"))
+                .andExpect(jsonPath("$[0].price").value(150.0))
+                .andExpect(jsonPath("$[0].guestNumber").value(2))
+                .andExpect(jsonPath("$[0].petFriendly").value(true))
+                .andExpect(jsonPath("$[0].location").value("New York"));
+
+    }
+
+    @Test
+    void getAccommodationById_shouldReturnAccommodationDetail() throws Exception {
+        mockMvc.perform(get("/api/accommodations/{id}", existingAccommodationId)
+                        .with(user(customUserDetails))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Sea View Apartment"))
+                .andExpect(jsonPath("$.price").value(150.0))
+                .andExpect(jsonPath("$.guestNumber").value(4))
+                .andExpect(jsonPath("$.petFriendly").value(true))
+                .andExpect(jsonPath("$.location").value("Beach"))
+                .andExpect(jsonPath("$.description").value("A lovely sea view apartment"))
+                .andExpect(jsonPath("$.checkInTime").value("14:00:00"))
+                .andExpect(jsonPath("$.checkOutTime").value("11:00:00"))
+                .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
+                .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
+                .andExpect(jsonPath("$.managedByUsername").value("nameTest"));
     }
 
     @Test
@@ -126,6 +167,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Test Apartment"))
                 .andExpect(jsonPath("$.price").value(120.0))
                 .andExpect(jsonPath("$.guestNumber").value(3))
+                .andExpect(jsonPath("$.petFriendly").value(true))
                 .andExpect(jsonPath("$.location").value("Downtown"))
                 .andExpect(jsonPath("$.description").value("A nice place to stay"))
                 .andExpect(jsonPath("$.checkInTime").value("14:00:00"))
@@ -146,6 +188,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.name").value("Updated Apartment"))
                 .andExpect(jsonPath("$.price").value(130.0))
                 .andExpect(jsonPath("$.guestNumber").value(3))
+                .andExpect(jsonPath("$.petFriendly").value(true))
                 .andExpect(jsonPath("$.location").value("New Downtown"))
                 .andExpect(jsonPath("$.description").value("Updated description"))
                 .andExpect(jsonPath("$.checkInTime").value("15:00:00"))
@@ -153,5 +196,12 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
                 .andExpect(jsonPath("$.imageUrl").value("updated-image.jpg"));
+    }
+
+    @Test
+    void deleteAccommodation_shouldReturnNoContent() throws Exception {
+        mockMvc.perform(delete("/api/accommodations/{id}", existingAccommodationId)
+                .with(user(customUserDetails)))
+                .andExpect(status().isNoContent());
     }
 }

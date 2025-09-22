@@ -53,6 +53,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/accommodations").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/accommodations/filter**").permitAll()
                         .anyRequest().authenticated()
                 );
 
