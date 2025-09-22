@@ -104,4 +104,29 @@ public class ReservationServiceHelper {
             );
         }
     }
+
+    public Reservation findReservationByIdAndUser(Long reservationId, Long userId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        if (!reservation.getUser().equals(userId)) {
+            throw new RuntimeException("You don't have permission to access this reservation");
+        }
+
+        return reservation;
+    }
+
+    public void validateReservationCancellable(Reservation reservation) {
+        if (reservation.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new RuntimeException("Cannot modify a cancelled reservation");
+        }
+
+        if (!(reservation.getBookingStatus() == BookingStatus.PENDING) && !(reservation.getBookingStatus() == BookingStatus.CONFIRMED)) {
+            throw new RuntimeException("Completed reservations cannot be cancelled");
+        }
+
+        if (reservation.getCheckInDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("Cannot modify a reservation that has already started");
+        }
+    }
 }
