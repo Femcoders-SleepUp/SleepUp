@@ -3,6 +3,7 @@ package com.SleepUp.SU.user.admin;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
@@ -38,5 +39,18 @@ public class UserAdminService implements UserDetailsService {
         User user = userServiceHelper.findByUsername(username);
         return new CustomUserDetails(user);
     }
+
+    public UserResponse updateUser(Long id, UserRequestAdmin userRequestAdmin) {
+
+        User existingUser = userServiceHelper.findById(id);
+        userServiceHelper.updateUserDataAdmin(userRequestAdmin, existingUser);
+
+        existingUser.setRole(userRequestAdmin.role());
+
+        User updatedUser = userRepository.save(existingUser);
+        return userMapper.toResponse(updatedUser);
+    }
+
+
 }
 

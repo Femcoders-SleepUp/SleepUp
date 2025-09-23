@@ -1,5 +1,7 @@
 package com.SleepUp.SU.user;
 
+import com.SleepUp.SU.user.admin.UserAdminController;
+import com.SleepUp.SU.user.admin.UserAdminService;
 import com.SleepUp.SU.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,23 +19,23 @@ import static org.mockito.Mockito.when;
 public class UserControllerTest {
 
     @InjectMocks
-    private UserController userController;
+    private UserAdminController userAdminController;
 
     @Mock
-    private UserService userService;
+    private UserAdminService userAdminService;
 
     @Test
     void should_returnAllUsers() {
         List<UserResponse> users = List.of(
-                new UserResponse(1L, "userOne", "user1@test.com", null),
-                new UserResponse(2L, "userTwo", "user2@test.com", null)
+                new UserResponse(1L,"", "userOne", "user1@test.com", null),
+                new UserResponse(2L, "","userTwo", "user2@test.com", null)
         );
 
-        when(userService.getAllUsers()).thenReturn(users);
+        when(userAdminService.getAllUsers()).thenReturn(users);
 
-        ResponseEntity<List<UserResponse>> response = userController.getAllUsers();
+        List<UserResponse> response = userAdminController.listAllUsers();
 
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(2, response.getBody().size());
+
+        assertEquals(2, response.size());
     }
 }
