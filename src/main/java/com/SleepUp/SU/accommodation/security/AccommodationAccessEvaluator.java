@@ -1,7 +1,6 @@
 package com.SleepUp.SU.accommodation.security;
 
 import com.SleepUp.SU.accommodation.AccommodationRepository;
-import com.SleepUp.SU.user.security.UserAccessEvaluator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,15 +8,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AccommodationAccessEvaluator {
     private final AccommodationRepository accommodationRepository;
-    private final UserAccessEvaluator userAccessEvaluator;
 
     public boolean isOwner(Long accommodationId, Long userId) {
-        return accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId);
+        boolean owner = accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId);
+        System.out.println("Checking ownership of accommodation " + accommodationId + " by user " + userId + ": " + owner);
+        return owner;
     }
 
-    public boolean isOwnerOrAdmin(Long userId, Long accommodationId) {
-        return userAccessEvaluator.isAdmin(userId)
-                || accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId);
-    }
 
 }

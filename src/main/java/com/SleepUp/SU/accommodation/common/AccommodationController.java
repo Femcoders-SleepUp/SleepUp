@@ -41,8 +41,8 @@ public class AccommodationController {
         return accommodationService.createAccommodation(accommodationRequest, customUserDetails.getUser());
     }
 
-    @PreAuthorize("@accommodationAccessEvaluator.isOwnerOrAdmin(principal.id, #id)")
-    @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN') or @accommodationAccessEvaluator.isOwner(#id, principal.id)")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public AccommodationResponseDetail updateAccommodation(
             @PathVariable Long id,
@@ -50,8 +50,8 @@ public class AccommodationController {
         return accommodationService.updateAccommodation(id, accommodationRequest);
     }
 
-    @PreAuthorize("@accommodationAccessEvaluator.isOwnerOrAdmin(principal.id, #id)")
-    @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN') or @accommodationAccessEvaluator.isOwner(#id, principal.id)")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Object> deleteAccommodation(@PathVariable Long id){
         accommodationService.deleteAccommodation(id);
