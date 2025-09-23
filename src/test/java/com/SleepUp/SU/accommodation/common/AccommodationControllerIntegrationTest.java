@@ -6,6 +6,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,30 +51,17 @@ class AccommodationControllerIntegrationTest {
     private Accommodation accommodation1;
     private AccommodationRequest accommodationUpdateRequest;
     private Long existingAccommodationId;
+    private Accommodation savedAccommodation;
 
     @BeforeEach
     void setUp() {
-        User savedUser = userRepository.findByUsername("TestUser")
+        User savedUser = userRepository.findByUsername("TestUser2")
                 .orElseThrow(() -> new RuntimeException("TestUser not found"));
+        customUserDetails = new CustomUserDetails(savedUser);
 
-        Accommodation newAccommodation = Accommodation.builder()
-                .name("Sea View Apartment")
-                .price(150.0)
-                .guestNumber(4)
-                .petFriendly(true)
-                .location("Beach")
-                .description("A lovely sea view apartment")
-                .checkInTime(LocalTime.of(14, 0))
-                .checkOutTime(LocalTime.of(11, 0))
-                .availableFrom(LocalDate.of(2025, 6, 1))
-                .availableTo(LocalDate.of(2025, 12, 31))
-                .managedBy(savedUser)
-                .imageUrl("image1.jpg")
-                .build();
+        savedAccommodation = accommodationRepository.findByManagedBy_Id(savedUser.getId()).getFirst();
 
-        Accommodation saved = accommodationRepository.save(newAccommodation);
-
-        existingAccommodationId = saved.getId();
+        existingAccommodationId = savedAccommodation.getId();
 
         accommodation1 = Accommodation.builder()
                 .name("Sea View Apartment")
@@ -91,8 +79,6 @@ class AccommodationControllerIntegrationTest {
                 .build();
 
         accommodationRepository.save(accommodation1);
-
-        customUserDetails = new CustomUserDetails(savedUser);
 
         accommodationRequest = new AccommodationRequest(
                 "Test Apartment",
@@ -139,7 +125,7 @@ class AccommodationControllerIntegrationTest {
 
     @Test
     void getAccommodationById_shouldReturnAccommodationDetail() throws Exception {
-        mockMvc.perform(get("/api/accommodations/{id}", existingAccommodationId)
+        mockMvc.perform(get("/api/accommodations/{id}", accommodation1.getId())
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -153,7 +139,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("11:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.managedByUsername").value("nameTest"));
+                .andExpect(jsonPath("$.managedByUsername").value("nameTest2"));
     }
 
     @Test
@@ -174,12 +160,12 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("12:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-05-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.managedByUsername").value("nameTest"));
+                .andExpect(jsonPath("$.managedByUsername").value("nameTest2"));
     }
 
     @Test
     void updateAccommodation_shouldReturnUpdatedAccommodationResponse() throws Exception {
-        mockMvc.perform(put("/api/accommodations/{id}", existingAccommodationId)
+        mockMvc.perform(put("/api/accommodations/{id}", savedAccommodation.getId())
                         .with(user(customUserDetails))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accommodationUpdateRequest)))
