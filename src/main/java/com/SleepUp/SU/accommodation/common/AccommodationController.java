@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +32,7 @@ public class AccommodationController {
         return accommodationService.getAccommodationById(id);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccommodationResponseDetail createAccommodation(
@@ -39,6 +41,7 @@ public class AccommodationController {
         return accommodationService.createAccommodation(accommodationRequest, customUserDetails.getUser());
     }
 
+    @PreAuthorize("@accommodationAccessEvaluator.isOwnerOrAdmin(principal.id, #id)")
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     public AccommodationResponseDetail updateAccommodation(
@@ -47,6 +50,7 @@ public class AccommodationController {
         return accommodationService.updateAccommodation(id, accommodationRequest);
     }
 
+    @PreAuthorize("@accommodationAccessEvaluator.isOwnerOrAdmin(principal.id, #id)")
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Object> deleteAccommodation(@PathVariable Long id){

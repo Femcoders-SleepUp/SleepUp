@@ -20,7 +20,7 @@ import java.util.List;
 public class ReservationController {
      private final ReservationService reservationService;
 
-     @PostMapping("/accommodation/{id}")
+    @PostMapping("/accommodation/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
              @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -36,4 +36,13 @@ public class ReservationController {
         List<ReservationResponseSummary> reservations = reservationService.getMyReservations(username);
         return ResponseEntity.ok(reservations);
     }
+}
+     @PatchMapping("cancel/{id}")
+     @ResponseStatus(HttpStatus.OK)
+     public ReservationResponseDetail cancelReservation(
+                @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                @PathVariable Long id
+                ){
+            return reservationService.cancelReservation(id, customUserDetails.getUser().getId());
+        }
 }
