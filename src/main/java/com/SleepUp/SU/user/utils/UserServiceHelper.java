@@ -3,6 +3,7 @@ package com.SleepUp.SU.user.utils;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequest;
+import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,28 @@ public class UserServiceHelper {
 
 
     public void updateUserData(UserRequest request, User user) {
+        validateUserDoesNotExist(user.getUsername(), user.getEmail());
+
+        String username = request.username() != null && !request.username().isEmpty()
+                ? request.username() :
+                user.getUsername();
+
+        String email = request.email() != null && !request.email().isEmpty()
+                ? request.email() :
+                user.getEmail();
+
+        String password = request.password() != null && !request.password().isEmpty()
+                ? this.getEncodePassword(request.password()) :
+                user.getPassword();
+
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(password);
+
+
+    }
+
+    public void updateUserDataAdmin(UserRequestAdmin request, User user) {
         validateUserDoesNotExist(user.getUsername(), user.getEmail());
 
         String username = request.username() != null && !request.username().isEmpty()
