@@ -5,8 +5,10 @@ import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.utils.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
     private final EmailServiceHelper emailServiceHelper;
+    private final UserRepository userRepository;
 
 
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
@@ -44,6 +47,14 @@ public class ReservationService {
 
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
         return reservationMapper.toDetail(savedReservation);
+    }
+    public List<ReservationResponseSummary> getMyReservations(String username){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+        List<Reservation> reservations = reservationRepository.findByUser(user);
+        return reservations.stream()
+                .map(reservation -> reservationMapper.toSummary(reservation))
+                .toList();
     }
 
 }

@@ -2,12 +2,17 @@ package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.user.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -24,4 +29,11 @@ public class ReservationController {
              ){
          return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
      }
+
+    @GetMapping("/all/{user}")
+    public ResponseEntity<List<ReservationResponseSummary>> getMyReservations(Principal principal){
+        String username = principal.getName();
+        List<ReservationResponseSummary> reservations = reservationService.getMyReservations(username);
+        return ResponseEntity.ok(reservations);
+    }
 }
