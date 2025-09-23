@@ -18,31 +18,32 @@ import java.util.List;
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 public class ReservationController {
-     private final ReservationService reservationService;
+    private final ReservationService reservationService;
 
     @PostMapping("/accommodation/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
-             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-             @Valid @RequestBody ReservationRequest reservationRequest,
-             @RequestParam Long accommodationId
-             ){
-         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
-     }
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @RequestBody ReservationRequest reservationRequest,
+            @RequestParam Long accommodationId
+    ) {
+        return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
+    }
 
     @GetMapping("/all/{user}")
-    public ResponseEntity<List<ReservationResponseSummary>> getMyReservations(Principal principal){
+    public ResponseEntity<List<ReservationResponseSummary>> getMyReservations(Principal principal) {
         String username = principal.getName();
         List<ReservationResponseSummary> reservations = reservationService.getMyReservations(username);
         return ResponseEntity.ok(reservations);
     }
-}
-     @PatchMapping("cancel/{id}")
-     @ResponseStatus(HttpStatus.OK)
-     public ReservationResponseDetail cancelReservation(
-                @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                @PathVariable Long id
-                ){
-            return reservationService.cancelReservation(id, customUserDetails.getUser().getId());
-        }
+
+    @PatchMapping("cancel/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ReservationResponseDetail cancelReservation(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long id
+    ) {
+        return reservationService.cancelReservation(id, customUserDetails.getUser().getId());
+    }
+
 }
