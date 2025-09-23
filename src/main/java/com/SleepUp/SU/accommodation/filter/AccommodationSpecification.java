@@ -2,6 +2,7 @@ package com.SleepUp.SU.accommodation.filter;
 
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
 import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.status.BookingStatus;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -60,15 +61,27 @@ public class AccommodationSpecification {
             if (newStartDate == null || newEndDate == null) {
                 return null;
             }
+
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<Reservation> reservationRoot = subquery.from(Reservation.class);
             subquery.select(cb.count(reservationRoot));
-            Predicate sameResource = cb.equal(reservationRoot.get("resource").get("id"), root.get("id"));
+
+            // Match reservations for the same accommodation
+            Predicate sameAccommodation = cb.equal(reservationRoot.get("accommodation").get("id"), root.get("id"));
+
+            // Exclude cancelled reservations
+            Predicate notCancelled = cb.notEqual(reservationRoot.get("bookingStatus"), BookingStatus.CANCELLED);
+
+            // Overlapping date ranges
             Predicate overlap = cb.not(cb.or(
-                    cb.greaterThan(reservationRoot.get("startDate"), newEndDate),
-                    cb.lessThan(reservationRoot.get("endDate"), newStartDate)
+                    cb.greaterThan(reservationRoot.get("checkInDate"), newEndDate),
+                    cb.lessThan(reservationRoot.get("checkOutDate"), newStartDate)
             ));
-            subquery.where(cb.and(sameResource, overlap));
+
+            // Compose subquery where clause: same accommodation AND not cancelled AND overlapping
+            subquery.where(cb.and(sameAccommodation, notCancelled, overlap));
+
+            // Main predicate: count of overlapping, non-cancelled reservations must be zero
             return cb.equal(subquery, 0L);
         };
     }

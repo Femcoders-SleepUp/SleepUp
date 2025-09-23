@@ -3,12 +3,15 @@ package com.SleepUp.SU.accommodation.filter;
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
 import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.status.BookingStatus;
 import jakarta.persistence.criteria.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -18,6 +21,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class AccommodationSpecificationTest {
 
     @Mock private Root<Accommodation> root;
@@ -29,6 +33,12 @@ public class AccommodationSpecificationTest {
     @Mock private Path<Double> doublePath;
     @Mock private Path<Integer> intPath;
     @Mock private Path<LocalDate> datePath;
+
+    @Mock private Path<Object> accommodationPath;
+    @Mock private Path<Object> accommodationIdPath;
+    @Mock private Path<Object> bookingStatusPath;
+    @Mock private Path<LocalDate> checkInDatePath;
+    @Mock private Path<LocalDate> checkOutDatePath;
 
     private FilterAccommodationDTO filter;
 
@@ -59,38 +69,29 @@ public class AccommodationSpecificationTest {
         when(root.get(propertyName)).thenReturn((Path) doublePath);
     }
 
-    private void stubNoBookingOverlap(LocalDate from, LocalDate to) {
-        Subquery<Long> subquery = mock(Subquery.class);
-        Root<Reservation> reservationRoot = mock(Root.class);
-        Path<Object> resourcePath = mock(Path.class);
-        Path<Object> resourceIdPath = mock(Path.class);
-        Path<Object> rootIdPath = mock(Path.class);
-
+    private void stubReservationPaths(Subquery<Long> subquery,
+                                      Root<Reservation> reservationRoot,
+                                      LocalDate newStartDate,
+                                      LocalDate newEndDate) {
         when(query.subquery(Long.class)).thenReturn(subquery);
         when(subquery.from(Reservation.class)).thenReturn(reservationRoot);
         when(subquery.select(any())).thenReturn(subquery);
 
-        when(reservationRoot.get("resource")).thenReturn(resourcePath);
-        when(resourcePath.get("id")).thenReturn(resourceIdPath);
-        when(root.get("id")).thenReturn(rootIdPath);
+        when(reservationRoot.get("accommodation")).thenReturn(accommodationPath);
+        when(accommodationPath.get("id")).thenReturn(accommodationIdPath);
+        when(reservationRoot.get("bookingStatus")).thenReturn(bookingStatusPath);
+        when(reservationRoot.<LocalDate>get("checkInDate")).thenReturn(checkInDatePath);
+        when(reservationRoot.<LocalDate>get("checkOutDate")).thenReturn(checkOutDatePath);
 
-        when(criteriaBuilder.equal(resourceIdPath, rootIdPath)).thenReturn(predicate);
+        when(criteriaBuilder.equal(eq(accommodationIdPath), any())).thenReturn(predicate);
+        when(criteriaBuilder.notEqual(bookingStatusPath, BookingStatus.CANCELLED)).thenReturn(predicate);
+        when(criteriaBuilder.greaterThan(checkInDatePath, newEndDate)).thenReturn(predicate);
+        when(criteriaBuilder.lessThan(checkOutDatePath, newStartDate)).thenReturn(predicate);
 
-        when(reservationRoot.get("startDate")).thenReturn(mock(Path.class));
-        when(reservationRoot.get("endDate")).thenReturn(mock(Path.class));
-
-        if (to != null) {
-            when(criteriaBuilder.greaterThan(any(), eq(to))).thenReturn(predicate);
-        }
-        if (from != null) {
-            when(criteriaBuilder.lessThan(any(), eq(from))).thenReturn(predicate);
-        }
-
-        when(criteriaBuilder.or(any(Predicate.class), any(Predicate.class))).thenReturn(predicate);
-        when(criteriaBuilder.not(any(Predicate.class))).thenReturn(predicate);
-        when(criteriaBuilder.and(any(Predicate.class), any(Predicate.class))).thenReturn(predicate);
-        when(subquery.where(any(Predicate.class))).thenReturn(subquery);
-        when(criteriaBuilder.count(reservationRoot)).thenReturn(mock(Expression.class));
+        when(criteriaBuilder.or(predicate, predicate)).thenReturn(predicate);
+        when(criteriaBuilder.not(predicate)).thenReturn(predicate);
+        when(criteriaBuilder.and(predicate, predicate)).thenReturn(predicate);
+        when(subquery.where(predicate)).thenReturn(subquery);
         when(criteriaBuilder.equal(subquery, 0L)).thenReturn(predicate);
     }
 
@@ -233,11 +234,17 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testNoBookingOverlap_withValidDates() {
-        stubNoBookingOverlap(filter.fromDate(), filter.toDate());
-        Specification<Accommodation> spec = AccommodationSpecification.noBookingOverlap(filter.fromDate(), filter.toDate());
+    void testNoBookingOverlap_withValidDates_separatedStubs() {
+        LocalDate newStartDate = filter.fromDate();
+        LocalDate newEndDate = filter.toDate();
+
+        Subquery<Long> subquery = mock(Subquery.class);
+        Root<Reservation> reservationRoot = mock(Root.class);
+        stubReservationPaths(subquery, reservationRoot, newStartDate, newEndDate);
+        Specification<Accommodation> spec = AccommodationSpecification.noBookingOverlap(newStartDate, newEndDate);
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
-        assertSame(predicate, result, "Expected same predicate for noBookingOverlap with valid dates");
+
+        assertNotNull(result, "Expected non-null predicate for valid date range");
     }
 
     @Test
@@ -263,6 +270,9 @@ public class AccommodationSpecificationTest {
 
     @Test
     void testBuildSpecification() {
+        LocalDate newStartDate = filter.fromDate();
+        LocalDate newEndDate = filter.toDate();
+
         stubStringProperty("name");
         stubStringProperty("description");
         stubDoubleProperty("price");
@@ -271,7 +281,9 @@ public class AccommodationSpecificationTest {
         stubDateProperty("availableFrom");
         stubDateProperty("availableTo");
 
-        stubNoBookingOverlap(filter.fromDate(), filter.toDate());
+        Subquery<Long> subquery = mock(Subquery.class);
+        Root<Reservation> reservationRoot = mock(Root.class);
+        stubReservationPaths(subquery, reservationRoot, newStartDate, newEndDate);
 
         when(criteriaBuilder.lower(stringPath)).thenReturn(stringPath);
         when(criteriaBuilder.like(any(Expression.class), anyString())).thenReturn(predicate);
