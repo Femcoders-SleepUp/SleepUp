@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReservationController {
      private final ReservationService reservationService;
 
-     @PostMapping("/accommodation/{id}")
+    @PostMapping("/accommodation/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
              @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -24,4 +24,13 @@ public class ReservationController {
              ){
          return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
      }
+
+     @PatchMapping("cancel/{id}")
+     @ResponseStatus(HttpStatus.OK)
+     public ReservationResponseDetail cancelReservation(
+                @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                @PathVariable Long id
+                ){
+            return reservationService.cancelReservation(id, customUserDetails.getUser().getId());
+        }
 }
