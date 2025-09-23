@@ -61,23 +61,6 @@ class AccommodationControllerIntegrationTest {
 
         savedAccommodation = accommodationRepository.findByManagedBy_Id(savedUser.getId()).getFirst();
 
-//        Accommodation newAccommodation = Accommodation.builder()
-//                .name("Sea View Apartment")
-//                .price(150.0)
-//                .guestNumber(4)
-//                .petFriendly(true)
-//                .location("Beach")
-//                .description("A lovely sea view apartment")
-//                .checkInTime(LocalTime.of(14, 0))
-//                .checkOutTime(LocalTime.of(11, 0))
-//                .availableFrom(LocalDate.of(2025, 6, 1))
-//                .availableTo(LocalDate.of(2025, 12, 31))
-//                .managedBy(savedUser)
-//                .imageUrl("image1.jpg")
-//                .build();
-//
-//        Accommodation saved = accommodationRepository.save(newAccommodation);
-
         existingAccommodationId = savedAccommodation.getId();
 
         accommodation1 = Accommodation.builder()
