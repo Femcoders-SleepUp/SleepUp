@@ -66,4 +66,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
 
     List<Reservation> findByAccommodationId(Long id);
 
+    @Query("SELECT r FROM Reservation r WHERE r.user.username = :username AND r.checkOutDate >= :today")
+    List<Reservation> getFutureReservationsByUser(@Param("username") String username,
+                                                  @Param("today") LocalDate today);
 }

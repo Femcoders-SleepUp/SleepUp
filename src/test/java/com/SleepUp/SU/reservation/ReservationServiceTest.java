@@ -301,5 +301,31 @@ public class ReservationServiceTest {
                     BookingStatus.CANCELLED, false, LocalDateTime.now()
             );
         }
+
+        @Test
+        void getMyFutureReservations_returnsList() {
+            List<ReservationResponseSummary> listResult = runMyReservationsTest("María");
+            assertEquals(1, listResult.size());
+            assertEquals("María", listResult.get(0).userName());
+            assertEquals(1L, listResult.get(0).id());
+        }
+
+        private List<ReservationResponseSummary> runMyFutureReservationsTest(String userName) {
+            User user = new User();
+            user.setId(1L);
+            user.setUsername(userName);
+
+            Reservation reservation = new Reservation();
+            reservation.setId(1L);
+            reservation.setCheckInDate(LocalDate.now().plusDays(1));
+
+            ReservationResponseSummary summary = new ReservationResponseSummary(1L,userName,1,"María House",null,null,null,null,null);
+            when(userRepository.findByUsername(userName)).thenReturn(Optional.of(user));
+            when(reservationRepository.findByUser(user)).thenReturn(List.of(reservation));
+            when(reservationMapper.toSummary(reservation)).thenReturn(summary);
+
+            return reservationService.getMyReservations(userName);
+        }
+
     }
 }

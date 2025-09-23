@@ -13,6 +13,7 @@ import com.SleepUp.SU.utils.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -53,6 +54,19 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
         List<Reservation> reservations = reservationRepository.findByUser(user);
         return reservations.stream()
+                .map(reservation -> reservationMapper.toSummary(reservation))
+                .toList();
+    }
+
+    public List<ReservationResponseSummary> getMyFutureReservations(String username){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+        List<Reservation> reservations = reservationRepository.findByUser(user);
+
+        LocalDate today = LocalDate.now();
+
+        return reservations.stream()
+                .filter(reservation -> reservation.getCheckOutDate().isAfter(today))
                 .map(reservation -> reservationMapper.toSummary(reservation))
                 .toList();
     }
