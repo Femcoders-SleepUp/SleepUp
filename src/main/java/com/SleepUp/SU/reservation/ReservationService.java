@@ -66,7 +66,7 @@ public class ReservationService {
         LocalDate today = LocalDate.now();
 
         return reservations.stream()
-                .filter(reservation -> reservation.getCheckOutDate().isAfter(today))
+                .filter(reservation -> reservation.getCheckInDate().isAfter(today))
                 .map(reservation -> reservationMapper.toSummary(reservation))
                 .toList();
     }
