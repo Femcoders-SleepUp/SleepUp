@@ -10,12 +10,12 @@ import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,8 +24,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -86,7 +88,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
             Long accommodationId = 1L;
 
-            Mockito.when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), eq(accommodationId)))
+            when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), eq(accommodationId)))
                     .thenReturn(response);
 
             mockMvc.perform(post("/api/reservations/accommodation/1")
@@ -145,7 +147,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                     LocalDate.now().plusDays(1)
             );
 
-            Mockito.when(reservationService.createReservation(
+            when(reservationService.createReservation(
                     any(ReservationRequest.class),
                     any(User.class),
                     anyLong()
@@ -166,7 +168,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                     LocalDate.now().plusDays(1)
             );
 
-            Mockito.when(reservationService.createReservation(
+            when(reservationService.createReservation(
                     any(ReservationRequest.class),
                     any(User.class),
                     anyLong()
@@ -189,7 +191,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
             );
 
 
-            Mockito.when(reservationService.createReservation(
+            when(reservationService.createReservation(
                     any(ReservationRequest.class),
                     any(User.class),
                     anyLong()
@@ -210,7 +212,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                     LocalDate.now().plusDays(3)
             );
 
-            Mockito.when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), any(Long.class)))
+            when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), any(Long.class)))
                     .thenThrow(new IllegalArgumentException("You already have a reservation that overlaps with these dates"));
 
             mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
@@ -219,5 +221,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
 
+        }
+
+        @Test
+        @WithMockUser
+        void when_cancelReservation_then_return_cancelled_reservation() throws Exception {
+            Long reservationId = 1L;
+
+            ReservationResponseDetail response = new ReservationResponseDetail(
+                    1L,
+                    "Test User",
+                    2,
+                    "Test Accommodation",
+                    LocalDate.now().plusDays(5),
+                    LocalDate.now().plusDays(10),
+                    BookingStatus.CANCELLED,
+                    false,
+                    LocalDateTime.now()
+            );
+
+            when(reservationService.cancelReservation(reservationId, 1L))
+                    .thenReturn(response);
+
+            mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+                            .with(user(principal))
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.bookingStatus").value("CANCELLED"));
         }
     }
