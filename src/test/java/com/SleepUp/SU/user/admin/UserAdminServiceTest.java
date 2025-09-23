@@ -5,6 +5,9 @@ import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
+import com.SleepUp.SU.user.dto.UserRequestAdmin;
+import com.SleepUp.SU.user.dto.UserResponse;
+import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -82,5 +85,68 @@ public class UserAdminServiceTest {
             assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("userTest"));
         }
 
+    }
+
+    @Nested
+    class UpdateUserTest {
+        @Test
+        void should_updateExistingUser() {
+            UserRequestAdmin request = new UserRequestAdmin(
+                    "updatedUser",
+                    "Updated Name",
+                    "updated@test.com",
+                    "newPassword",
+                    Role.ADMIN
+            );
+
+            User existingUser = new User();
+            existingUser.setId(1L);
+            existingUser.setUsername("oldUser");
+            existingUser.setName("Old Name");
+            existingUser.setEmail("old@test.com");
+            existingUser.setPassword("oldPassword");
+            existingUser.setRole(Role.USER);
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+            when(passwordEncoder.encode("newPassword")).thenReturn("encodedPass");
+
+            User savedUser = new User();
+            savedUser.setId(1L);
+            savedUser.setUsername("updateUser");
+            savedUser.setName("update Name");
+            savedUser.setEmail("updated@test.com");
+            savedUser.setPassword("encodedPass");
+            savedUser.setRole(Role.ADMIN);
+
+            when(userRepository.save(any(User.class))).thenReturn(savedUser);
+            when(userMapper.toResponse(any(User.class)))
+                    .thenReturn(new UserResponse(1L, "updatedUser", "Updated Name", "updated@test.com", Role.ADMIN));
+
+            UserResponse response = userService.updateUser(1L, request);
+
+            assertEquals("updatedUser", response.username());
+            assertEquals("Updated Name", response.name());
+            assertEquals("updated@test.com", response.email());
+            assertEquals(Role.ADMIN, response.role());
+
+            verify(userRepository, times(1)).save(any(User.class));
+
+        }
+
+        @Test
+        void  should_throwException_when_userNotFound() {
+            when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+            UserRequestAdmin request = new UserRequestAdmin(
+                    "updatedUser",
+                    "Updated Name",
+                    "updated@test.com",
+                    "password",
+                    Role.ADMIN
+            );
+
+            assertThrows(RuntimeException.class, () -> userService.updateUser(1L, request));
+
+        }
     }
 }
