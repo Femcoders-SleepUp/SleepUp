@@ -5,8 +5,10 @@ import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.EmailServiceHelper;
 import org.junit.jupiter.api.Nested;
@@ -19,9 +21,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
@@ -45,6 +49,9 @@ public class ReservationServiceTest {
 
     @Mock
     private EmailServiceHelper emailServiceHelper;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Nested
     class CreateReservationTest {
@@ -237,6 +244,30 @@ public class ReservationServiceTest {
             reservation.setBookingStatus(BookingStatus.PENDING);
             reservation.setEmailSent(false);
             return reservation;
+        }
+
+        @Test
+        void getMyReservations_returnsList() {
+            List<ReservationResponseSummary> listResult = runMyReservationsTest("María");
+            assertEquals(1, listResult.size());
+            assertEquals("María", listResult.get(0).userName());
+            assertEquals(1L, listResult.get(0).id());
+        }
+
+        private List<ReservationResponseSummary> runMyReservationsTest(String userName) {
+            User user = new User();
+            user.setId(1L);
+            user.setUsername(userName);
+
+            Reservation reservation = new Reservation();
+            reservation.setId(1L);
+
+            ReservationResponseSummary summary = new ReservationResponseSummary(1L,userName,1,"María House",null,null,null,null,null);
+            when(userRepository.findByUsername(userName)).thenReturn(Optional.of(user));
+            when(reservationRepository.findByUser(user)).thenReturn(List.of(reservation));
+            when(reservationMapper.toSummary(reservation)).thenReturn(summary);
+
+            return reservationService.getMyReservations(userName);
         }
     }
 }
