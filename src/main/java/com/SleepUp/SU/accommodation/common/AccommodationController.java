@@ -32,6 +32,7 @@ public class AccommodationController {
         return accommodationService.getAccommodationById(id);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccommodationResponseDetail createAccommodation(

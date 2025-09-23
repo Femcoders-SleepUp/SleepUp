@@ -60,10 +60,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/filter**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/my-user").hasRole("USER")
-
                         .requestMatchers(HttpMethod.POST, "/api/accommodations").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/accommodations/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/accommodations/**").hasRole("USER")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/accommodations/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/accommodations/**").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/api/reservations/**").permitAll()
                         .anyRequest().authenticated()
