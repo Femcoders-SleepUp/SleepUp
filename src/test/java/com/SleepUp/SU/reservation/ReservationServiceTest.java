@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
@@ -55,6 +54,30 @@ public class ReservationServiceTest {
 
     @Nested
     class CreateReservationTest {
+
+        @Test
+        void getMyReservations_returnsList() {
+            List<ReservationResponseSummary> listResult = runMyReservationsTest("María");
+            assertEquals(1, listResult.size());
+            assertEquals("María", listResult.get(0).userName());
+            assertEquals(1L, listResult.get(0).id());
+        }
+
+        private List<ReservationResponseSummary> runMyReservationsTest(String userName) {
+            User user = new User();
+            user.setId(1L);
+            user.setUsername(userName);
+
+            Reservation reservation = new Reservation();
+            reservation.setId(1L);
+
+            ReservationResponseSummary summary = new ReservationResponseSummary(1L,userName,1,"María House",null,null,null,null,null);
+            when(userRepository.findByUsername(userName)).thenReturn(Optional.of(user));
+            when(reservationRepository.findByUser(user)).thenReturn(List.of(reservation));
+            when(reservationMapper.toSummary(reservation)).thenReturn(summary);
+
+            return reservationService.getMyReservations(userName);
+        }
 
         @Test
         void should_createReservation_successfully() {
@@ -216,6 +239,31 @@ public class ReservationServiceTest {
             verifyNoInteractions(reservationRepository);
         }
 
+        @Test
+        void should_cancelReservation_successfully() {
+            Long reservationId = 1L;
+            Long userId = 1L;
+
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+
+            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
+
+            when(reservationServiceHelper.findReservationByIdAndUser(reservationId, userId))
+                    .thenReturn(testReservation);
+            when(reservationRepository.save(testReservation)).thenReturn(testReservation);
+            when(reservationMapper.toDetail(testReservation)).thenReturn(expectedCancelledResponse());
+
+            ReservationResponseDetail result = reservationService.cancelReservation(reservationId, userId);
+
+            assertNotNull(result);
+            assertEquals(reservationId, result.id());
+            assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
+            verify(reservationServiceHelper).findReservationByIdAndUser(reservationId, userId);
+            verify(reservationRepository).save(testReservation);
+            verify(reservationMapper).toDetail(testReservation);
+        }
+
         private User createTestUser() {
             User user = new User();
             user.setId(1L);
@@ -246,28 +294,12 @@ public class ReservationServiceTest {
             return reservation;
         }
 
-        @Test
-        void getMyReservations_returnsList() {
-            List<ReservationResponseSummary> listResult = runMyReservationsTest("María");
-            assertEquals(1, listResult.size());
-            assertEquals("María", listResult.get(0).userName());
-            assertEquals(1L, listResult.get(0).id());
-        }
-
-        private List<ReservationResponseSummary> runMyReservationsTest(String userName) {
-            User user = new User();
-            user.setId(1L);
-            user.setUsername(userName);
-
-            Reservation reservation = new Reservation();
-            reservation.setId(1L);
-
-            ReservationResponseSummary summary = new ReservationResponseSummary(1L,userName,1,"María House",null,null,null,null,null);
-            when(userRepository.findByUsername(userName)).thenReturn(Optional.of(user));
-            when(reservationRepository.findByUser(user)).thenReturn(List.of(reservation));
-            when(reservationMapper.toSummary(reservation)).thenReturn(summary);
-
-            return reservationService.getMyReservations(userName);
+        private ReservationResponseDetail expectedCancelledResponse() {
+            return new ReservationResponseDetail(
+                    1L, "Test User", 4, "Test Hotel",
+                    LocalDate.now().plusDays(1), LocalDate.now().plusDays(30),
+                    BookingStatus.CANCELLED, false, LocalDateTime.now()
+            );
         }
     }
 }
