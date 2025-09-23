@@ -116,7 +116,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                             .with(anonymous())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
 
