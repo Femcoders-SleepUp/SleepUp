@@ -153,4 +153,41 @@ class ReservationOwnerServiceTest {
         }
     }
 
+    @Nested
+    class getReservationByIdTest {
+
+        @Test
+        void getReservationById_nonExisting_shouldThrow() {
+            Long id = 123L;
+
+            when(reservationRepository.findById(id))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                    reservationOwnerService.getReservationById(id))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Id not found");
+
+            verify(reservationMapper, never()).toDetail(any());
+        }
+
+        @Test
+        void getReservationById_existing_shouldReturnDetail() {
+            Long id = 456L;
+            Reservation isExisting = new Reservation();
+
+            when(reservationRepository.findById(id))
+                    .thenReturn(Optional.of(isExisting));
+            ReservationResponseDetail detailDto = mock(ReservationResponseDetail.class);
+            when(reservationMapper.toDetail(isExisting))
+                    .thenReturn(detailDto);
+
+            ReservationResponseDetail result =
+                    reservationOwnerService.getReservationById(id);
+
+            assertThat(result).isSameAs(detailDto);
+            verify(reservationMapper).toDetail(isExisting);
+        }
+    }
+
 }

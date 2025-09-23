@@ -32,4 +32,11 @@ public class ReservationOwnerController {
                                                              @RequestBody ReservationAuthRequest reservationAuthRequest){
         return reservationOwnerService.updateStatus(id, reservationAuthRequest);
     }
+
+    @PostMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ReservationResponseDetail getReservationById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                             @PathVariable Long id){
+        return reservationOwnerService.getReservationById(id);
+    }
 }

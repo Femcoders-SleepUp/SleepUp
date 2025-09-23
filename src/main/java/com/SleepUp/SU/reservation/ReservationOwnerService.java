@@ -41,4 +41,11 @@ public class ReservationOwnerService {
         return reservationMapper.toDetail(isExisting);
     }
 
+    public ReservationResponseDetail getReservationById(Long id){
+        Reservation isExisting = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Id not found"));
+
+        return reservationMapper.toDetail(isExisting);
+    }
+
 }
