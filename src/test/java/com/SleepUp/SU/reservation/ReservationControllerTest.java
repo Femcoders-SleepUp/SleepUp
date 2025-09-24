@@ -255,7 +255,7 @@ public class ReservationControllerTest {
                 LocalDateTime.now()
         );
 
-        when(reservationService.cancelReservation(reservationId, 1L))
+        when(reservationService.cancelReservation(reservationId))
                 .thenReturn(response);
 
         mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)

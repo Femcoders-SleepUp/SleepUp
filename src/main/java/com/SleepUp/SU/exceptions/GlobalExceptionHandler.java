@@ -25,6 +25,13 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDateRangeException(InvalidDateRangeException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
     @ExceptionHandler(UserNotFoundByIdException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundByIdeException(UserNotFoundByIdException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
@@ -112,14 +119,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         ErrorResponse body = new ErrorResponse(status, "Unauthorized: Bad credentials", request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(ReservationInvalidDateException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidReservationDateException(
-            ReservationInvalidDateException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ErrorResponse body = new ErrorResponse(status, status.getReasonPhrase(), exception.getMessage(), request);
         return ResponseEntity.status(status).body(body);
     }
 

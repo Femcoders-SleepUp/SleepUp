@@ -45,7 +45,7 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long id
     ) {
-        return reservationService.cancelReservation(id, customUserDetails.getUser().getId());
+        return reservationService.cancelReservation(id);
     }
 
 }

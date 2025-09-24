@@ -46,7 +46,6 @@ public class ReservationService {
 
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
         reservationServiceHelper.validateReservationDates(reservationRequest);
-
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
 
         reservationServiceHelper.validateAccommodationAvailability(accommodation, reservationRequest);
@@ -65,8 +64,8 @@ public class ReservationService {
         return reservationMapper.toDetail(savedReservation);
     }
 
-    public ReservationResponseDetail cancelReservation(Long reservationId, Long userId) {
-        Reservation reservation = reservationServiceHelper.findReservationByIdAndUser(reservationId, userId);
+    public ReservationResponseDetail cancelReservation(Long reservationId) {
+        Reservation reservation = reservationServiceHelper.getReservationEntityById(reservationId);
 
         reservationServiceHelper.validateReservationCancellable(reservation);
         reservation.setBookingStatus(BookingStatus.CANCELLED);

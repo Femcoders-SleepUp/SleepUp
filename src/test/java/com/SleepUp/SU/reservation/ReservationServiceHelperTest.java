@@ -1,10 +1,10 @@
 package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
 import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
-import com.SleepUp.SU.reservation.exceptions.ReservationInvalidDateException;
 import com.SleepUp.SU.reservation.exceptions.ReservationOverlapException;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
@@ -55,7 +55,7 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(1)
             );
 
-            ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
+            InvalidDateRangeException exception = assertThrows(InvalidDateRangeException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
@@ -66,7 +66,7 @@ public class ReservationServiceHelperTest {
             LocalDate sameDate = LocalDate.now().plusDays(1);
             ReservationRequest request = new ReservationRequest(2, sameDate, sameDate);
 
-            ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
+            InvalidDateRangeException exception = assertThrows(InvalidDateRangeException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
@@ -80,10 +80,10 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(1)
             );
 
-            ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
+            InvalidDateRangeException exception = assertThrows(InvalidDateRangeException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
-            assertEquals("Check-in date cannot be in the PAST", exception.getMessage());
+            assertEquals("Check-in date cannot be in the past", exception.getMessage());
         }
     }
 

@@ -8,6 +8,7 @@ import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,7 @@ public class ReservationServiceHelper {
     }
 
     public void validateReservationDates(ReservationRequest reservationRequest) {
-        if (reservationRequest.checkInDate().isAfter(reservationRequest.checkOutDate()) ||
-                reservationRequest.checkInDate().isEqual(reservationRequest.checkOutDate())) {
-            throw new ReservationInvalidDateException("Check-in date must be before check-out date");
-        }
-
-        if (reservationRequest.checkInDate().isBefore(LocalDate.now())) {
-            throw new ReservationInvalidDateException("Check-in date cannot be in the PAST");
-        }
+        EntityUtil.validateCheckInOutDates(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
     }
 
     public void validateAccommodationAvailability(Accommodation accommodation, ReservationRequest reservationRequest) {
@@ -113,16 +107,6 @@ public class ReservationServiceHelper {
                     "The accommodation is already reserved during these dates: " + conflictDetails
             );
         }
-    }
-
-    public Reservation findReservationByIdAndUser(Long reservationId, Long userId) {
-        Reservation reservation = getReservationEntityById(reservationId);
-
-        if (!reservation.getUser().equals(userId)) {
-            throw new AccessDeniedException("You don't have permission to access this reservation");
-        }
-
-        return reservation;
     }
 
     public void validateReservationCancellable(Reservation reservation) {
