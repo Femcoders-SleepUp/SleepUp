@@ -2,6 +2,10 @@ package com.SleepUp.SU.exceptions;
 
 import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
+import com.SleepUp.SU.utils.exceptions.UserEmailAlreadyExistsException;
+import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
+import com.SleepUp.SU.utils.exceptions.UserNotFoundByUsernameException;
+import com.SleepUp.SU.utils.exceptions.UserUsernameAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,34 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserNotFoundByIdException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundByIdeException(UserNotFoundByIdException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(UserNotFoundByUsernameException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundByUsernameException(UserNotFoundByUsernameException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(UserEmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserEmailAlreadyExists(UserEmailAlreadyExistsException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(UserUsernameAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserUsernameAlreadyExists(UserUsernameAlreadyExistsException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
 
     @ExceptionHandler(AccommodationNotFoundByIdException.class)
     public ResponseEntity<ErrorResponse> handleAccommodationNotFoundByIdException(AccommodationNotFoundByIdException exception, HttpServletRequest request) {
