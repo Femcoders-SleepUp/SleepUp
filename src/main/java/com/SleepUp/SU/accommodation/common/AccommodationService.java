@@ -6,6 +6,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
+import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import jakarta.transaction.Transactional;
@@ -29,7 +30,7 @@ public class AccommodationService {
     }
     
     public Accommodation getAccommodationEntityById(Long id) {
-        return accommodationRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Accommodation by id not found"));
+        return accommodationRepository.findById(id).orElseThrow(() -> new AccommodationNotFoundByIdException(id));
     }
 
     public AccommodationResponseDetail getAccommodationById(Long id) {

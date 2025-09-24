@@ -1,6 +1,7 @@
 package com.SleepUp.SU.exceptions;
 
 import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
+import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,13 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AccommodationNotFoundByIdException.class)
+    public ResponseEntity<ErrorResponse> handleAccommodationNotFoundByIdException(AccommodationNotFoundByIdException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
 
     @ExceptionHandler(AccommodationAlreadyExistsByNameException.class)
     public ResponseEntity<ErrorResponse> handleAccommodationAlreadyExistsByName(AccommodationAlreadyExistsByNameException exception, HttpServletRequest request) {
