@@ -2,6 +2,8 @@ package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.common.AccommodationService;
+import com.SleepUp.SU.accommodation.common.AccommodationServiceHelper;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -21,18 +23,17 @@ import java.util.List;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-    private final AccommodationRepository accommodationRepository;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
     private final EmailServiceHelper emailServiceHelper;
     private final UserRepository userRepository;
+    private final AccommodationServiceHelper accommodationServiceHelper;
 
 
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
         reservationServiceHelper.validateReservationDates(reservationRequest);
 
-        Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(() -> new RuntimeException("Accommodation not found"));
+        Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
 
         reservationServiceHelper.validateAccommodationAvailability(accommodation, reservationRequest);
         reservationServiceHelper.validateUserReservationOverlap(user.getId(), reservationRequest);
@@ -50,8 +51,11 @@ public class ReservationService {
         return reservationMapper.toDetail(savedReservation);
     }
     public List<ReservationResponseSummary> getMyReservations(String username){
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+
+
         List<Reservation> reservations = reservationRepository.findByUser(user);
         return reservations.stream()
                 .map(reservation -> reservationMapper.toSummary(reservation))
@@ -61,6 +65,7 @@ public class ReservationService {
     public List<ReservationResponseSummary> getMyFutureReservations(String username){
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+
         List<Reservation> reservations = reservationRepository.findByUser(user);
 
         LocalDate today = LocalDate.now();
@@ -75,9 +80,7 @@ public class ReservationService {
         Reservation reservation = reservationServiceHelper.findReservationByIdAndUser(reservationId, userId);
 
         reservationServiceHelper.validateReservationCancellable(reservation);
-
         reservation.setBookingStatus(BookingStatus.CANCELLED);
-
         Reservation savedReservation = reservationRepository.save(reservation);
 
         return reservationMapper.toDetail(savedReservation);

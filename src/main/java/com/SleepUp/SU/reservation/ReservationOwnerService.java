@@ -19,10 +19,8 @@ import java.util.List;
 public class ReservationOwnerService {
 
     private final ReservationRepository reservationRepository;
-    private final AccommodationRepository accommodationRepository;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
-    private final EmailServiceHelper emailServiceHelper;
     private final EntityUtil entityUtil;
 
     public List<ReservationResponseSummary> getAllReservationsOnMyAccommodation(User user, Long id){
@@ -33,18 +31,13 @@ public class ReservationOwnerService {
 
     @Transactional
     public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest){
-        Reservation isExisting = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Id not found"));
-
+        Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
-
         return reservationMapper.toDetail(isExisting);
     }
 
     public ReservationResponseDetail getReservationById(Long id){
-        Reservation isExisting = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Id not found"));
-
+        Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         return reservationMapper.toDetail(isExisting);
     }
 
