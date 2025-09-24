@@ -2,6 +2,10 @@ package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
+import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
+import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
+import com.SleepUp.SU.reservation.exceptions.ReservationInvalidDateException;
+import com.SleepUp.SU.reservation.exceptions.ReservationOverlapException;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,7 +54,7 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(1)
             );
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
@@ -61,7 +65,7 @@ public class ReservationServiceHelperTest {
             LocalDate sameDate = LocalDate.now().plusDays(1);
             ReservationRequest request = new ReservationRequest(2, sameDate, sameDate);
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
@@ -75,7 +79,7 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(1)
             );
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
             assertEquals("Check-in date cannot be in the past", exception.getMessage());
@@ -106,7 +110,7 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(5)
             );
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            AccommodationUnavailableException exception = assertThrows(AccommodationUnavailableException.class,
                     () -> reservationServiceHelper.validateAccommodationAvailability(accommodation, request));
 
             assertTrue(exception.getMessage().contains("Accommodation is only available from"));
@@ -121,7 +125,7 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(35)
             );
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            AccommodationUnavailableException exception = assertThrows(AccommodationUnavailableException.class,
                     () -> reservationServiceHelper.validateAccommodationAvailability(accommodation, request));
 
             assertTrue(exception.getMessage().contains("Accommodation is only available from"));
@@ -136,7 +140,7 @@ public class ReservationServiceHelperTest {
                     LocalDate.now().plusDays(10)
             );
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            AccommodationConstraintsException exception = assertThrows(AccommodationConstraintsException.class,
                     () -> reservationServiceHelper.validateAccommodationAvailability(accommodation, request));
 
             assertTrue(exception.getMessage().contains("Accommodation supports maximum 4 guests, but 6 guests requested"));
@@ -191,7 +195,7 @@ public class ReservationServiceHelperTest {
                     userId, request.checkInDate(), request.checkOutDate(), BookingStatus.CANCELLED))
                     .thenReturn(overlappingReservations);
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            ReservationOverlapException exception = assertThrows(ReservationOverlapException.class,
                     () -> reservationServiceHelper.validateUserReservationOverlap(userId, request));
 
             assertTrue(exception.getMessage().contains("You already have a reservation that overlaps with these dates"));
@@ -252,7 +256,7 @@ public class ReservationServiceHelperTest {
                     accommodationId, request.checkInDate(), request.checkOutDate(), BookingStatus.CANCELLED))
                     .thenReturn(overlappingReservations);
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            ReservationOverlapException exception = assertThrows(ReservationOverlapException.class,
                     () -> reservationServiceHelper.validateAccommodationReservationOverlap(accommodationId, request));
 
             assertTrue(exception.getMessage().contains("The accommodation is already reserved during these dates"));

@@ -2,6 +2,8 @@ package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.common.AccommodationServiceHelper;
+import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -38,13 +40,13 @@ public class ReservationServiceTest {
     private ReservationRepository reservationRepository;
 
     @Mock
-    private AccommodationRepository accommodationRepository;
-
-    @Mock
     private ReservationMapper reservationMapper;
 
     @Mock
     private ReservationServiceHelper reservationServiceHelper;
+
+    @Mock
+    private AccommodationServiceHelper accommodationServiceHelper;
 
     @Mock
     private EmailServiceHelper emailServiceHelper;
@@ -106,7 +108,7 @@ public class ReservationServiceTest {
             );
 
             // When
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
             when(reservationMapper.toEntity(reservationRequest, BookingStatus.PENDING, user, accommodation, false))
                     .thenReturn(mappedReservation);
             when(reservationRepository.save(mappedReservation)).thenReturn(savedReservation);
@@ -131,7 +133,7 @@ public class ReservationServiceTest {
             verify(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             verify(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
             verify(reservationServiceHelper).validateAccommodationReservationOverlap(accommodationId, reservationRequest);
-            verify(accommodationRepository).findById(accommodationId);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
             verify(reservationRepository).save(mappedReservation);
             verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
         }
@@ -148,15 +150,15 @@ public class ReservationServiceTest {
             Long accommodationId = 999L;
 
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.empty());
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenThrow(new AccommodationNotFoundByIdException(accommodationId));
 
             // When & Then
-            RuntimeException exception = assertThrows(RuntimeException.class,
+            AccommodationNotFoundByIdException exception = assertThrows(AccommodationNotFoundByIdException.class,
                     () -> reservationService.createReservation(reservationRequest, user, accommodationId));
 
-            assertEquals("Accommodation not found", exception.getMessage());
+            assertEquals("Accommodation with id '999' not found", exception.getMessage());
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
-            verify(accommodationRepository).findById(accommodationId);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
             verifyNoInteractions(reservationRepository);
             verifyNoInteractions(emailServiceHelper);
         }
@@ -181,7 +183,7 @@ public class ReservationServiceTest {
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
-            verifyNoInteractions(accommodationRepository);
+            verifyNoInteractions(accommodationServiceHelper);
             verifyNoInteractions(reservationRepository);
         }
 
@@ -197,7 +199,7 @@ public class ReservationServiceTest {
             Long accommodationId = 1L;
             Accommodation accommodation = createTestAccommodation();
 
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
             doThrow(new IllegalArgumentException("Accommodation supports maximum 4 guests, but 5 guests requested"))
                     .when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
@@ -207,7 +209,7 @@ public class ReservationServiceTest {
                     () -> reservationService.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("Accommodation supports maximum 4 guests, but 5 guests requested", exception.getMessage());
-            verify(accommodationRepository).findById(accommodationId);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
             verify(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             verifyNoInteractions(reservationRepository);
         }
@@ -224,7 +226,7 @@ public class ReservationServiceTest {
             Long accommodationId = 1L;
             Accommodation accommodation = createTestAccommodation();
 
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
             doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             doThrow(new IllegalArgumentException("You already have a reservation that overlaps with these dates"))
@@ -236,7 +238,7 @@ public class ReservationServiceTest {
 
             assertEquals("You already have a reservation that overlaps with these dates", exception.getMessage());
             verify(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
-            verifyNoInteractions(reservationRepository);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
         }
 
         @Test

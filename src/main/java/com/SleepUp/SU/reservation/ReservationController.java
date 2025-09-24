@@ -22,12 +22,12 @@ import java.util.List;
 public class ReservationController {
     private final ReservationService reservationService;
 
-    @PostMapping("/accommodation/{id}")
+    @PostMapping("/accommodation/{accommodationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @RequestBody ReservationRequest reservationRequest,
-            @RequestParam Long accommodationId
+            @PathVariable Long accommodationId
     ) {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
