@@ -7,12 +7,10 @@ import com.SleepUp.SU.user.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,6 +20,15 @@ import java.util.List;
 public class ReservationController {
     private final ReservationService reservationService;
 
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReservationResponseSummary> getMyReservations(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam ReservationTime time
+    ) {
+        return reservationService.getMyReservations(customUserDetails.getId(), time);
+    }
+
     @PostMapping("/accommodation/{accommodationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
@@ -30,30 +37,6 @@ public class ReservationController {
             @PathVariable Long accommodationId
     ) {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
-    }
-
-    @GetMapping("/all")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ReservationResponseSummary> getMyReservations(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        List<ReservationResponseSummary> reservations = reservationService.getMyReservations(customUserDetails.getId());
-        return reservations;
-    }
-
-    @GetMapping("/future")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<ReservationResponseSummary>> getMyFutureReservations(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        List<ReservationResponseSummary> futureReservations = reservationService.getMyReservations(customUserDetails.getId());
-        return ResponseEntity.ok(futureReservations);
-    }
-
-    @GetMapping("/history/{user}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ReservationResponseSummary> getMyPastReservations(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        List<ReservationResponseSummary> pastReservations = reservationService.getMyReservations(customUserDetails.getId());
-        return pastReservations;
     }
 
     @PatchMapping("cancel/{id}")

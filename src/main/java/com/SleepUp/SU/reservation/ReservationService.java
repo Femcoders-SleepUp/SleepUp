@@ -28,6 +28,17 @@ public class ReservationService {
     private final AccommodationServiceHelper accommodationServiceHelper;
     private final EntityUtil entityUtil;
 
+    public List<ReservationResponseSummary> getMyReservations(Long userId, ReservationTime time) {
+        LocalDate today = LocalDate.now();
+
+        List<Reservation> reservations = switch (time) {
+            case ALL -> reservationRepository.findByUser_Id(userId);
+            case PAST -> reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today);
+            case FUTURE -> reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today);
+        };
+
+        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
+    }
 
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
         reservationServiceHelper.validateReservationDates(reservationRequest);
@@ -48,24 +59,6 @@ public class ReservationService {
 
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
         return reservationMapper.toDetail(savedReservation);
-    }
-    public List<ReservationResponseSummary> getMyReservations(Long userId){
-        List<Reservation> reservations = reservationRepository.findByUser_Id(userId);
-        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
-    }
-
-    public List<ReservationResponseSummary> getMyFutureReservations(Long userId){
-        LocalDate today = LocalDate.now();
-        List<Reservation> reservations = reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today);
-
-        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
-    }
-
-    public List<ReservationResponseSummary> getMyHistoryReservations(Long userId){
-        LocalDate today = LocalDate.now();
-        List<Reservation> reservations = reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today);
-
-        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
     }
 
     public ReservationResponseDetail cancelReservation(Long reservationId, Long userId) {

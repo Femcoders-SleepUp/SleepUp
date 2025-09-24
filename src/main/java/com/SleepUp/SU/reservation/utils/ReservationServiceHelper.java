@@ -32,7 +32,7 @@ public class ReservationServiceHelper {
         }
 
         if (reservationRequest.checkInDate().isBefore(LocalDate.now())) {
-            throw new ReservationInvalidDateException("Check-in date cannot be in the past");
+            throw new ReservationInvalidDateException("Check-in date cannot be in the PAST");
         }
     }
 

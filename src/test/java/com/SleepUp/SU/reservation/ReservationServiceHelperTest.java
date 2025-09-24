@@ -83,7 +83,7 @@ public class ReservationServiceHelperTest {
             ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
-            assertEquals("Check-in date cannot be in the past", exception.getMessage());
+            assertEquals("Check-in date cannot be in the PAST", exception.getMessage());
         }
     }
 
