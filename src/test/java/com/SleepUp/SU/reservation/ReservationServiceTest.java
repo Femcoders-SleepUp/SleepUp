@@ -6,13 +6,14 @@ import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdExceptio
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -52,34 +54,72 @@ public class ReservationServiceTest {
     @Mock
     private EmailServiceHelper emailServiceHelper;
 
-    @Mock
-    private UserRepository userRepository;
+    private ReservationResponseSummary mappedDtos;
+    private Long userId;
+    private List<Reservation> mockReservations;
+
+    @BeforeEach
+    void setUp(){
+        mappedDtos = new ReservationResponseSummary(1L, "Maria",1,"María House",null,null,null,null,null);
+        userId = 1L;
+        mockReservations = List.of(new Reservation());
+
+    }
+
+    @Nested
+    class GetReservationsTest {
+        @Test
+        public void testGetMyReservations_All() {
+            when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.ALL);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_Id(userId);
+        }
+
+        @Test
+        public void testGetMyReservations_Past() {
+            LocalDate today = LocalDate.now();
+
+            when(reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.PAST);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_IdAndCheckInDateBefore(userId, today);
+        }
+
+        @Test
+        public void testGetMyReservations_Future() {
+            LocalDate today = LocalDate.now();
+
+            when(reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.FUTURE);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_IdAndCheckInDateAfter(userId, today);
+        }
+
+        @Test
+        public void testGetMyReservations_NullTime() {
+            when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, null);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_Id(userId);
+        }
+
+    }
 
     @Nested
     class CreateReservationTest {
-
-//        @Test
-//        void getMyReservations_returnsList() {
-//            List<ReservationResponseSummary> listResult = runMyReservationsTest("María");
-//            assertEquals(1, listResult.size());
-//            assertEquals("María", listResult.get(0).userName());
-//            assertEquals(1L, listResult.get(0).id());
-//        }
-//
-//        private List<ReservationResponseSummary> runMyReservationsTest(String userName) {
-//            User user = new User();
-//            user.setId(1L);
-//            user.setUsername(userName);
-//
-//            Reservation reservation = new Reservation();
-//            reservation.setId(1L);
-//
-//            ReservationResponseSummary summary = new ReservationResponseSummary(1L,userName,1,"María House",null,null,null,null,null);
-//            when(reservationRepository.findByUser_Id(user.getId())).thenReturn(List.of(reservation));
-//            when(reservationMapper.toSummary(reservation)).thenReturn(summary);
-//
-//            return reservationService.getMyReservations(user.getId());
-//        }
 
         @Test
         void should_createReservation_successfully() {
@@ -342,31 +382,6 @@ public class ReservationServiceTest {
                     BookingStatus.CANCELLED, false, LocalDateTime.now()
             );
         }
-
-//        @Test
-//        void getMyFutureReservations_returnsList() {
-//            List<ReservationResponseSummary> listResult = runMyReservationsTest("María");
-//            assertEquals(1, listResult.size());
-//            assertEquals("María", listResult.get(0).userName());
-//            assertEquals(1L, listResult.get(0).id());
-//        }
-//
-//        private List<ReservationResponseSummary> runMyFutureReservationsTest(String userName) {
-//            User user = new User();
-//            user.setId(1L);
-//            user.setUsername(userName);
-//
-//            Reservation reservation = new Reservation();
-//            reservation.setId(1L);
-//            reservation.setCheckInDate(LocalDate.now().plusDays(1));
-//
-//            ReservationResponseSummary summary = new ReservationResponseSummary(1L,userName,1,"María House",null,null,null,null,null);
-//            when(userRepository.findByUsername(userName)).thenReturn(Optional.of(user));
-//            when(reservationRepository.findByUser_Id(user.getId())).thenReturn(List.of(reservation));
-//            when(reservationMapper.toSummary(reservation)).thenReturn(summary);
-//
-//            return reservationService.getMyReservations(user.getId());
-//        }
 
     }
 }

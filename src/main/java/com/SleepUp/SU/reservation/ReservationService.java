@@ -31,6 +31,10 @@ public class ReservationService {
     public List<ReservationResponseSummary> getMyReservations(Long userId, ReservationTime time) {
         LocalDate today = LocalDate.now();
 
+        if (time == null) {
+            time = ReservationTime.ALL;  // or whatever default you prefer
+        }
+
         List<Reservation> reservations = switch (time) {
             case ALL -> reservationRepository.findByUser_Id(userId);
             case PAST -> reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today);
