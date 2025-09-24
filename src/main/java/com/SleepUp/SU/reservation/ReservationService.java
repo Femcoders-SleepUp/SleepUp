@@ -71,6 +71,19 @@ public class ReservationService {
                 .toList();
     }
 
+    public List<ReservationResponseSummary> getMyHistoryReservations(String username){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+        List<Reservation> reservations = reservationRepository.findByUser(user);
+
+        LocalDate today = LocalDate.now();
+
+        return reservations.stream()
+                .filter(reservation -> reservation.getCheckOutDate().isBefore(today))
+                .map(reservation -> reservationMapper.toSummary(reservation))
+                .toList();
+    }
+
     public ReservationResponseDetail cancelReservation(Long reservationId, Long userId) {
         Reservation reservation = reservationServiceHelper.findReservationByIdAndUser(reservationId, userId);
 
