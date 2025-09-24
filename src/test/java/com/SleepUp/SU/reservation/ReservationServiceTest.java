@@ -264,6 +264,45 @@ public class ReservationServiceTest {
             verify(reservationMapper).toDetail(testReservation);
         }
 
+        @Test
+        void should_cancelReservation_throw_exception_when_not_found() {
+            Long reservationId = 1L;
+            Long userId = 1L;
+
+            when(reservationServiceHelper.findReservationByIdAndUser(reservationId, userId))
+                    .thenThrow(new RuntimeException("Reservation not found"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class,
+                    () -> reservationService.cancelReservation(reservationId, userId));
+
+            assertEquals("Reservation not found", exception.getMessage());
+            verify(reservationServiceHelper).findReservationByIdAndUser(reservationId, userId);
+            verify(reservationRepository, never()).save(any());
+        }
+
+        @Test
+        void should_cancelReservation_throw_exception_when_already_cancelled() {
+            Long reservationId = 1L;
+            Long userId = 1L;
+
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+            testReservation.setBookingStatus(BookingStatus.CANCELLED);
+
+            when(reservationServiceHelper.findReservationByIdAndUser(reservationId, userId))
+                    .thenReturn(testReservation);
+            doThrow(new IllegalStateException("Cannot modify a cancelled reservation"))
+                    .when(reservationServiceHelper).validateReservationCancellable(testReservation);
+
+            IllegalStateException exception = assertThrows(IllegalStateException.class,
+                    () -> reservationService.cancelReservation(reservationId, userId));
+
+            assertEquals("Cannot modify a cancelled reservation", exception.getMessage());
+            verify(reservationServiceHelper).findReservationByIdAndUser(reservationId, userId);
+            verify(reservationServiceHelper).validateReservationCancellable(testReservation);
+            verify(reservationRepository, never()).save(any());
+        }
+
         private User createTestUser() {
             User user = new User();
             user.setId(1L);
