@@ -212,9 +212,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                     LocalDate.now().plusDays(3)
             );
 
-            when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), any(Long.class)))
-                    .thenThrow(new IllegalArgumentException("You already have a reservation that overlaps with these dates"));
-
             mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
                             .with(user(principal))
                             .contentType(MediaType.APPLICATION_JSON)
@@ -245,7 +242,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
             mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
                             .with(user(principal))
-                    .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(1L))

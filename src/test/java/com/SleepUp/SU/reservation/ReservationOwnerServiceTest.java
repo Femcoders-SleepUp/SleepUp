@@ -4,6 +4,7 @@ import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
+import com.SleepUp.SU.reservation.exceptions.ReservationNotFoundByIdException;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.utils.EntityUtil;
 import com.SleepUp.SU.user.User;
@@ -35,6 +36,9 @@ class ReservationOwnerServiceTest {
 
     @Mock
     private ReservationMapper reservationMapper;
+
+    @Mock
+    private ReservationServiceHelper reservationServiceHelper;
 
     @Mock
     private EntityUtil entityUtil;
@@ -121,12 +125,12 @@ class ReservationOwnerServiceTest {
             Long id = 99L;
             ReservationAuthRequest authRequest = new ReservationAuthRequest(BookingStatus.CONFIRMED);
 
-            when(reservationRepository.findById(id)).thenReturn(Optional.empty());
+            when(reservationServiceHelper.getReservationEntityById(id)).thenThrow(new ReservationNotFoundByIdException(id));
 
             assertThatThrownBy(() ->
                     reservationOwnerService.updateStatus(id, authRequest))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Id not found");
+                    .isInstanceOf(ReservationNotFoundByIdException.class)
+                    .hasMessage("Reservation with id '99' not found");
 
             verify(reservationMapper, never()).toDetail(any());
         }
@@ -139,7 +143,7 @@ class ReservationOwnerServiceTest {
             Reservation existing = new Reservation();
             existing.setBookingStatus(BookingStatus.PENDING);
 
-            when(reservationRepository.findById(id)).thenReturn(Optional.of(existing));
+            when(reservationServiceHelper.getReservationEntityById(id)).thenReturn(existing);
             ReservationResponseDetail detailDto = mock(ReservationResponseDetail.class);
             when(reservationMapper.toDetail(existing)).thenReturn(detailDto);
 
@@ -160,13 +164,12 @@ class ReservationOwnerServiceTest {
         void getReservationById_nonExisting_shouldThrow() {
             Long id = 123L;
 
-            when(reservationRepository.findById(id))
-                    .thenReturn(Optional.empty());
+            when(reservationServiceHelper.getReservationEntityById(id)).thenThrow(new ReservationNotFoundByIdException(id));
 
             assertThatThrownBy(() ->
                     reservationOwnerService.getReservationById(id))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Id not found");
+                    .isInstanceOf(ReservationNotFoundByIdException.class)
+                    .hasMessage("Reservation with id '123' not found");
 
             verify(reservationMapper, never()).toDetail(any());
         }
@@ -176,8 +179,7 @@ class ReservationOwnerServiceTest {
             Long id = 456L;
             Reservation isExisting = new Reservation();
 
-            when(reservationRepository.findById(id))
-                    .thenReturn(Optional.of(isExisting));
+            when(reservationServiceHelper.getReservationEntityById(id)).thenReturn(isExisting);
             ReservationResponseDetail detailDto = mock(ReservationResponseDetail.class);
             when(reservationMapper.toDetail(isExisting))
                     .thenReturn(detailDto);
