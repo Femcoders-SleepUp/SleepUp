@@ -2,6 +2,7 @@ package com.SleepUp.SU.exceptions;
 
 import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
+import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.utils.exceptions.UserEmailAlreadyExistsException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByUsernameException;
@@ -111,6 +112,52 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         ErrorResponse body = new ErrorResponse(status, "Unauthorized: Bad credentials", request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(ReservationInvalidDateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidReservationDateException(
+            ReservationInvalidDateException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse body = new ErrorResponse(status, status.getReasonPhrase(), exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(ReservationNotFoundByIdException.class)
+    public ResponseEntity<ErrorResponse> handleReservationNotFoundByIdeException(ReservationNotFoundByIdException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(AccommodationConstraintsException.class)
+    public ResponseEntity<ErrorResponse> handleAccommodationConstraintsException(
+            AccommodationConstraintsException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(AccommodationUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleAccommodationUnavailableException(
+            AccommodationUnavailableException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+    @ExceptionHandler(ReservationOverlapException.class)
+    public ResponseEntity<ErrorResponse> handleReservationOverlapException(
+            ReservationOverlapException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(ReservationModificationException.class)
+    public ResponseEntity<ErrorResponse> handleReservationModificationException(
+            ReservationModificationException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
         return ResponseEntity.status(status).body(body);
     }
 
