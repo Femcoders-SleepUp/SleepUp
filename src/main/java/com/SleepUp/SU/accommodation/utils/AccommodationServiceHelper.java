@@ -1,4 +1,4 @@
-package com.SleepUp.SU.accommodation.common;
+package com.SleepUp.SU.accommodation.utils;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;

@@ -1,4 +1,4 @@
-package com.SleepUp.SU.accommodation.common;
+package com.SleepUp.SU.accommodation;
 
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;

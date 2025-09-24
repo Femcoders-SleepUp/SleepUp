@@ -1,14 +1,13 @@
 package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
-import com.SleepUp.SU.accommodation.common.AccommodationServiceHelper;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.role.Role;
@@ -20,13 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
