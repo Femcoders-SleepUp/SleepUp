@@ -1,12 +1,13 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.owner;
 
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.utils.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

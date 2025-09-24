@@ -7,6 +7,7 @@ import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.exceptions.ReservationInvalidDateException;
 import com.SleepUp.SU.reservation.exceptions.ReservationOverlapException;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,7 +83,7 @@ public class ReservationServiceHelperTest {
             ReservationInvalidDateException exception = assertThrows(ReservationInvalidDateException.class,
                     () -> reservationServiceHelper.validateReservationDates(request));
 
-            assertEquals("Check-in date cannot be in the past", exception.getMessage());
+            assertEquals("Check-in date cannot be in the PAST", exception.getMessage());
         }
     }
 

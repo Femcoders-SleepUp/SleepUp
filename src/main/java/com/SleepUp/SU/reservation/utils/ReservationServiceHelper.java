@@ -1,6 +1,8 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.utils;
 
 import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
 import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
@@ -30,7 +32,7 @@ public class ReservationServiceHelper {
         }
 
         if (reservationRequest.checkInDate().isBefore(LocalDate.now())) {
-            throw new ReservationInvalidDateException("Check-in date cannot be in the past");
+            throw new ReservationInvalidDateException("Check-in date cannot be in the PAST");
         }
     }
 

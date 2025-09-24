@@ -1,17 +1,16 @@
 package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
-import com.SleepUp.SU.accommodation.common.AccommodationService;
-import com.SleepUp.SU.accommodation.common.AccommodationServiceHelper;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.utils.EmailServiceHelper;
+import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +25,24 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
     private final EmailServiceHelper emailServiceHelper;
-    private final UserRepository userRepository;
     private final AccommodationServiceHelper accommodationServiceHelper;
+    private final EntityUtil entityUtil;
 
+    public List<ReservationResponseSummary> getMyReservations(Long userId, ReservationTime time) {
+        LocalDate today = LocalDate.now();
+
+        if (time == null) {
+            time = ReservationTime.ALL;  // or whatever default you prefer
+        }
+
+        List<Reservation> reservations = switch (time) {
+            case ALL -> reservationRepository.findByUser_Id(userId);
+            case PAST -> reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today);
+            case FUTURE -> reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today);
+        };
+
+        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
+    }
 
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
         reservationServiceHelper.validateReservationDates(reservationRequest);
@@ -49,44 +63,6 @@ public class ReservationService {
 
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
         return reservationMapper.toDetail(savedReservation);
-    }
-    public List<ReservationResponseSummary> getMyReservations(String username){
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
-
-
-        List<Reservation> reservations = reservationRepository.findByUser(user);
-        return reservations.stream()
-                .map(reservation -> reservationMapper.toSummary(reservation))
-                .toList();
-    }
-
-    public List<ReservationResponseSummary> getMyFutureReservations(String username){
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
-
-        List<Reservation> reservations = reservationRepository.findByUser(user);
-
-        LocalDate today = LocalDate.now();
-
-        return reservations.stream()
-                .filter(reservation -> reservation.getCheckInDate().isAfter(today))
-                .map(reservation -> reservationMapper.toSummary(reservation))
-                .toList();
-    }
-
-    public List<ReservationResponseSummary> getMyHistoryReservations(String username){
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
-        List<Reservation> reservations = reservationRepository.findByUser(user);
-
-        LocalDate today = LocalDate.now();
-
-        return reservations.stream()
-                .filter(reservation -> reservation.getCheckOutDate().isBefore(today))
-                .map(reservation -> reservationMapper.toSummary(reservation))
-                .toList();
     }
 
     public ReservationResponseDetail cancelReservation(Long reservationId, Long userId) {
