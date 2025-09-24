@@ -46,6 +46,13 @@ public class ReservationController {
         return ResponseEntity.ok(futureReservations);
     }
 
+    @GetMapping("/history/{user}")
+    public ResponseEntity<List<ReservationResponseSummary>> getMyPastReservations(Principal principal) {
+        String username = principal.getName();
+        List<ReservationResponseSummary> pastReservations = reservationService.getMyReservations(username);
+        return ResponseEntity.ok(pastReservations);
+    }
+
     @PatchMapping("cancel/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail cancelReservation(
