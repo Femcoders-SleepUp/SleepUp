@@ -1,4 +1,4 @@
-package com.SleepUp.SU.exception;
+package com.SleepUp.SU.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.servlet.http.HttpServletRequest;

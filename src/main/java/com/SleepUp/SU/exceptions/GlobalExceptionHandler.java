@@ -1,4 +1,4 @@
-package com.SleepUp.SU.exception;
+package com.SleepUp.SU.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

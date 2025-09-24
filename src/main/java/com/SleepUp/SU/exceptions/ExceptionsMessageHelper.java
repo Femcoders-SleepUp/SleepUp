@@ -1,4 +1,4 @@
-package com.SleepUp.SU.exception;
+package com.SleepUp.SU.exceptions;
 
 public class ExceptionsMessageHelper {
     static String entityAlreadyExists(String entityClass, String attributeName, String attributeValue) {
