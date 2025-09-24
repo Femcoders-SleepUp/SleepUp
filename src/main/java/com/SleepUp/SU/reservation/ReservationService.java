@@ -32,7 +32,7 @@ public class ReservationService {
         LocalDate today = LocalDate.now();
 
         if (time == null) {
-            time = ReservationTime.ALL;  // or whatever default you prefer
+            time = ReservationTime.ALL;
         }
 
         List<Reservation> reservations = switch (time) {
