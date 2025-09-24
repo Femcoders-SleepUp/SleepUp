@@ -32,25 +32,28 @@ public class ReservationController {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
 
-    @GetMapping("/all/{user}")
-    public ResponseEntity<List<ReservationResponseSummary>> getMyReservations(Principal principal) {
-        String username = principal.getName();
-        List<ReservationResponseSummary> reservations = reservationService.getMyReservations(username);
-        return ResponseEntity.ok(reservations);
+    @GetMapping("/all")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReservationResponseSummary> getMyReservations(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<ReservationResponseSummary> reservations = reservationService.getMyReservations(customUserDetails.getId());
+        return reservations;
     }
 
-    @GetMapping("/future/{user}")
-    public ResponseEntity<List<ReservationResponseSummary>> getMyFutureReservations(Principal principal) {
-        String username = principal.getName();
-        List<ReservationResponseSummary> futureReservations = reservationService.getMyReservations(username);
+    @GetMapping("/future")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<ReservationResponseSummary>> getMyFutureReservations(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<ReservationResponseSummary> futureReservations = reservationService.getMyReservations(customUserDetails.getId());
         return ResponseEntity.ok(futureReservations);
     }
 
     @GetMapping("/history/{user}")
-    public ResponseEntity<List<ReservationResponseSummary>> getMyPastReservations(Principal principal) {
-        String username = principal.getName();
-        List<ReservationResponseSummary> pastReservations = reservationService.getMyReservations(username);
-        return ResponseEntity.ok(pastReservations);
+    @ResponseStatus(HttpStatus.OK)
+    public List<ReservationResponseSummary> getMyPastReservations(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<ReservationResponseSummary> pastReservations = reservationService.getMyReservations(customUserDetails.getId());
+        return pastReservations;
     }
 
     @PatchMapping("cancel/{id}")

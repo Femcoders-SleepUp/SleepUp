@@ -1,8 +1,6 @@
 package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
-import com.SleepUp.SU.accommodation.common.AccommodationService;
 import com.SleepUp.SU.accommodation.common.AccommodationServiceHelper;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
@@ -12,6 +10,7 @@ import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.utils.EmailServiceHelper;
+import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +25,8 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
     private final EmailServiceHelper emailServiceHelper;
-    private final UserRepository userRepository;
     private final AccommodationServiceHelper accommodationServiceHelper;
+    private final EntityUtil entityUtil;
 
 
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
@@ -50,43 +49,23 @@ public class ReservationService {
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
         return reservationMapper.toDetail(savedReservation);
     }
-    public List<ReservationResponseSummary> getMyReservations(String username){
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
-
-
-        List<Reservation> reservations = reservationRepository.findByUser(user);
-        return reservations.stream()
-                .map(reservation -> reservationMapper.toSummary(reservation))
-                .toList();
+    public List<ReservationResponseSummary> getMyReservations(Long userId){
+        List<Reservation> reservations = reservationRepository.findByUser_Id(userId);
+        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
     }
 
-    public List<ReservationResponseSummary> getMyFutureReservations(String username){
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
-
-        List<Reservation> reservations = reservationRepository.findByUser(user);
-
+    public List<ReservationResponseSummary> getMyFutureReservations(Long userId){
         LocalDate today = LocalDate.now();
+        List<Reservation> reservations = reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today);
 
-        return reservations.stream()
-                .filter(reservation -> reservation.getCheckInDate().isAfter(today))
-                .map(reservation -> reservationMapper.toSummary(reservation))
-                .toList();
+        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
     }
 
-    public List<ReservationResponseSummary> getMyHistoryReservations(String username){
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
-        List<Reservation> reservations = reservationRepository.findByUser(user);
-
+    public List<ReservationResponseSummary> getMyHistoryReservations(Long userId){
         LocalDate today = LocalDate.now();
+        List<Reservation> reservations = reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today);
 
-        return reservations.stream()
-                .filter(reservation -> reservation.getCheckOutDate().isBefore(today))
-                .map(reservation -> reservationMapper.toSummary(reservation))
-                .toList();
+        return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
     }
 
     public ReservationResponseDetail cancelReservation(Long reservationId, Long userId) {

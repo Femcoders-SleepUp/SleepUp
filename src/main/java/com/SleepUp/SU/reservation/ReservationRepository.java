@@ -62,7 +62,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                                   @Param("checkInDate") LocalDate checkInDate,
                                                                   @Param("checkOutDate") LocalDate checkOutDate,
                                                                   @Param("cancelledStatus") BookingStatus cancelledStatus);
-    List<Reservation> findByUser(User user);
+    List<Reservation> findByUser_Id(Long userId);
+
+    List<Reservation> findByUser_IdAndCheckInDateBefore(Long userId, LocalDate date);
+
+    List<Reservation> findByUser_IdAndCheckInDateAfter(Long userId, LocalDate date);
 
     List<Reservation> findByAccommodationId(Long id);
 
