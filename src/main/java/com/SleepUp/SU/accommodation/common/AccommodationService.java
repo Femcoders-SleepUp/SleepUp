@@ -28,13 +28,9 @@ public class AccommodationService {
         List<Accommodation> accommodations = accommodationRepository.findAll();
         return accommodations.stream().map(accommodationMapper::toSummary).toList();
     }
-    
-    public Accommodation getAccommodationEntityById(Long id) {
-        return accommodationRepository.findById(id).orElseThrow(() -> new AccommodationNotFoundByIdException(id));
-    }
 
     public AccommodationResponseDetail getAccommodationById(Long id) {
-        return accommodationMapper.toDetail(getAccommodationEntityById(id));
+        return accommodationMapper.toDetail(accommodationServiceHelper.getAccommodationEntityById(id));
     }
 
     @Transactional
@@ -46,7 +42,7 @@ public class AccommodationService {
     }
 
     public AccommodationResponseDetail updateAccommodation(Long id, AccommodationRequest accommodationRequest){
-        Accommodation accommodation = getAccommodationEntityById(id);
+        Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         if (!accommodation.getName().equals(accommodationRequest.name())){
             accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
         }
@@ -66,7 +62,7 @@ public class AccommodationService {
     }
 
     public void deleteAccommodation(Long id) {
-        Accommodation accommodation = getAccommodationEntityById(id);
+        Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         accommodationRepository.delete(accommodation);
     }
 }
