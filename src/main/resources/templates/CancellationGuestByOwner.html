@@ -2,8 +2,6 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
     <style>
         body {
           font-family: Arial, sans-serif;
@@ -32,15 +30,6 @@
           color: #555555;
           padding-left: 20px;
         }
-        .button, button {
-          display: inline-block;
-          background-color: #76599d;
-          color: #ffffff;
-          text-decoration: none;
-          padding: 6px 10px;
-          border-radius: 5px;
-          font-weight: bold;
-        }
         .footer {
           margin-top: 30px;
           font-size: 0.9em;
@@ -56,11 +45,10 @@
 
     <h1 th:text="'Hello, ' + ${userName} + '!'">Hello, Guest!</h1>
 
-    <p>Your booking has been successfully
-        <span style="background-color: green; color: white; padding: 2px 5px; border-radius: 3px;">
-        confirmed
-        </span>:
-    </p>
+    <p>Your reservation has been
+        <span style="background-color: red; color: white; padding: 2px 5px; border-radius: 3px;">
+        cancelled
+        </span>:</p>
     <ul>
         <li>
             <b>Accommodation:</b>
@@ -68,25 +56,23 @@
         </li>
         <li><b>Location:</b> <span th:text="${location}">Location</span></li>
         <li>
-            <b>Check-in Date:</b> <span th:text="${checkInDate}">Check-in</span>
+            <b>Original Check-in:</b>
+            <span th:text="${checkInDate}">Check-in</span>
         </li>
         <li>
-            <b>Check-out Date:</b>
+            <b>Original Check-out:</b>
             <span th:text="${checkOutDate}">Check-out</span>
         </li>
     </ul>
+
     <p>
-        You can manage your booking or view more details by logging into your
-        SleepUp dashboard.
+        If you have any questions or need assistance, feel free to contact our
+        support team.
     </p>
 
-    <button>
-    <a th:href="${dashboardUrl}" style="color: white;" class="button">View My Booking</a>
-    </button>
-
     <p class="footer">
-        Thank you for choosing SleepUp for your stay.<br />
-        We wish you a wonderful trip!<br />
+        We're sorry to see you go, but hope to welcome you again soon.<br />
+        Warm regards,<br />
         — The SleepUp Team ☁<br />
         📧 <a href="mailto:sleepup.backend@gmail.com" style="color: #888888;">sleepup.backend@gmail.com</a> &nbsp;|&nbsp;
         📞 <a href="tel:+1234567890" style="color: #888888;">+1 234 567 890</a>
