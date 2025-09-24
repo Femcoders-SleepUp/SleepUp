@@ -3,6 +3,8 @@ package com.SleepUp.SU.user.utils;
 
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.utils.exceptions.UserEmailAlreadyExistsException;
+import com.SleepUp.SU.utils.exceptions.UserUsernameAlreadyExistsException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,12 +68,12 @@ public class UserServiceHelperTest {
         void when_username_exists_then_throw_exception() {
             when(userRepository.existsByUsername("testUser")).thenReturn(true);
 
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            UserUsernameAlreadyExistsException exception = assertThrows(
+                    UserUsernameAlreadyExistsException.class,
                     () -> userServiceHelper.validateUserDoesNotExist("testUser", "testUser@email.com")
             );
 
-            assertEquals("already exists username", exception.getMessage());
+            assertEquals("User with username 'testUser' already exists", exception.getMessage());
         }
 
         @Test
@@ -79,12 +81,12 @@ public class UserServiceHelperTest {
             when(userRepository.existsByUsername("testUser")).thenReturn(false);
             when(userRepository.existsByEmail("testUser@email.com")).thenReturn(true);
 
-            IllegalArgumentException exception = assertThrows(
-                    IllegalArgumentException.class,
+            UserEmailAlreadyExistsException exception = assertThrows(
+                    UserEmailAlreadyExistsException.class,
                     () -> userServiceHelper.validateUserDoesNotExist("testUser", "testUser@email.com")
             );
 
-            assertEquals("already exists email", exception.getMessage());
+            assertEquals("User with email 'testUser@email.com' already exists", exception.getMessage());
         }
 
 
