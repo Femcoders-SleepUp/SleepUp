@@ -138,7 +138,7 @@ public class ReservationOwnerControllerTest {
             when(reservationOwnerService.updateStatus(id, authRequest))
                     .thenReturn(detailDto);
 
-            mockMvc.perform(post("/api/reservations/authorize/{id}", id)
+            mockMvc.perform(patch("/api/reservations/{id}/status", id)
                             .with(user(principal))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(authRequest)))
