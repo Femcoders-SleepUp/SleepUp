@@ -1,23 +1,23 @@
 package com.SleepUp.SU.user.admin;
 
+import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -33,8 +33,25 @@ public class UserAdminControllerTest {
    @Autowired
     private ObjectMapper objectMapper;
 
-   @MockBean
+    @Autowired
+    private UserAdminController userAdminController;
+
+    @Autowired
+    private UserRepository userRepository;
+
+   @Autowired
     private  UserAdminService userAdminService;
+
+   private CustomUserDetails customUserDetails;
+
+   @BeforeEach
+   void sepUp(){
+        User savedUser = userRepository.findByUsername("Admin1")
+                .orElseThrow(() -> new RuntimeException("User2 not found"));
+
+       customUserDetails = new CustomUserDetails(savedUser);
+    }
+
 
     @Nested
     class CreateUserTest {
@@ -57,11 +74,9 @@ public class UserAdminControllerTest {
                     Role.USER
             );
 
-            when(userAdminService.createUser(any(UserRequestAdmin.class)))
-                    .thenReturn(response);
 
-            mockMvc.perform(post("/api/users")
-                            .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN"))
+            mockMvc.perform(post("/api/users/admin")
+                            .with(user(customUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -80,8 +95,8 @@ public class UserAdminControllerTest {
                     Role.USER
             );
 
-            mockMvc.perform(post("/api/users")
-                            .with(SecurityMockMvcRequestPostProcessors.user("user").roles("USER"))
+            mockMvc.perform(post("/api/users/admin")
+                            .with(user("user").roles("USER"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -108,11 +123,9 @@ public class UserAdminControllerTest {
                     Role.ADMIN
             );
 
-            when(userAdminService.updateUser(any(Long.class), any(UserRequestAdmin.class)))
-                    .thenReturn(response);
 
-            mockMvc.perform(put("/api/users/1")
-                            .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN"))
+            mockMvc.perform(put("/api/users/admin/1")
+                            .with(user(customUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -131,8 +144,8 @@ public class UserAdminControllerTest {
                     Role.ADMIN
             );
 
-            mockMvc.perform(put("/api/users/1")
-                            .with(SecurityMockMvcRequestPostProcessors.user("user").roles("USER"))
+            mockMvc.perform(put("/api/users/admin/1")
+                            .with(user("user").roles("USER"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
@@ -144,17 +157,15 @@ public class UserAdminControllerTest {
 
 //       @Test
 //       void when_adminRole_then_deleteUser() throws Exception {
-//           doNothing().when(userAdminService).deleteUserById(1L);
-//
-//           mockMvc.perform(delete("/api/user/{id}",1L)
-//                   .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN"))
+//           mockMvc.perform(delete("/api/users/admin/{id}",1L)
+//                   .with(user(customUserDetails))
 //                   .accept(MediaType.APPLICATION_JSON))
 //                   .andExpect(status().isNoContent());
 //       }
        @Test
        void when_notAdminRole_then_forbidden() throws Exception {
-           mockMvc.perform(delete("/api/users/1")
-                           .with(SecurityMockMvcRequestPostProcessors.user("user").roles("USER"))
+           mockMvc.perform(delete("/api/users/admin/1")
+                           .with(user("user").roles("USER"))
                            .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isForbidden());
        }

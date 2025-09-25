@@ -126,7 +126,7 @@ public class UserAdminServiceTest {
             when(userMapper.toResponse(any(User.class)))
                     .thenReturn(new UserResponse(1L, "updatedUser", "Updated Name", "updated@test.com", Role.ADMIN));
 
-            UserResponse response = userService.updateUser(1L, request);
+            UserResponse response = userAdminService.updateUser(1L, request);
 
             assertEquals("updatedUser", response.username());
             assertEquals("Updated Name", response.name());
@@ -149,7 +149,7 @@ public class UserAdminServiceTest {
                     Role.ADMIN
             );
 
-            assertThrows(RuntimeException.class, () -> userService.updateUser(1L, request));
+            assertThrows(RuntimeException.class, () -> userAdminService.updateUser(1L, request));
 
 
 //            existingUser.setPassword("oldPass");

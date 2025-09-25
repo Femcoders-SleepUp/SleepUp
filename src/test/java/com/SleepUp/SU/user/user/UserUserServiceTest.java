@@ -45,7 +45,7 @@ public class UserUserServiceTest {
 
         @Test
         void when_getLoggesUser_return_loggedUser(){
-            User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null);
+            User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             UserResponse userResponse = new UserResponse(99L,"usernameTest", "nameTest", "email@test.com", Role.USER);
 
             when(userServiceHelper.findById(99L)).thenReturn(user);
@@ -78,10 +78,10 @@ public class UserUserServiceTest {
 
         @Test
         void when_updateLoggedUser_with_new_data_then_return_updated_response() {
-            User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER, null);
+            User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER, null, null);
             UserRequest request = new UserRequest("newUsername", "","new@email.com", "newPassword");
 
-            User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER, null);
+            User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER, null, null);
             UserResponse expectedResponse = new UserResponse(99L, "newUsername", "oldName", "new@email.com", Role.USER);
 
             when(userServiceHelper.findById(99L)).thenReturn(user);
@@ -102,7 +102,7 @@ public class UserUserServiceTest {
 
         @Test
         void when_updateLoggedUser_with_empty_request_then_return_same_response() {
-            User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER, null);
+            User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER, null, null);
             UserRequest request = new UserRequest("", "", "", "");
 
             UserResponse expectedResponse = new UserResponse(99L, "sameUsername", "sameName", "same@email.com", Role.USER);
@@ -137,7 +137,7 @@ public class UserUserServiceTest {
     class deleteLoggedUser {
         @Test
         void when_user_exists_then_delete_successfully() {
-            User user = new User(99L, "deleteUser", "Delete Name", "delete@email.com", "password", Role.USER, null);
+            User user = new User(99L, "deleteUser", "Delete Name", "delete@email.com", "password", Role.USER, null, null);
 
             System.out.println("id"+ user.getId());
             when(userServiceHelper.findById(99L)).thenReturn(user);
