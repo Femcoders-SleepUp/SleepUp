@@ -17,21 +17,24 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccommodationServiceImpl {
+public class AccommodationServiceImpl implements AccommodationService{
     private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper accommodationMapper;
     private final AccommodationServiceHelper accommodationServiceHelper;
     private final EntityUtil entityUtil;
 
+    @Override
     public List<AccommodationResponseSummary> getAllAccommodations(){
         List<Accommodation> accommodations = accommodationRepository.findAll();
         return accommodations.stream().map(accommodationMapper::toSummary).toList();
     }
 
+    @Override
     public AccommodationResponseDetail getAccommodationById(Long id) {
         return accommodationMapper.toDetail(accommodationServiceHelper.getAccommodationEntityById(id));
     }
 
+    @Override
     @Transactional
     public AccommodationResponseDetail createAccommodation(AccommodationRequest accommodationRequest, User user){
         accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
@@ -42,6 +45,7 @@ public class AccommodationServiceImpl {
         return accommodationMapper.toDetail(savedAccommodation);
     }
 
+    @Override
     @Transactional
     public AccommodationResponseDetail updateAccommodation(Long id, AccommodationRequest accommodationRequest){
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
@@ -66,6 +70,7 @@ public class AccommodationServiceImpl {
         return accommodationMapper.toDetail(accommodation);
     }
 
+    @Override
     public void deleteAccommodation(Long id) {
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         accommodationServiceHelper.deleteImageCloudinary(accommodation.getImageUrl());

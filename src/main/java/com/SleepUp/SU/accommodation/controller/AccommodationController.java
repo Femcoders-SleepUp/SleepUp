@@ -3,7 +3,7 @@ package com.SleepUp.SU.accommodation.controller;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
-import com.SleepUp.SU.accommodation.service.AccommodationServiceImpl;
+import com.SleepUp.SU.accommodation.service.AccommodationService;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +19,18 @@ import java.util.List;
 @RequestMapping("/api/accommodations")
 @RequiredArgsConstructor
 public class AccommodationController {
-    private final AccommodationServiceImpl accommodationServiceImpl;
+    private final AccommodationService accommodationService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<AccommodationResponseSummary> getAllAccommodations(@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        return accommodationServiceImpl.getAllAccommodations();
+        return accommodationService.getAllAccommodations();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public AccommodationResponseDetail getAccommodationDetailById(@PathVariable Long id) {
-        return accommodationServiceImpl.getAccommodationById(id);
+        return accommodationService.getAccommodationById(id);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -39,7 +39,7 @@ public class AccommodationController {
     public AccommodationResponseDetail createAccommodation(
             @RequestBody @Valid @ModelAttribute AccommodationRequest accommodationRequest,
             @AuthenticationPrincipal CustomUserDetails customUserDetails){
-        return accommodationServiceImpl.createAccommodation(accommodationRequest, customUserDetails.getUser());
+        return accommodationService.createAccommodation(accommodationRequest, customUserDetails.getUser());
     }
 
     @PreAuthorize("hasRole('ADMIN') or @accommodationAccessEvaluator.isOwner(#id, principal.id)")
@@ -48,14 +48,14 @@ public class AccommodationController {
     public AccommodationResponseDetail updateAccommodation(
             @PathVariable Long id,
             @RequestBody @Valid @ModelAttribute AccommodationRequest accommodationRequest){
-        return accommodationServiceImpl.updateAccommodation(id, accommodationRequest);
+        return accommodationService.updateAccommodation(id, accommodationRequest);
     }
 
     @PreAuthorize("hasRole('ADMIN') or @accommodationAccessEvaluator.isOwner(#id, principal.id)")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Object> deleteAccommodation(@PathVariable Long id){
-        accommodationServiceImpl.deleteAccommodation(id);
+        accommodationService.deleteAccommodation(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -18,11 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class AccommodationOwnerController {
-    private final AccommodationOwnerServiceImpl accommodationOwnerServiceImpl;
+    private final AccommodationOwnerService accommodationOwnerService;
 
     @GetMapping("/my-user")
     @ResponseStatus(HttpStatus.OK)
     public List<AccommodationResponseSummary> getAllOwnerAccommodations(@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        return accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(customUserDetails.getId());
+        return accommodationOwnerService.getAllAccommodationsByOwnerId(customUserDetails.getId());
     }
 }

@@ -12,11 +12,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccommodationOwnerServiceImpl {
+public class AccommodationOwnerServiceImpl implements AccommodationOwnerService{
     private final AccommodationRepository accommodationRepository;
     private final EntityUtil mapperUtil;
     private final AccommodationMapper accommodationMapper;
 
+    @Override
     public List<AccommodationResponseSummary> getAllAccommodationsByOwnerId(Long userId){
         List<Accommodation> accommodations = accommodationRepository.findByManagedBy_Id(userId);
         return mapperUtil.mapEntitiesToDTOs(accommodations, accommodationMapper::toSummary);
