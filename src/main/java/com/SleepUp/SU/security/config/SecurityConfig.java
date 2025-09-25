@@ -72,10 +72,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/accommodations/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/accommodations/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/reservations/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/reservations/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/accommodations/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/accommodations/**").hasRole("USER")
 
-                        .requestMatchers(HttpMethod.PATCH, "/api/reservations/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/accommodations/**").authenticated()
 
                         .anyRequest().authenticated()
                 );
