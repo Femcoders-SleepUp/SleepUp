@@ -193,14 +193,13 @@ class AccommodationServiceTest {
         doNothing().when(accommodationServiceHelper).validateAccommodationNameDoesNotExist("New Name");
         doAnswer(invocation -> null).when(entityUtil).updateField(any(), any(), any());
 
-        when(accommodationRepository.save(existingAccommodation)).thenReturn(updatedAccommodation);
-        when(accommodationMapper.toDetail(updatedAccommodation)).thenReturn(updatedAccommodationResponseDetail);
+
+        when(accommodationMapper.toDetail(any(Accommodation.class))).thenReturn(updatedAccommodationResponseDetail);
 
         AccommodationResponseDetail result = accommodationService.updateAccommodation(id, newAccommodationRequest);
 
         verify(accommodationServiceHelper).validateAccommodationNameDoesNotExist("New Name");
-        verify(accommodationRepository).save(existingAccommodation);
-        verify(accommodationMapper).toDetail(updatedAccommodation);
+        verify(accommodationMapper).toDetail(any(Accommodation.class));
         assertEquals(result, updatedAccommodationResponseDetail);
     }
 

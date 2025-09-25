@@ -2,7 +2,9 @@ package com.SleepUp.SU.accommodation.common;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.AccommodationService;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
+import com.SleepUp.SU.cloudinary.CloudinaryService;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,11 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -47,6 +50,9 @@ class AccommodationControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private CloudinaryService cloudinaryService;
+
     private CustomUserDetails customUserDetails;
     private AccommodationRequest accommodationRequest;
     private Accommodation accommodation1;
@@ -59,14 +65,14 @@ class AccommodationControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         imageFileOld = new MockMultipartFile(
-                "old-image",
+                "image",
                 "old-image.jpg",
                 "image/jpeg",
                 "test image content".getBytes()
         );
 
         imageFileNew = new MockMultipartFile(
-                "new-image",
+                "image",
                 "new-image.jpg",
                 "image/jpeg",
                 "test image content".getBytes()
@@ -172,10 +178,21 @@ class AccommodationControllerIntegrationTest {
 
     @Test
     void createAccommodation_shouldReturnAccommodationResponseDetail() throws Exception {
-        mockMvc.perform(post("/api/accommodations")
-                        .with(user(customUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accommodationRequest)))
+        when(cloudinaryService.uploadFile(any(), anyString())).thenReturn(java.util.Map.of("secure_url", "http://example.com/updated-image.jpg"));
+
+        mockMvc.perform(multipart("/api/accommodations")
+                        .file(imageFileOld)
+                        .param("name", "Test Apartment")
+                        .param("price", "120.0")
+                        .param("guestNumber", "3")
+                        .param("petFriendly", "true")
+                        .param("location", "Downtown")
+                        .param("description", "A nice place to stay")
+                        .param("checkInTime", "14:00:00")
+                        .param("checkOutTime", "12:00:00")
+                        .param("availableFrom", "2025-05-01")
+                        .param("availableTo", "2025-12-31")
+                        .with(user(customUserDetails)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Test Apartment"))
@@ -193,10 +210,23 @@ class AccommodationControllerIntegrationTest {
 
     @Test
     void updateAccommodation_shouldReturnUpdatedAccommodationResponse() throws Exception {
-        mockMvc.perform(put("/api/accommodations/{id}", savedAccommodation.getId())
+
+        when(cloudinaryService.uploadFile(any(), anyString())).thenReturn(java.util.Map.of("secure_url", "http://example.com/updated-image.jpg"));
+
+        mockMvc.perform(multipart("/api/accommodations/{id}", savedAccommodation.getId())
+                        .file(imageFileNew)
+                        .param("name", "Updated Apartment")
+                        .param("price", "130.0")
+                        .param("guestNumber", "3")
+                        .param("petFriendly", "true")
+                        .param("location", "New Downtown")
+                        .param("description", "Updated description")
+                        .param("checkInTime", "15:00:00")
+                        .param("checkOutTime", "12:00:00")
+                        .param("availableFrom", "2025-06-01")
+                        .param("availableTo", "2025-12-31")
                         .with(user(customUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accommodationUpdateRequest)))
+                        .with(request -> { request.setMethod("PUT"); return request; })) // <-- forzar PUT
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Updated Apartment"))
@@ -209,7 +239,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("12:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.imageUrl").value("updated-image.jpg"));
+                .andExpect(jsonPath("$.imageUrl").value("http://example.com/updated-image.jpg"));
     }
 
     @Test
