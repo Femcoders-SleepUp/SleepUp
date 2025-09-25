@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/accommodations")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class ReservationController {
     private final ReservationService reservationService;
 
-    @GetMapping("/{user}/reservations")
+    @GetMapping("/reservations")
     @ResponseStatus(HttpStatus.OK)
     public List<ReservationResponseSummary> getMyReservations(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -30,7 +31,7 @@ public class ReservationController {
         return reservationService.getMyReservations(customUserDetails.getId(), time);
     }
 
-    @PostMapping("/{id}/reservations")
+    @PostMapping("/accommodations/{accommodationId}/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -40,27 +41,13 @@ public class ReservationController {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
 
-    @GetMapping("/future/{user}")
-    public ResponseEntity<List<ReservationResponseSummary>> getMyFutureReservations(Principal principal) {
-        String username = principal.getName();
-        List<ReservationResponseSummary> futureReservations = reservationService.getMyReservations(username);
-        return ResponseEntity.ok(futureReservations);
-    }
-
-    @GetMapping("/history/{user}")
-    public ResponseEntity<List<ReservationResponseSummary>> getMyPastReservations(Principal principal) {
-        String username = principal.getName();
-        List<ReservationResponseSummary> pastReservations = reservationService.getMyReservations(username);
-        return ResponseEntity.ok(pastReservations);
-    }
-
-    @PatchMapping(value = "/{id}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/accommodations/{accommodationId}/reservations/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail cancelReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long id
+            @PathVariable Long accommodationId
     ) {
-        return reservationService.cancelReservation(id);
+        return reservationService.cancelReservation(accommodationId);
     }
 
 }

@@ -130,7 +130,7 @@ public class ReservationControllerTest {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new RuntimeException("Accommodation with id 2L not found"));;
 
-        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+        mockMvc.perform(post("/api/accommodations/{accommodationId}/reservations", 2L)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -153,7 +153,7 @@ public class ReservationControllerTest {
 
         Long accommodationId = 2L;
 
-        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+        mockMvc.perform(post("/api/accommodations/{accommodationId}/reservations", 2L)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -173,7 +173,7 @@ public class ReservationControllerTest {
 
         Long accommodationId = 2L;
 
-        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+        mockMvc.perform(post("/api/accommodations/{accommodationId}/reservations", 2L)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -192,9 +192,8 @@ public class ReservationControllerTest {
 
         Long accommodationId = 1L;
 
-        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+        mockMvc.perform(post("/api/accommodations/{accommodationId}/reservations", accommodationId)
                         .with(user(principal))
-                        .param("accommodationId", accommodationId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
@@ -228,9 +227,8 @@ public class ReservationControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/reservations/accommodation/1")
+        mockMvc.perform(post("/api/accommodations/{accommodationId}/reservations", 1L)
                         .with(user(principal))
-                        .param("accommodationId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest());
@@ -245,7 +243,7 @@ public class ReservationControllerTest {
                 LocalDate.now().plusDays(1)
         );
 
-        mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
+        mockMvc.perform(post("/api/accommodations/{accommodationId}/reservations", 1L)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -257,7 +255,7 @@ public class ReservationControllerTest {
     void when_cancelReservation_then_return_cancelled_reservation() throws Exception {
         Long reservationId = 5L;
 
-        mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+        mockMvc.perform(patch("/api/accommodations/{id}/reservations/cancel", reservationId)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -271,7 +269,7 @@ public class ReservationControllerTest {
     void when_cancelReservation_then_confirmed_cancelled_reservation() throws Exception {
         Long reservationId = 1L;
 
-        mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+        mockMvc.perform(patch("/api/accommodations/{id}/reservations/cancel", reservationId)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -285,7 +283,7 @@ public class ReservationControllerTest {
     void when_cancelReservation_past_dates_throw_error () throws Exception {
         Long reservationId = 1L;
 
-        mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+        mockMvc.perform(patch("/api/accommodations/{id}/reservations/cancel", reservationId)
                         .with(user(principal))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
