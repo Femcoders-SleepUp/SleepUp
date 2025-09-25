@@ -1,11 +1,11 @@
 package com.SleepUp.SU.accommodation.owner;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
-import com.SleepUp.SU.user.CustomUserDetails;
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class AccommodationOwnerControllerIntegrationTest {
     private AccommodationRepository accommodationRepository;
 
     @Autowired
-    private AccommodationOwnerService accommodationOwnerService;
+    private AccommodationOwnerServiceImpl accommodationOwnerServiceImpl;
 
     @Autowired
     private UserRepository userRepository;

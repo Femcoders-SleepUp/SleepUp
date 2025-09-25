@@ -1,7 +1,7 @@
 package com.SleepUp.SU.user.user;
 
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -42,7 +42,7 @@ public class UserUserControllerTest {
     private UserUserController userUserController;
 
     @MockBean
-    private UserUserService userUserService;
+    private UserUserServiceImpl userUserServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -66,7 +66,7 @@ public class UserUserControllerTest {
 
             UserResponse response = new UserResponse(99L, "testUser", "Test Name", "test@email.com", Role.USER);
 
-            when(userUserService.getLoggedUser(anyLong())).thenReturn(response);
+            when(userUserServiceImpl.getLoggedUser(anyLong())).thenReturn(response);
 
             mockMvc.perform(get("/api/users/my-user")
                             .with(user(customUserDetails))
@@ -93,7 +93,7 @@ public class UserUserControllerTest {
             UserRequest request = new UserRequest("updatedUser", "updateName", "updated@email.com", "newPassword");
             UserResponse response = new UserResponse(99L, "updatedUser", "updateName", "updated@email.com", Role.USER);
 
-            when(userUserService.updateLoggedUser(any(UserRequest.class), anyLong())).thenReturn(response);
+            when(userUserServiceImpl.updateLoggedUser(any(UserRequest.class), anyLong())).thenReturn(response);
 
             mockMvc.perform(
                             put("/api/users/my-user")
@@ -131,7 +131,7 @@ public class UserUserControllerTest {
         void when_service_throws_exception_then_return_bad_request() throws Exception {
             UserRequest request = new UserRequest("updatedUser", "updateName",  "updated@email.com", "newPassword");
 
-            when(userUserService.updateLoggedUser(request, 99L))
+            when(userUserServiceImpl.updateLoggedUser(request, 99L))
                     .thenThrow(new IllegalArgumentException("Invalid update"));
 
             String jsonRequest = """

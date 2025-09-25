@@ -1,14 +1,13 @@
 package com.SleepUp.SU.user;
 
 import com.SleepUp.SU.user.admin.UserAdminController;
-import com.SleepUp.SU.user.admin.UserAdminService;
+import com.SleepUp.SU.user.admin.UserAdminServiceImpl;
 import com.SleepUp.SU.user.dto.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class UserControllerTest {
     private UserAdminController userAdminController;
 
     @Mock
-    private UserAdminService userAdminService;
+    private UserAdminServiceImpl userAdminServiceImpl;
 
     @Test
     void should_returnAllUsers() {
@@ -31,7 +30,7 @@ public class UserControllerTest {
                 new UserResponse(2L, "","userTwo", "user2@test.com", null)
         );
 
-        when(userAdminService.getAllUsers()).thenReturn(users);
+        when(userAdminServiceImpl.getAllUsers()).thenReturn(users);
 
         List<UserResponse> response = userAdminController.listAllUsers();
 

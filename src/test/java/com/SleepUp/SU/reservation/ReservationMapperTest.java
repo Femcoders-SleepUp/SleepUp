@@ -1,9 +1,10 @@
 package com.SleepUp.SU.reservation;
 
-import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.dto.*;
+import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.status.BookingStatus;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

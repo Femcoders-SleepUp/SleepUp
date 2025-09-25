@@ -1,5 +1,6 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.repository;
 
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.role.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 

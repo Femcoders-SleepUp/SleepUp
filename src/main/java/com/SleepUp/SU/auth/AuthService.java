@@ -3,8 +3,8 @@ package com.SleepUp.SU.auth;
 
 import com.SleepUp.SU.auth.dto.*;
 import com.SleepUp.SU.security.jwt.JwtService;
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;

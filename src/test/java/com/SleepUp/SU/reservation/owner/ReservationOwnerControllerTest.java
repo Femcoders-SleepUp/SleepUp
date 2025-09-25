@@ -4,9 +4,9 @@ import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
-import com.SleepUp.SU.user.CustomUserDetails;
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ public class ReservationOwnerControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ReservationOwnerService reservationOwnerService;
+    private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -94,7 +94,7 @@ public class ReservationOwnerControllerTest {
                     )
             );
 
-            when(reservationOwnerService
+            when(reservationOwnerServiceImpl
                     .getAllReservationsOnMyAccommodation(principal.getUser(), accommodationId))
                     .thenReturn(summaries);
 
@@ -134,7 +134,7 @@ public class ReservationOwnerControllerTest {
                     LocalDateTime.of(2025, 9, 1, 10, 30)
             );
 
-            when(reservationOwnerService.updateStatus(id, authRequest))
+            when(reservationOwnerServiceImpl.updateStatus(id, authRequest))
                     .thenReturn(detailDto);
 
             mockMvc.perform(patch("/api/reservations/{id}/status", id)
@@ -166,7 +166,7 @@ public class ReservationOwnerControllerTest {
                     LocalDateTime.of(2025, 10, 20, 9, 15)
             );
 
-            when(reservationOwnerService.getReservationById(id))
+            when(reservationOwnerServiceImpl.getReservationById(id))
                     .thenReturn(detailDto);
 
             mockMvc.perform(post("/api/reservations/{id}", id)

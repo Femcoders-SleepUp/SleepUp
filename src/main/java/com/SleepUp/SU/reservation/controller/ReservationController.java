@@ -1,14 +1,15 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.controller;
 
+import com.SleepUp.SU.reservation.service.ReservationService;
+import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
-import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

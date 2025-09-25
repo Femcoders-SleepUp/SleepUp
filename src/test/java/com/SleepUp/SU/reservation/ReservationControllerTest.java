@@ -1,12 +1,15 @@
 package com.SleepUp.SU.reservation;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
+import com.SleepUp.SU.reservation.controller.ReservationController;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.user.CustomUserDetails;
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
-import com.SleepUp.SU.user.admin.UserAdminService;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
+import com.SleepUp.SU.user.admin.UserAdminServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -45,7 +48,7 @@ public class ReservationControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserAdminService userAdminService;
+    private UserAdminServiceImpl userAdminServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -57,10 +60,10 @@ public class ReservationControllerTest {
     private ReservationRepository reservationRepository;
 
     @Autowired
-    private ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
 
     @Autowired
-    private  ReservationController reservationController;
+    private ReservationController reservationController;
 
     @Autowired
     private AccommodationRepository accommodationRepository;

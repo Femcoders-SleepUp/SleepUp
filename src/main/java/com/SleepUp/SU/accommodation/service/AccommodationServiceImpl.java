@@ -1,11 +1,13 @@
-package com.SleepUp.SU.accommodation;
+package com.SleepUp.SU.accommodation.service;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,21 +17,24 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccommodationService {
+public class AccommodationServiceImpl implements AccommodationService{
     private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper accommodationMapper;
     private final AccommodationServiceHelper accommodationServiceHelper;
     private final EntityUtil entityUtil;
 
+    @Override
     public List<AccommodationResponseSummary> getAllAccommodations(){
         List<Accommodation> accommodations = accommodationRepository.findAll();
         return accommodations.stream().map(accommodationMapper::toSummary).toList();
     }
 
+    @Override
     public AccommodationResponseDetail getAccommodationById(Long id) {
         return accommodationMapper.toDetail(accommodationServiceHelper.getAccommodationEntityById(id));
     }
 
+    @Override
     @Transactional
     public AccommodationResponseDetail createAccommodation(AccommodationRequest accommodationRequest, User user){
         accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
@@ -40,6 +45,7 @@ public class AccommodationService {
         return accommodationMapper.toDetail(savedAccommodation);
     }
 
+    @Override
     @Transactional
     public AccommodationResponseDetail updateAccommodation(Long id, AccommodationRequest accommodationRequest){
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
@@ -64,6 +70,7 @@ public class AccommodationService {
         return accommodationMapper.toDetail(accommodation);
     }
 
+    @Override
     public void deleteAccommodation(Long id) {
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         accommodationServiceHelper.deleteImageCloudinary(accommodation.getImageUrl());

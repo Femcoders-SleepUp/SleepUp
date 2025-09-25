@@ -1,7 +1,7 @@
 package com.SleepUp.SU.reservation.owner;
 
-import com.SleepUp.SU.reservation.Reservation;
-import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
@@ -10,7 +10,7 @@ import com.SleepUp.SU.reservation.exceptions.ReservationNotFoundByIdException;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class ReservationOwnerServiceTest {
+class ReservationOwnerServiceImplTest {
 
     @Mock
     private ReservationRepository reservationRepository;
@@ -46,7 +46,7 @@ class ReservationOwnerServiceTest {
     private EntityUtil entityUtil;
 
     @InjectMocks
-    private ReservationOwnerService reservationOwnerService;
+    private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
 
     private final User dummyUser = new User();
     private final Long accommodationId = 55L;
@@ -89,7 +89,7 @@ class ReservationOwnerServiceTest {
                     .thenReturn(Collections.emptyList());
 
             assertThatThrownBy(() ->
-                    reservationOwnerService.getAllReservationsOnMyAccommodation(dummyUser, accommodationId))
+                    reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(dummyUser, accommodationId))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Empty list");
 
@@ -114,7 +114,7 @@ class ReservationOwnerServiceTest {
             )).thenReturn(responseList);
 
             List<ReservationResponseSummary> result =
-                    reservationOwnerService.getAllReservationsOnMyAccommodation(dummyUser, accommodationId);
+                    reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(dummyUser, accommodationId);
 
             assertThat(result).isSameAs(responseList);
         }
@@ -130,7 +130,7 @@ class ReservationOwnerServiceTest {
             when(reservationServiceHelper.getReservationEntityById(id)).thenThrow(new ReservationNotFoundByIdException(id));
 
             assertThatThrownBy(() ->
-                    reservationOwnerService.updateStatus(id, authRequest))
+                    reservationOwnerServiceImpl.updateStatus(id, authRequest))
                     .isInstanceOf(ReservationNotFoundByIdException.class)
                     .hasMessage("Reservation with id '99' not found");
 
@@ -150,7 +150,7 @@ class ReservationOwnerServiceTest {
             when(reservationMapper.toDetail(existing)).thenReturn(detailDto);
 
             ReservationResponseDetail result =
-                    reservationOwnerService.updateStatus(id, authRequest);
+                    reservationOwnerServiceImpl.updateStatus(id, authRequest);
 
             assertThat(existing.getBookingStatus())
                     .isEqualTo(BookingStatus.CANCELLED);
@@ -169,7 +169,7 @@ class ReservationOwnerServiceTest {
             when(reservationServiceHelper.getReservationEntityById(id)).thenThrow(new ReservationNotFoundByIdException(id));
 
             assertThatThrownBy(() ->
-                    reservationOwnerService.getReservationById(id))
+                    reservationOwnerServiceImpl.getReservationById(id))
                     .isInstanceOf(ReservationNotFoundByIdException.class)
                     .hasMessage("Reservation with id '123' not found");
 
@@ -187,7 +187,7 @@ class ReservationOwnerServiceTest {
                     .thenReturn(detailDto);
 
             ReservationResponseDetail result =
-                    reservationOwnerService.getReservationById(id);
+                    reservationOwnerServiceImpl.getReservationById(id);
 
             assertThat(result).isSameAs(detailDto);
             verify(reservationMapper).toDetail(isExisting);
