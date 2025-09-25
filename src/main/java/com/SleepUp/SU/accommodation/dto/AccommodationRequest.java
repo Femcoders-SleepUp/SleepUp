@@ -2,6 +2,7 @@ package com.SleepUp.SU.accommodation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -44,7 +45,7 @@ public record AccommodationRequest (
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate availableTo,
 
-        @NotBlank(message = "Image URL must not be blank")
-        String imageUrl
+        @NotNull
+        MultipartFile image
 ){
 }

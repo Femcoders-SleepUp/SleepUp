@@ -36,7 +36,7 @@ public class AccommodationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccommodationResponseDetail createAccommodation(
-            @RequestBody @Valid AccommodationRequest accommodationRequest,
+            @RequestBody @Valid @ModelAttribute AccommodationRequest accommodationRequest,
             @AuthenticationPrincipal CustomUserDetails customUserDetails){
         return accommodationService.createAccommodation(accommodationRequest, customUserDetails.getUser());
     }
@@ -46,7 +46,7 @@ public class AccommodationController {
     @ResponseStatus(HttpStatus.OK)
     public AccommodationResponseDetail updateAccommodation(
             @PathVariable Long id,
-            @RequestBody @Valid AccommodationRequest accommodationRequest){
+            @RequestBody @Valid @ModelAttribute AccommodationRequest accommodationRequest){
         return accommodationService.updateAccommodation(id, accommodationRequest);
     }
 
