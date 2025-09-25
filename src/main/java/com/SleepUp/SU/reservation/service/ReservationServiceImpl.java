@@ -22,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationServiceImpl {
+public class ReservationServiceImpl implements ReservationService{
 
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
@@ -31,6 +31,7 @@ public class ReservationServiceImpl {
     private final AccommodationServiceHelper accommodationServiceHelper;
     private final EntityUtil entityUtil;
 
+    @Override
     public List<ReservationResponseSummary> getMyReservations(Long userId, ReservationTime time) {
         LocalDate today = LocalDate.now();
 
@@ -47,6 +48,7 @@ public class ReservationServiceImpl {
         return entityUtil.mapEntitiesToDTOs(reservations, reservationMapper::toSummary);
     }
 
+    @Override
     public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
         reservationServiceHelper.validateReservationDates(reservationRequest);
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
@@ -67,6 +69,7 @@ public class ReservationServiceImpl {
         return reservationMapper.toDetail(savedReservation);
     }
 
+    @Override
     public ReservationResponseDetail cancelReservation(Long reservationId) {
         Reservation reservation = reservationServiceHelper.getReservationEntityById(reservationId);
 

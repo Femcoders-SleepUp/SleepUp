@@ -17,19 +17,21 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationOwnerServiceImpl {
+public class ReservationOwnerServiceImpl implements ReservationOwnerService{
 
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
     private final EntityUtil entityUtil;
 
+    @Override
     public List<ReservationResponseSummary> getAllReservationsOnMyAccommodation(User user, Long id){
         List<Reservation> allReservationsByAccommodation = reservationRepository.findByAccommodationId(id);
         if (allReservationsByAccommodation.isEmpty()){throw new RuntimeException("Empty list");}
         return entityUtil.mapEntitiesToDTOs(allReservationsByAccommodation,reservationMapper::toSummary);
     }
 
+    @Override
     @Transactional
     public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest){
         Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
@@ -37,6 +39,7 @@ public class ReservationOwnerServiceImpl {
         return reservationMapper.toDetail(isExisting);
     }
 
+    @Override
     public ReservationResponseDetail getReservationById(Long id){
         Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         return reservationMapper.toDetail(isExisting);

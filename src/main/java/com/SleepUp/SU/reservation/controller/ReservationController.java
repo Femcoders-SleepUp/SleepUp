@@ -1,6 +1,6 @@
 package com.SleepUp.SU.reservation.controller;
 
-import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
+import com.SleepUp.SU.reservation.service.ReservationService;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class ReservationController {
-    private final ReservationServiceImpl reservationServiceImpl;
+    private final ReservationService reservationService;
 
     @GetMapping("/reservations")
     @ResponseStatus(HttpStatus.OK)
@@ -29,7 +29,7 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam ReservationTime time
     ) {
-        return reservationServiceImpl.getMyReservations(customUserDetails.getId(), time);
+        return reservationService.getMyReservations(customUserDetails.getId(), time);
     }
 
     @PostMapping("/accommodations/{accommodationId}/reservations")
@@ -39,7 +39,7 @@ public class ReservationController {
             @Valid @RequestBody ReservationRequest reservationRequest,
             @PathVariable Long accommodationId
     ) {
-        return reservationServiceImpl.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
+        return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
 
     @PatchMapping(value = "/accommodations/{accommodationId}/reservations/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,7 +48,7 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long accommodationId
     ) {
-        return reservationServiceImpl.cancelReservation(accommodationId);
+        return reservationService.cancelReservation(accommodationId);
     }
 
 }
