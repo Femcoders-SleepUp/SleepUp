@@ -4,6 +4,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Insert 5 users
 INSERT INTO users (id, username, name, email, password, role) VALUES
   (99, 'TestUser', 'nameTest', 'usertnest@test.com', 'password123', 'USER'),
+   (6,'disabled_user', 'Disabled User', 'disabledUser@sleepup.com', '$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2', 'USER'),
   (1, 'User1', 'Name1', 'user1@example.com', 'password1', 'USER'), -- owner of accommodations 1 and reservation 5
   (2, 'User2', 'Name2', 'user2@example.com', 'password2', 'USER'), -- owner of accommodations 2,5 and reservation 4,2
   (3, 'User3', 'Name3', 'user3@example.com', 'password3', 'USER'), -- owner of accommodation 3 and reservation 2

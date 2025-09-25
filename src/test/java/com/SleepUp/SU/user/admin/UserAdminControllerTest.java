@@ -155,13 +155,13 @@ public class UserAdminControllerTest {
    @Nested
    class DeleteUserTest {
 
-//       @Test
-//       void when_adminRole_then_deleteUser() throws Exception {
-//           mockMvc.perform(delete("/api/users/admin/{id}",1L)
-//                   .with(user(customUserDetails))
-//                   .accept(MediaType.APPLICATION_JSON))
-//                   .andExpect(status().isNoContent());
-//       }
+       @Test
+       void when_adminRole_then_deleteUser() throws Exception {
+           mockMvc.perform(delete("/api/users/admin/{id}",99L)
+                   .with(user(customUserDetails))
+                   .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isNoContent());
+       }
        @Test
        void when_notAdminRole_then_forbidden() throws Exception {
            mockMvc.perform(delete("/api/users/admin/1")
