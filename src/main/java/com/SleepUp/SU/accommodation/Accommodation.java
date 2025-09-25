@@ -59,6 +59,6 @@ public class Accommodation {
     @JoinColumn(name = "managed_by_user_id")
     private User managedBy;
 
-    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Reservation> reservations = new HashSet<>();
 }

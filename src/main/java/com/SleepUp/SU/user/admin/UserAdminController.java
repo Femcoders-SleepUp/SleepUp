@@ -3,6 +3,7 @@ package com.SleepUp.SU.user.admin;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +29,22 @@ public class UserAdminController {
         return ResponseEntity.ok(userResponse);
     }
 
+    @PostMapping
+        public ResponseEntity<UserResponse> createUser(@RequestBody UserRequestAdmin userRequestAdmin) {
+        UserResponse newUser = userService.createUser(userRequestAdmin);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    }
+
     @PutMapping("/{id}")
         public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequestAdmin userRequestAdmin) {
         UserResponse updatedUser = userService.updateUser(id, userRequestAdmin);
-        return  ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(updatedUser);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUserById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 

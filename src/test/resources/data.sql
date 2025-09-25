@@ -37,5 +37,3 @@ ALTER TABLE reservations AUTO_INCREMENT = 5;
 
 -- Enable foreign key checks back
 SET FOREIGN_KEY_CHECKS = 1;
-
-

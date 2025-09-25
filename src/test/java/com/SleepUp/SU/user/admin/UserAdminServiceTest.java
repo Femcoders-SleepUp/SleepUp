@@ -19,6 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.*;
@@ -43,6 +44,9 @@ public class UserAdminServiceTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
 
     @Nested
@@ -89,53 +93,104 @@ public class UserAdminServiceTest {
 
     @Nested
     class UpdateUserTest {
-
         @Test
         void should_updateExistingUser() {
+            UserRequestAdmin request = new UserRequestAdmin(
+                    "updatedUser",
+                    "Updated Name",
+                    "updated@test.com",
+                    "newPassword",
+                    Role.ADMIN
+            );
 
             User existingUser = new User();
             existingUser.setId(1L);
             existingUser.setUsername("oldUser");
             existingUser.setName("Old Name");
             existingUser.setEmail("old@test.com");
-            existingUser.setPassword("oldPass");
+            existingUser.setPassword("oldPassword");
             existingUser.setRole(Role.USER);
 
-            UserRequestAdmin updateRequest = new UserRequestAdmin(
-                    "newUsername",
-                    "New Name",
-                    "new@test.com",
-                    "newPass123",
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+            when(passwordEncoder.encode("newPassword")).thenReturn("encodedPass");
+
+            User savedUser = new User();
+            savedUser.setId(1L);
+            savedUser.setUsername("updateUser");
+            savedUser.setName("update Name");
+            savedUser.setEmail("updated@test.com");
+            savedUser.setPassword("encodedPass");
+            savedUser.setRole(Role.ADMIN);
+
+            when(userRepository.save(any(User.class))).thenReturn(savedUser);
+            when(userMapper.toResponse(any(User.class)))
+                    .thenReturn(new UserResponse(1L, "updatedUser", "Updated Name", "updated@test.com", Role.ADMIN));
+
+            UserResponse response = userAdminService.updateUser(1L, request);
+
+            assertEquals("updatedUser", response.username());
+            assertEquals("Updated Name", response.name());
+            assertEquals("updated@test.com", response.email());
+            assertEquals(Role.ADMIN, response.role());
+
+            verify(userRepository, times(1)).save(any(User.class));
+
+        }
+
+        @Test
+        void  should_throwException_when_userNotFound() {
+            when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+            UserRequestAdmin request = new UserRequestAdmin(
+                    "updatedUser",
+                    "Updated Name",
+                    "updated@test.com",
+                    "password",
                     Role.ADMIN
             );
 
-            User updatedUser = new User();
-            updatedUser.setId(1L);
-            updatedUser.setUsername("newUsername");
-            updatedUser.setName("Old Name");
-            updatedUser.setEmail("new@email.com");
-            updatedUser.setPassword("newPass123");
-            updatedUser.setRole(Role.USER);
-
-            UserResponse updatedUserResponse = new UserResponse(updatedUser.getId(), updatedUser.getUsername(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.getRole());
+            assertThrows(RuntimeException.class, () -> userAdminService.updateUser(1L, request));
 
 
-            when(userServiceHelper.findById(1L)).thenReturn(existingUser);
-            doAnswer(invocation -> {
-                existingUser.setUsername("newUsername");
-                existingUser.setEmail("new@email.com");
-                existingUser.setPassword("encodedPassword");
-                return null;
-            }).when(userServiceHelper).updateUserDataAdmin(updateRequest, existingUser);
-
-            when(userRepository.save(existingUser)).thenReturn(updatedUser);
-            when(userMapper.toResponse(updatedUser)).thenReturn(updatedUserResponse);
-
-            UserResponse response = userAdminService.updateUser(1L, updateRequest);
-
-            assertEquals("newUsername", response.username());
-            assertEquals("new@email.com", response.email());
-            assertEquals("Old Name", response.name());
+//            existingUser.setPassword("oldPass");
+ //           existingUser.setRole(Role.USER);
+//
+ //           UserRequestAdmin updateRequest = new UserRequestAdmin(
+//                    "newUsername",
+//                    "New Name",
+//                    "new@test.com",
+//                    "newPass123",
+//                    Role.ADMIN
+//            );
+//
+//            User updatedUser = new User();
+//            updatedUser.setId(1L);
+//            updatedUser.setUsername("newUsername");
+//            updatedUser.setName("Old Name");
+//            updatedUser.setEmail("new@email.com");
+//            updatedUser.setPassword("newPass123");
+//            updatedUser.setRole(Role.USER);
+//
+//            UserResponse updatedUserResponse = new UserResponse(updatedUser.getId(), updatedUser.getUsername(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.getRole());
+//
+//
+//            when(userServiceHelper.findById(1L)).thenReturn(existingUser);
+//            doAnswer(invocation -> {
+//                existingUser.setUsername("newUsername");
+//                existingUser.setEmail("new@email.com");
+//                existingUser.setPassword("encodedPassword");
+//                return null;
+//            }).when(userServiceHelper).updateUserDataAdmin(updateRequest, existingUser);
+//
+//            when(userRepository.save(existingUser)).thenReturn(updatedUser);
+//            when(userMapper.toResponse(updatedUser)).thenReturn(updatedUserResponse);
+//
+//            UserResponse response = userAdminService.updateUser(1L, updateRequest);
+//
+//            assertEquals("newUsername", response.username());
+//            assertEquals("new@email.com", response.email());
+//            assertEquals("Old Name", response.name());
+//>>>>>>> dev
         }
     }
 }
