@@ -16,13 +16,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationOwnerController {
 
-    private final ReservationOwnerService reservationOwnerService;
+    private final ReservationOwnerServiceImpl reservationOwnerServiceImpl;
 
     @GetMapping("/accommodation/{id}")
     @ResponseStatus(HttpStatus.OK)
     public List<ReservationResponseSummary> getReservationOnMyAccommodation(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                                             @PathVariable Long id){
-        return reservationOwnerService.getAllReservationsOnMyAccommodation(customUserDetails.getUser(), id);
+        return reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(customUserDetails.getUser(), id);
     }
 
     @PatchMapping("/{id}/status")
@@ -30,13 +30,13 @@ public class ReservationOwnerController {
     public ReservationResponseDetail updateReservationStatus(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                              @PathVariable Long id,
                                                              @RequestBody ReservationAuthRequest reservationAuthRequest){
-        return reservationOwnerService.updateStatus(id, reservationAuthRequest);
+        return reservationOwnerServiceImpl.updateStatus(id, reservationAuthRequest);
     }
 
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail getReservationById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                              @PathVariable Long id){
-        return reservationOwnerService.getReservationById(id);
+        return reservationOwnerServiceImpl.getReservationById(id);
     }
 }

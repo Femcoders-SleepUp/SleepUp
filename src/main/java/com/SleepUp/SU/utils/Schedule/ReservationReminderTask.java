@@ -1,7 +1,7 @@
 package com.SleepUp.SU.utils.Schedule;
 
-import com.SleepUp.SU.reservation.Reservation;
-import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

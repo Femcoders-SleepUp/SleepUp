@@ -1,6 +1,6 @@
 package com.SleepUp.SU.reservation.security;
 
-import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.access.AccessDeniedException;

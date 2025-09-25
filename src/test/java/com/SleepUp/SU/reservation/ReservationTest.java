@@ -1,6 +1,11 @@
 package com.SleepUp.SU.reservation;
 
+import com.SleepUp.SU.reservation.controller.ReservationController;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
+import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
@@ -29,10 +34,10 @@ public class ReservationTest {
     private ReservationRepository reservationRepository;
 
     @Autowired
-    private  ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
 
     @Autowired
-    private  ReservationController reservationController;
+    private ReservationController reservationController;
 
     @Autowired
     private UserRepository userRepository;
@@ -53,7 +58,7 @@ public class ReservationTest {
     public void testFindByUserId_Service() {
         Long userId = 2L; // User2 as per your sample data
 
-        List<ReservationResponseSummary> reservations = reservationService.getMyReservations(userId, ReservationTime.ALL);
+        List<ReservationResponseSummary> reservations = reservationServiceImpl.getMyReservations(userId, ReservationTime.ALL);
 
         assertNotNull(reservations);
         assertFalse(reservations.isEmpty());

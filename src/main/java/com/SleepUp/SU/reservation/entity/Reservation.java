@@ -1,4 +1,4 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.entity;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.status.BookingStatus;

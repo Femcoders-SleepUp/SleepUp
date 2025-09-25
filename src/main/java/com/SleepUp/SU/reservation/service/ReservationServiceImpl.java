@@ -1,7 +1,10 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.service;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
+import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -19,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationService {
+public class ReservationServiceImpl {
 
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;

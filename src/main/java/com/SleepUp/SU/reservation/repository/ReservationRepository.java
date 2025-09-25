@@ -1,8 +1,7 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.repository;
 
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.status.BookingStatus;
-import com.SleepUp.SU.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

@@ -2,7 +2,10 @@ package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
+import com.SleepUp.SU.reservation.controller.ReservationController;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
@@ -57,10 +60,10 @@ public class ReservationControllerTest {
     private ReservationRepository reservationRepository;
 
     @Autowired
-    private ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
 
     @Autowired
-    private  ReservationController reservationController;
+    private ReservationController reservationController;
 
     @Autowired
     private AccommodationRepository accommodationRepository;

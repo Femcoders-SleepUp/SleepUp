@@ -1,5 +1,7 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.controller;
 
+import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
+import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
@@ -8,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class ReservationController {
-    private final ReservationService reservationService;
+    private final ReservationServiceImpl reservationServiceImpl;
 
     @GetMapping("/reservations")
     @ResponseStatus(HttpStatus.OK)
@@ -28,7 +29,7 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam ReservationTime time
     ) {
-        return reservationService.getMyReservations(customUserDetails.getId(), time);
+        return reservationServiceImpl.getMyReservations(customUserDetails.getId(), time);
     }
 
     @PostMapping("/accommodations/{accommodationId}/reservations")
@@ -38,7 +39,7 @@ public class ReservationController {
             @Valid @RequestBody ReservationRequest reservationRequest,
             @PathVariable Long accommodationId
     ) {
-        return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
+        return reservationServiceImpl.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
 
     @PatchMapping(value = "/accommodations/{accommodationId}/reservations/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -47,7 +48,7 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long accommodationId
     ) {
-        return reservationService.cancelReservation(accommodationId);
+        return reservationServiceImpl.cancelReservation(accommodationId);
     }
 
 }

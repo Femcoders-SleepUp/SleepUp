@@ -1,4 +1,4 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.reservationtime;
 
 public enum ReservationTime {
     ALL,

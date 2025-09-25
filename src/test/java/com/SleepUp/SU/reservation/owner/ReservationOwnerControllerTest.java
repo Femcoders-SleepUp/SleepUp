@@ -41,7 +41,7 @@ public class ReservationOwnerControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ReservationOwnerService reservationOwnerService;
+    private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -94,7 +94,7 @@ public class ReservationOwnerControllerTest {
                     )
             );
 
-            when(reservationOwnerService
+            when(reservationOwnerServiceImpl
                     .getAllReservationsOnMyAccommodation(principal.getUser(), accommodationId))
                     .thenReturn(summaries);
 
@@ -134,7 +134,7 @@ public class ReservationOwnerControllerTest {
                     LocalDateTime.of(2025, 9, 1, 10, 30)
             );
 
-            when(reservationOwnerService.updateStatus(id, authRequest))
+            when(reservationOwnerServiceImpl.updateStatus(id, authRequest))
                     .thenReturn(detailDto);
 
             mockMvc.perform(patch("/api/reservations/{id}/status", id)
@@ -166,7 +166,7 @@ public class ReservationOwnerControllerTest {
                     LocalDateTime.of(2025, 10, 20, 9, 15)
             );
 
-            when(reservationOwnerService.getReservationById(id))
+            when(reservationOwnerServiceImpl.getReservationById(id))
                     .thenReturn(detailDto);
 
             mockMvc.perform(post("/api/reservations/{id}", id)

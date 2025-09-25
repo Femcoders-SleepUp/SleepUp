@@ -1,7 +1,7 @@
 package com.SleepUp.SU.user;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
-import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.role.Role;
 import jakarta.persistence.*;
 import lombok.*;

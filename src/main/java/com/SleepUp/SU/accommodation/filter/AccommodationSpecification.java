@@ -1,7 +1,7 @@
 package com.SleepUp.SU.accommodation.filter;
 
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
-import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;

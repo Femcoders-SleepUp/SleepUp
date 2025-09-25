@@ -1,8 +1,8 @@
 package com.SleepUp.SU.reservation.utils;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
-import com.SleepUp.SU.reservation.Reservation;
-import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
 import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;

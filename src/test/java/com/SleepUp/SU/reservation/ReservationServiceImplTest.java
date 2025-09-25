@@ -7,6 +7,10 @@ import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
+import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.User;
@@ -31,10 +35,10 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ReservationServiceTest {
+public class ReservationServiceImplTest {
 
     @InjectMocks
-    private ReservationService reservationService;
+    private ReservationServiceImpl reservationServiceImpl;
 
     @Mock
     private EntityUtil entityUtil;
@@ -73,7 +77,7 @@ public class ReservationServiceTest {
             when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.ALL);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, ReservationTime.ALL);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_Id(userId);
@@ -86,7 +90,7 @@ public class ReservationServiceTest {
             when(reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.PAST);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, ReservationTime.PAST);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_IdAndCheckInDateBefore(userId, today);
@@ -99,7 +103,7 @@ public class ReservationServiceTest {
             when(reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.FUTURE);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, ReservationTime.FUTURE);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_IdAndCheckInDateAfter(userId, today);
@@ -110,7 +114,7 @@ public class ReservationServiceTest {
             when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, null);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, null);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_Id(userId);
@@ -160,7 +164,7 @@ public class ReservationServiceTest {
             doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
 
             // Then
-            ReservationResponseDetail result = reservationService.createReservation(reservationRequest, user, accommodationId);
+            ReservationResponseDetail result = reservationServiceImpl.createReservation(reservationRequest, user, accommodationId);
 
             assertNotNull(result);
             assertEquals(1L, result.id());
@@ -194,7 +198,7 @@ public class ReservationServiceTest {
 
             // When & Then
             AccommodationNotFoundByIdException exception = assertThrows(AccommodationNotFoundByIdException.class,
-                    () -> reservationService.createReservation(reservationRequest, user, accommodationId));
+                    () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("Accommodation with id '999' not found", exception.getMessage());
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
@@ -219,7 +223,7 @@ public class ReservationServiceTest {
 
             // When & Then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> reservationService.createReservation(reservationRequest, user, accommodationId));
+                    () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
@@ -246,7 +250,7 @@ public class ReservationServiceTest {
 
             // When & Then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> reservationService.createReservation(reservationRequest, user, accommodationId));
+                    () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("Accommodation supports maximum 4 guests, but 5 guests requested", exception.getMessage());
             verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
@@ -274,7 +278,7 @@ public class ReservationServiceTest {
 
             // When & Then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> reservationService.createReservation(reservationRequest, user, accommodationId));
+                    () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("You already have a reservation that overlaps with these dates", exception.getMessage());
             verify(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
@@ -296,7 +300,7 @@ public class ReservationServiceTest {
             when(reservationRepository.save(testReservation)).thenReturn(testReservation);
             when(reservationMapper.toDetail(testReservation)).thenReturn(expectedCancelledResponse());
 
-            ReservationResponseDetail result = reservationService.cancelReservation(reservationId);
+            ReservationResponseDetail result = reservationServiceImpl.cancelReservation(reservationId);
 
             assertNotNull(result);
             assertEquals(reservationId, result.id());
@@ -315,7 +319,7 @@ public class ReservationServiceTest {
                     .thenThrow(new RuntimeException("Reservation not found"));
 
             RuntimeException exception = assertThrows(RuntimeException.class,
-                    () -> reservationService.cancelReservation(reservationId));
+                    () -> reservationServiceImpl.cancelReservation(reservationId));
 
             assertEquals("Reservation not found", exception.getMessage());
             verify(reservationServiceHelper).getReservationEntityById(reservationId);
@@ -337,7 +341,7 @@ public class ReservationServiceTest {
                     .when(reservationServiceHelper).validateReservationCancellable(testReservation);
 
             IllegalStateException exception = assertThrows(IllegalStateException.class,
-                    () -> reservationService.cancelReservation(reservationId));
+                    () -> reservationServiceImpl.cancelReservation(reservationId));
 
             assertEquals("Cannot modify a cancelled reservation", exception.getMessage());
             verify(reservationServiceHelper).getReservationEntityById(reservationId);

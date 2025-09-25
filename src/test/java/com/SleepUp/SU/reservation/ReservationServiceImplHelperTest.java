@@ -3,9 +3,11 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
+import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
 import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.exceptions.ReservationOverlapException;
+import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import org.junit.jupiter.api.Nested;
@@ -25,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ReservationServiceHelperTest {
+public class ReservationServiceImplHelperTest {
 
     @InjectMocks
     private ReservationServiceHelper reservationServiceHelper;
