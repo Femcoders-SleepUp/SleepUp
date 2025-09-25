@@ -45,6 +45,7 @@ public class AccommodationService {
         }
         entityUtil.updateField(accommodationRequest.name(), accommodation::getName, accommodation::setName);
         entityUtil.updateField(accommodationRequest.price(), accommodation::getPrice, accommodation::setPrice);
+        entityUtil.updateField(accommodationRequest.petFriendly(), accommodation::getPetFriendly, accommodation::setPetFriendly);
         entityUtil.updateField(accommodationRequest.guestNumber(), accommodation::getGuestNumber, accommodation::setGuestNumber);
         entityUtil.updateField(accommodationRequest.location(), accommodation::getLocation, accommodation::setLocation);
         entityUtil.updateField(accommodationRequest.description(), accommodation::getDescription, accommodation::setDescription);
