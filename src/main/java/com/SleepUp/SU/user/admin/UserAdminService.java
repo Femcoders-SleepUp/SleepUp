@@ -1,4 +1,8 @@
 package com.SleepUp.SU.user.admin;
+import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
@@ -13,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,7 +30,8 @@ public class UserAdminService implements UserDetailsService {
     private final EntityUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
     private final PasswordEncoder passwordEncoder;
-
+    private final AccommodationRepository accommodationRepository;
+    private final ReservationRepository reservationRepository;
 
     public List<UserResponse> getAllUsers() {
         return mapperUtil.mapEntitiesToDTOs(userRepository.findAll(), userMapper::toResponse);
@@ -64,11 +70,32 @@ public class UserAdminService implements UserDetailsService {
         return userMapper.toResponse(updatedUser);
     }
 
-    public void deleteUserById(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new RuntimeException("User with id" + userId + "does not exist.");
+    @Transactional
+    public void deleteUserById(Long id){
+        if (id.equals(1L)) {
+            throw new IllegalArgumentException("Cannot delete replacement user with ID 1");
         }
-        userRepository.deleteById(userId);
+
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User with id " + id + " does not exist");
+        }
+
+        User replacementUser = userRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Replacement user with ID 1 not found"));
+
+        List<Accommodation> accommodationList = accommodationRepository.findByManagedBy_Id(id);
+        if (!accommodationList.isEmpty()) {
+            accommodationList.forEach(accommodation -> accommodation.setManagedBy(replacementUser));
+            accommodationRepository.saveAll(accommodationList);
+        }
+
+        List<Reservation> reservationList = reservationRepository.findByUser_Id(id);
+        if (!reservationList.isEmpty()) {
+            reservationList.forEach(reservation -> reservation.setUser(replacementUser));
+            reservationRepository.saveAll(reservationList);
+        }
+
+        userRepository.deleteById(id);
     }
 
     @Override
