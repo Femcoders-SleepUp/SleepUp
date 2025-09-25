@@ -1,11 +1,12 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.owner;
 
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.exceptions.ReservationNotFoundByIdException;
-import com.SleepUp.SU.reservation.owner.ReservationOwnerService;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;

@@ -72,4 +72,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     List<Reservation> findByAccommodationId(Long id);
 
     List<Reservation> findByCheckInDate(LocalDate date);
+
+    boolean existsByIdAndUser_Id(Long reservationId, Long userId);
 }

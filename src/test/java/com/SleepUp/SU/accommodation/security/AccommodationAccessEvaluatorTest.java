@@ -4,6 +4,7 @@ import com.SleepUp.SU.accommodation.AccommodationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.security.access.AccessDeniedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,9 +40,15 @@ class AccommodationAccessEvaluatorTest {
 
         when(accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId)).thenReturn(false);
 
-        boolean result = accommodationAccessEvaluator.isOwner(accommodationId, userId);
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
+            accommodationAccessEvaluator.isOwner(accommodationId, userId);
+        });
 
-        assertFalse(result);
+        assertEquals(
+                "User ID 2 cannot access Accommodation ID 1. Only the owner is authorized to access this resource.",
+                exception.getMessage()
+        );
+
         verify(accommodationRepository, times(1)).existsByIdAndManagedBy_Id(accommodationId, userId);
     }
 }

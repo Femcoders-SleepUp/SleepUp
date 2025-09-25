@@ -2,6 +2,7 @@ package com.SleepUp.SU.security.config;
 
 
 import com.SleepUp.SU.auth.TokenBlacklistService;
+import com.SleepUp.SU.security.CustomAccessDeniedHandler;
 import com.SleepUp.SU.security.RestAuthenticationEntryPoint;
 import com.SleepUp.SU.security.jwt.JwtAuthFilter;
 import com.SleepUp.SU.security.jwt.JwtService;
@@ -30,6 +31,9 @@ public class SecurityConfig {
     @Autowired
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -45,7 +49,10 @@ public class SecurityConfig {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint))
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
