@@ -3,6 +3,7 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.owner.ReservationOwnerService;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
@@ -17,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -147,4 +147,36 @@ public class ReservationOwnerControllerTest {
         }
 
     }
+
+    @Nested
+    class getReservationByIdTest {
+
+        @Test
+        void getReservationById_authorized_shouldReturnOk() throws Exception {
+            Long id = 101L;
+
+            ReservationResponseDetail detailDto = new ReservationResponseDetail(
+                    101L,
+                    "charlie",
+                    3,
+                    "Lake Cabin",
+                    LocalDate.of(2025, 11, 1),
+                    LocalDate.of(2025, 11, 5),
+                    BookingStatus.CONFIRMED,
+                    true,
+                    LocalDateTime.of(2025, 10, 20, 9, 15)
+            );
+
+            when(reservationOwnerService.getReservationById(id))
+                    .thenReturn(detailDto);
+
+            mockMvc.perform(post("/api/reservations/{id}", id)
+                            .with(user(principal))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
+        }
+
+    }
+
 }

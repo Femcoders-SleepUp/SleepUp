@@ -1,12 +1,13 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.owner;
 
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.utils.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,8 @@ import java.util.List;
 public class ReservationOwnerService {
 
     private final ReservationRepository reservationRepository;
-    private final AccommodationRepository accommodationRepository;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
-    private final EmailServiceHelper emailServiceHelper;
     private final EntityUtil entityUtil;
 
     public List<ReservationResponseSummary> getAllReservationsOnMyAccommodation(User user, Long id){
@@ -33,11 +32,13 @@ public class ReservationOwnerService {
 
     @Transactional
     public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest){
-        Reservation isExisting = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Id not found"));
-
+        Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
+        return reservationMapper.toDetail(isExisting);
+    }
 
+    public ReservationResponseDetail getReservationById(Long id){
+        Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         return reservationMapper.toDetail(isExisting);
     }
 

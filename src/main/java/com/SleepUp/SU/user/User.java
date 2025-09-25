@@ -1,5 +1,6 @@
 package com.SleepUp.SU.user;
 
+import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.user.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,4 +35,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "managedBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Accommodation> accommodations = new HashSet<>();
 }

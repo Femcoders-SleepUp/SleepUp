@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {
+    @Mapping(target = "userName", source = "user.name")
+    @Mapping(target = "accommodationName", source = "accommodation.name")
     ReservationResponseSummary toSummary(Reservation reservation);
 
     @Mapping(target = "userName", source = "user.name")

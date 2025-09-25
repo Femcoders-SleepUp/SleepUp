@@ -1,9 +1,16 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.utils;
 
 import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
+import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
+import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
+import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,15 +22,12 @@ public class ReservationServiceHelper {
 
     private final ReservationRepository reservationRepository;
 
-    public void validateReservationDates(ReservationRequest reservationRequest) {
-        if (reservationRequest.checkInDate().isAfter(reservationRequest.checkOutDate()) ||
-                reservationRequest.checkInDate().isEqual(reservationRequest.checkOutDate())) {
-            throw new IllegalArgumentException("Check-in date must be before check-out date");
-        }
+    public Reservation getReservationEntityById(Long id){
+        return reservationRepository.findById(id).orElseThrow(() -> new ReservationNotFoundByIdException(id));
+    }
 
-        if (reservationRequest.checkInDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Check-in date cannot be in the past");
-        }
+    public void validateReservationDates(ReservationRequest reservationRequest) {
+        EntityUtil.validateCheckInOutDates(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
     }
 
     public void validateAccommodationAvailability(Accommodation accommodation, ReservationRequest reservationRequest) {
@@ -32,14 +36,14 @@ public class ReservationServiceHelper {
 
         if (reservationRequest.checkInDate().isBefore(availableFrom) ||
                 reservationRequest.checkOutDate().isAfter(availableTo)) {
-            throw new IllegalArgumentException(
+            throw new AccommodationUnavailableException(
                     String.format("Accommodation is only available from %s to %s",
                             availableFrom, availableTo)
             );
         }
 
         if (reservationRequest.guestNumber() > accommodation.getGuestNumber()) {
-            throw new IllegalArgumentException(
+            throw new AccommodationConstraintsException(
                     String.format("Accommodation supports maximum %d guests, but %d guests requested",
                             accommodation.getGuestNumber(), reservationRequest.guestNumber())
             );
@@ -70,7 +74,7 @@ public class ReservationServiceHelper {
                     .reduce((a, b) -> a + "; " + b)
                     .orElse("Unknown conflict");
 
-            throw new IllegalArgumentException(
+            throw new ReservationOverlapException(
                     "You already have a reservation that overlaps with these dates: " + conflictDetails
             );
         }
@@ -99,9 +103,23 @@ public class ReservationServiceHelper {
                     .reduce((a, b) -> a + "; " + b)
                     .orElse("Unknown conflict");
 
-            throw new IllegalArgumentException(
+            throw new ReservationOverlapException(
                     "The accommodation is already reserved during these dates: " + conflictDetails
             );
+        }
+    }
+
+    public void validateReservationCancellable(Reservation reservation) {
+        if (reservation.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new ReservationModificationException("Cannot modify a cancelled reservation");
+        }
+
+        if (!(reservation.getBookingStatus() == BookingStatus.PENDING) && !(reservation.getBookingStatus() == BookingStatus.CONFIRMED)) {
+            throw new ReservationModificationException("Completed reservations cannot be cancelled");
+        }
+
+        if (reservation.getCheckInDate().isBefore(LocalDate.now())) {
+            throw new ReservationModificationException("Cannot modify a reservation that has already started");
         }
     }
 }

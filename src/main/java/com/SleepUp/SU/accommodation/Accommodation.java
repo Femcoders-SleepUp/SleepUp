@@ -1,11 +1,14 @@
 package com.SleepUp.SU.accommodation;
 
+import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "accommodations")
@@ -29,7 +32,7 @@ public class Accommodation {
     private int guestNumber;
 
     @Column(nullable = false, name = "pet_friendly")
-    private boolean petFriendly;
+    private Boolean petFriendly;
 
     @Column(nullable = false, length = 50)
     private String location;
@@ -55,4 +58,7 @@ public class Accommodation {
     @ManyToOne
     @JoinColumn(name = "managed_by_user_id")
     private User managedBy;
+
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Reservation> reservations = new HashSet<>();
 }

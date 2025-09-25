@@ -76,5 +76,4 @@ public class UserAdminService implements UserDetailsService {
         User user = userServiceHelper.findByUsername(username);
         return new CustomUserDetails(user);
     }
-
 }

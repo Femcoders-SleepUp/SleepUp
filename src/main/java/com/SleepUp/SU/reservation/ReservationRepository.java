@@ -2,6 +2,7 @@ package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -27,7 +28,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                 @Param("cancelledStatus") BookingStatus cancelledStatus);
 
     /**
-     * Check if a accommodation has reservations that overlap with the dates provided
+     * Check if an accommodation has reservations that overlap with the dates provided
      * Cancelled reservations are excluded
      */
     @Query("SELECT COUNT(r) > 0 FROM Reservation r WHERE r.accommodation.id = :accommodationId " +
@@ -62,6 +63,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                                   @Param("checkOutDate") LocalDate checkOutDate,
                                                                   @Param("cancelledStatus") BookingStatus cancelledStatus);
 
+    List<Reservation> findByUser_Id(Long userId);
+
+    List<Reservation> findByUser_IdAndCheckInDateBefore(Long userId, LocalDate date);
+
+    List<Reservation> findByUser_IdAndCheckInDateAfter(Long userId, LocalDate date);
+
     List<Reservation> findByAccommodationId(Long id);
 
+    List<Reservation> findByCheckInDate(LocalDate date);
 }

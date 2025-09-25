@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 public class UserAdminServiceTest {
 
     @InjectMocks
-    private UserAdminService userService;
+    private UserAdminService userAdminService;
 
     @Mock
     private UserServiceHelper userServiceHelper;
@@ -59,7 +59,7 @@ public class UserAdminServiceTest {
             userSaved.setId(1L);
             userSaved.setUsername("userTest");
             userSaved.setName("nameTest");
-            userSaved.setEmail("usertest@test.com");
+            userSaved.setEmail("usertest@email.com");
             userSaved.setPassword("password123");
 
             when(userServiceHelper.findByUsername("userTest")).thenReturn(userSaved);
@@ -71,7 +71,7 @@ public class UserAdminServiceTest {
             UserDetails userLogExpected = new CustomUserDetails(userSaved);
 
 
-            UserDetails userLogResponse = userService.loadUserByUsername("userTest");
+            UserDetails userLogResponse = userAdminService.loadUserByUsername("userTest");
 
             assertEquals(userLogExpected.getUsername(), userLogResponse.getUsername());
             assertEquals(userLogExpected.getAuthorities(), userLogResponse.getAuthorities());
@@ -86,7 +86,7 @@ public class UserAdminServiceTest {
             when(userServiceHelper.findByUsername("userTest"))
                     .thenThrow(new UsernameNotFoundException("userTest does not exist."));
 
-            assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("userTest"));
+            assertThrows(UsernameNotFoundException.class, () -> userAdminService.loadUserByUsername("userTest"));
         }
 
     }
@@ -151,6 +151,46 @@ public class UserAdminServiceTest {
 
             assertThrows(RuntimeException.class, () -> userService.updateUser(1L, request));
 
+
+//            existingUser.setPassword("oldPass");
+ //           existingUser.setRole(Role.USER);
+//
+ //           UserRequestAdmin updateRequest = new UserRequestAdmin(
+//                    "newUsername",
+//                    "New Name",
+//                    "new@test.com",
+//                    "newPass123",
+//                    Role.ADMIN
+//            );
+//
+//            User updatedUser = new User();
+//            updatedUser.setId(1L);
+//            updatedUser.setUsername("newUsername");
+//            updatedUser.setName("Old Name");
+//            updatedUser.setEmail("new@email.com");
+//            updatedUser.setPassword("newPass123");
+//            updatedUser.setRole(Role.USER);
+//
+//            UserResponse updatedUserResponse = new UserResponse(updatedUser.getId(), updatedUser.getUsername(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.getRole());
+//
+//
+//            when(userServiceHelper.findById(1L)).thenReturn(existingUser);
+//            doAnswer(invocation -> {
+//                existingUser.setUsername("newUsername");
+//                existingUser.setEmail("new@email.com");
+//                existingUser.setPassword("encodedPassword");
+//                return null;
+//            }).when(userServiceHelper).updateUserDataAdmin(updateRequest, existingUser);
+//
+//            when(userRepository.save(existingUser)).thenReturn(updatedUser);
+//            when(userMapper.toResponse(updatedUser)).thenReturn(updatedUserResponse);
+//
+//            UserResponse response = userAdminService.updateUser(1L, updateRequest);
+//
+//            assertEquals("newUsername", response.username());
+//            assertEquals("new@email.com", response.email());
+//            assertEquals("Old Name", response.name());
+//>>>>>>> dev
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.owner;
 
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -31,5 +31,12 @@ public class ReservationOwnerController {
                                                              @PathVariable Long id,
                                                              @RequestBody ReservationAuthRequest reservationAuthRequest){
         return reservationOwnerService.updateStatus(id, reservationAuthRequest);
+    }
+
+    @PostMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ReservationResponseDetail getReservationById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                             @PathVariable Long id){
+        return reservationOwnerService.getReservationById(id);
     }
 }
