@@ -52,7 +52,7 @@ public class CloudinaryServiceTest {
             Mockito.when(cloudinary.uploader()).thenReturn(uploader);
             Mockito.when(uploader.upload(any(), anyMap())).thenReturn(response);
 
-            Map result = cloudinaryService.uploadFile(image);
+            Map result = cloudinaryService.uploadFile(image, "accommodations");
 
             assertEquals("http://cloudinary.com/image/upload/example.jpg", result.get("secure_url"));
         }

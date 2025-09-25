@@ -34,28 +34,33 @@ public class AccommodationService {
     public AccommodationResponseDetail createAccommodation(AccommodationRequest accommodationRequest, User user){
         accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
         Accommodation accommodation = accommodationMapper.toEntity(accommodationRequest, user);
+        accommodationServiceHelper.postImageCloudinary(accommodationRequest, accommodation);
+
         Accommodation savedAccommodation = accommodationRepository.save(accommodation);
         return accommodationMapper.toDetail(savedAccommodation);
     }
 
+    @Transactional
     public AccommodationResponseDetail updateAccommodation(Long id, AccommodationRequest accommodationRequest){
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         if (!accommodation.getName().equals(accommodationRequest.name())){
             accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
         }
+
         entityUtil.updateField(accommodationRequest.name(), accommodation::getName, accommodation::setName);
         entityUtil.updateField(accommodationRequest.price(), accommodation::getPrice, accommodation::setPrice);
         entityUtil.updateField(accommodationRequest.guestNumber(), accommodation::getGuestNumber, accommodation::setGuestNumber);
         entityUtil.updateField(accommodationRequest.location(), accommodation::getLocation, accommodation::setLocation);
         entityUtil.updateField(accommodationRequest.description(), accommodation::getDescription, accommodation::setDescription);
-        entityUtil.updateField(accommodationRequest.imageUrl(), accommodation::getImageUrl, accommodation::setImageUrl);
         entityUtil.updateField(accommodationRequest.checkInTime(), accommodation::getCheckInTime, accommodation::setCheckInTime);
         entityUtil.updateField(accommodationRequest.checkOutTime(), accommodation::getCheckOutTime, accommodation::setCheckOutTime);
         entityUtil.updateField(accommodationRequest.availableFrom(), accommodation::getAvailableFrom, accommodation::setAvailableFrom);
         entityUtil.updateField(accommodationRequest.availableTo(), accommodation::getAvailableTo, accommodation::setAvailableTo);
 
-        Accommodation savedAccommodation = accommodationRepository.save(accommodation);
-        return accommodationMapper.toDetail(savedAccommodation);
+        accommodationServiceHelper.cloudinaryManagement(accommodationRequest, accommodation);
+
+        // Accommodation savedAccommodation = accommodationRepository.save(accommodation);
+        return accommodationMapper.toDetail(accommodation);
     }
 
     public void deleteAccommodation(Long id) {

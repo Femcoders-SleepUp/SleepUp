@@ -24,7 +24,7 @@ public class ReservationReminderTask {
     private final ReservationRepository reservationRepository;
     private final EmailServiceHelper emailServiceHelper;
 
-    @Scheduled(cron = "0 0 10 * * *")
+    @Scheduled(cron = "0 0 8 * * *")
     public void sendReservationReminders() {
         log.info("Starting daily reservation reminder task at {}", LocalDate.now().format(DATE_FORMATTER));
 
