@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserAdminService implements UserDetailsService {
     private final UserMapper userMapper;
     private final EntityUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
+    private final PasswordEncoder passwordEncoder;
 
 
     public List<UserResponse> getAllUsers() {
