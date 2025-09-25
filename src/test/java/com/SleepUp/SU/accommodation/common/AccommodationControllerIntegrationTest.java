@@ -64,6 +64,10 @@ class AccommodationControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+
+        User savedUser = userRepository.findByUsername("User2")
+                .orElseThrow(() -> new RuntimeException("User2 not found"));
+
         imageFileOld = new MockMultipartFile(
                 "image",
                 "old-image.jpg",
@@ -77,9 +81,7 @@ class AccommodationControllerIntegrationTest {
                 "image/jpeg",
                 "test image content".getBytes()
         );
-
-        User savedUser = userRepository.findByUsername("TestUser2")
-                .orElseThrow(() -> new RuntimeException("TestUser not found"));
+      
         customUserDetails = new CustomUserDetails(savedUser);
 
         savedAccommodation = accommodationRepository.findByManagedBy_Id(savedUser.getId()).getFirst();
@@ -162,7 +164,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("11:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.managedByUsername").value("nameTest2"));
+                .andExpect(jsonPath("$.managedByUsername").value("Name2"));
     }
 
     @Test
@@ -205,7 +207,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("12:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-05-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.managedByUsername").value("nameTest2"));
+                .andExpect(jsonPath("$.managedByUsername").value("Name2"));
     }
 
     @Test
