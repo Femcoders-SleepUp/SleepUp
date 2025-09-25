@@ -1,8 +1,8 @@
 package com.SleepUp.SU.user.utils;
 
 
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.utils.exceptions.UserEmailAlreadyExistsException;
 import com.SleepUp.SU.utils.exceptions.UserUsernameAlreadyExistsException;
 import org.junit.jupiter.api.Nested;

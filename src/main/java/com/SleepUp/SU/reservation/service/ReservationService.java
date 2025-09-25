@@ -4,7 +4,7 @@ import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 
 import java.util.List;
 

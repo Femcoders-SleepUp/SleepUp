@@ -5,7 +5,7 @@ import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
-import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

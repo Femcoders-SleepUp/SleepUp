@@ -1,7 +1,7 @@
 package com.SleepUp.SU.auth;
 
 import com.SleepUp.SU.auth.dto.*;
-import com.SleepUp.SU.user.CustomUserDetails;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.ApiMessageDto;

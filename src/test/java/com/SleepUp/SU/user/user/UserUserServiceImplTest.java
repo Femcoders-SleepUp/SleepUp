@@ -2,8 +2,8 @@ package com.SleepUp.SU.user.user;
 
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
@@ -27,10 +27,10 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserUserServiceTest {
+public class UserUserServiceImplTest {
 
     @InjectMocks
-    private UserUserService userUserService;
+    private UserUserServiceImpl userUserServiceImpl;
 
     @Mock
     private UserServiceHelper userServiceHelper;
@@ -57,7 +57,7 @@ public class UserUserServiceTest {
 
             when(userServiceHelper.findById(99L)).thenReturn(user);
             when(userMapper.toResponse(user)).thenReturn(userResponse);
-            UserResponse response = userUserService.getLoggedUser(99L);
+            UserResponse response = userUserServiceImpl.getLoggedUser(99L);
 
             assertEquals("usernameTest", response.username());
             assertEquals("nameTest", response.name());
@@ -72,7 +72,7 @@ public class UserUserServiceTest {
 
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> userUserService.getLoggedUser(99L)
+                    () -> userUserServiceImpl.getLoggedUser(99L)
             );
 
             assertEquals("Username by id does not exist", exception.getMessage());
@@ -100,7 +100,7 @@ public class UserUserServiceTest {
             }).when(userServiceHelper).updateUserData(request, user);
             when(userMapper.toResponse(user)).thenReturn(expectedResponse);
 
-            UserResponse response = userUserService.updateLoggedUser(request, 99L);
+            UserResponse response = userUserServiceImpl.updateLoggedUser(request, 99L);
 
             assertEquals("newUsername", response.username());
             assertEquals("new@email.com", response.email());
@@ -120,7 +120,7 @@ public class UserUserServiceTest {
             }).when(userServiceHelper).updateUserData(request, user);
             when(userMapper.toResponse(user)).thenReturn(expectedResponse);
 
-            UserResponse response = userUserService.updateLoggedUser(request, 99L);
+            UserResponse response = userUserServiceImpl.updateLoggedUser(request, 99L);
 
             assertEquals("sameUsername", response.username());
             assertEquals("same@email.com", response.email());
@@ -135,7 +135,7 @@ public class UserUserServiceTest {
                     .thenThrow(new IllegalArgumentException("User not found"));
 
             assertThrows(IllegalArgumentException.class, () -> {
-                userUserService.updateLoggedUser(request, 99L);
+                userUserServiceImpl.updateLoggedUser(request, 99L);
             });
         }
     }
@@ -151,7 +151,7 @@ public class UserUserServiceTest {
             when(accommodationRepository.findByManagedBy_Id(99L)).thenReturn(List.of());
             when(reservationRepository.findByUser_Id(99L)).thenReturn(List.of());
 
-            userUserService.deleteMyUser(99L);
+            userUserServiceImpl.deleteMyUser(99L);
 
             verify(userRepository).deleteById(99L);
             verify(accommodationRepository, never()).saveAll(anyList());

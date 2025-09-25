@@ -13,7 +13,7 @@ import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;

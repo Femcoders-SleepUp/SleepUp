@@ -1,4 +1,4 @@
-package com.SleepUp.SU.user;
+package com.SleepUp.SU.user.entity;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

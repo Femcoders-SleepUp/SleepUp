@@ -1,8 +1,8 @@
 package com.SleepUp.SU.user.admin;
 
-import com.SleepUp.SU.user.CustomUserDetails;
-import com.SleepUp.SU.user.User;
-import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
+import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
@@ -31,10 +31,10 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserAdminServiceTest {
+public class UserAdminServiceImplTest {
 
     @InjectMocks
-    private UserAdminService userAdminService;
+    private UserAdminServiceImpl userAdminServiceImpl;
 
     @Mock
     private UserServiceHelper userServiceHelper;
@@ -71,7 +71,7 @@ public class UserAdminServiceTest {
             UserDetails userLogExpected = new CustomUserDetails(userSaved);
 
 
-            UserDetails userLogResponse = userAdminService.loadUserByUsername("userTest");
+            UserDetails userLogResponse = userAdminServiceImpl.loadUserByUsername("userTest");
 
             assertEquals(userLogExpected.getUsername(), userLogResponse.getUsername());
             assertEquals(userLogExpected.getAuthorities(), userLogResponse.getAuthorities());
@@ -86,7 +86,7 @@ public class UserAdminServiceTest {
             when(userServiceHelper.findByUsername("userTest"))
                     .thenThrow(new UsernameNotFoundException("userTest does not exist."));
 
-            assertThrows(UsernameNotFoundException.class, () -> userAdminService.loadUserByUsername("userTest"));
+            assertThrows(UsernameNotFoundException.class, () -> userAdminServiceImpl.loadUserByUsername("userTest"));
         }
 
     }
@@ -125,7 +125,7 @@ public class UserAdminServiceTest {
             when(userMapper.toResponse(any(User.class)))
                     .thenReturn(new UserResponse(1L, "updatedUser", "Updated Name", "updated@test.com", Role.ADMIN));
 
-            UserResponse response = userAdminService.updateUser(1L, request);
+            UserResponse response = userAdminServiceImpl.updateUser(1L, request);
 
             assertEquals("updatedUser", response.username());
             assertEquals("Updated Name", response.name());
@@ -148,7 +148,7 @@ public class UserAdminServiceTest {
                     Role.ADMIN
             );
 
-            assertThrows(RuntimeException.class, () -> userAdminService.updateUser(1L, request));
+            assertThrows(RuntimeException.class, () -> userAdminServiceImpl.updateUser(1L, request));
 
 
 //            existingUser.setPassword("oldPass");
@@ -184,7 +184,7 @@ public class UserAdminServiceTest {
 //            when(userRepository.save(existingUser)).thenReturn(updatedUser);
 //            when(userMapper.toResponse(updatedUser)).thenReturn(updatedUserResponse);
 //
-//            UserResponse response = userAdminService.updateUser(1L, updateRequest);
+//            UserResponse response = userAdminServiceImpl.updateUser(1L, updateRequest);
 //
 //            assertEquals("newUsername", response.username());
 //            assertEquals("new@email.com", response.email());

@@ -6,7 +6,7 @@ import com.SleepUp.SU.security.CustomAccessDeniedHandler;
 import com.SleepUp.SU.security.RestAuthenticationEntryPoint;
 import com.SleepUp.SU.security.jwt.JwtAuthFilter;
 import com.SleepUp.SU.security.jwt.JwtService;
-import com.SleepUp.SU.user.admin.UserAdminService;
+import com.SleepUp.SU.user.admin.UserAdminServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +40,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserAdminService userService, TokenBlacklistService tokenBlacklistService) {
+    public JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserAdminServiceImpl userService, TokenBlacklistService tokenBlacklistService) {
         return new JwtAuthFilter(restAuthenticationEntryPoint, jwtService, userService, tokenBlacklistService);
     }
 

@@ -1,6 +1,6 @@
 package com.SleepUp.SU.user.dto;
 
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.role.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

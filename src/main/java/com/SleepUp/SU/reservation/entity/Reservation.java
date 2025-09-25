@@ -2,7 +2,7 @@ package com.SleepUp.SU.reservation.entity;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.status.BookingStatus;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

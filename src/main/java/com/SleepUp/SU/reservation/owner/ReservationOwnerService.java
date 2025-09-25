@@ -3,7 +3,7 @@ package com.SleepUp.SU.reservation.owner;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 
 import java.util.List;
 

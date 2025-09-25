@@ -4,7 +4,7 @@ import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

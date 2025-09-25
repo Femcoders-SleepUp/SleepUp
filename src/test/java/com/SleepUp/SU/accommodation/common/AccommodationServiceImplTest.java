@@ -8,7 +8,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

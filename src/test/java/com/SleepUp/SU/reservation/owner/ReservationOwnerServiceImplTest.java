@@ -10,7 +10,7 @@ import com.SleepUp.SU.reservation.exceptions.ReservationNotFoundByIdException;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
-import com.SleepUp.SU.user.User;
+import com.SleepUp.SU.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
