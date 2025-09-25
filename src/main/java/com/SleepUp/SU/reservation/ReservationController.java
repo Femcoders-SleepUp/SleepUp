@@ -16,13 +16,13 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reservations")
+@RequestMapping("/api/accommodations")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class ReservationController {
     private final ReservationService reservationService;
 
-    @PostMapping("/accommodation/{id}")
+    @PostMapping("/{id}/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationResponseDetail createReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -32,7 +32,7 @@ public class ReservationController {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
 
-    @GetMapping("/all/{user}")
+    @GetMapping("/{user}/reservations")
     public ResponseEntity<List<ReservationResponseSummary>> getMyReservations(Principal principal) {
         String username = principal.getName();
         List<ReservationResponseSummary> reservations = reservationService.getMyReservations(username);
@@ -53,7 +53,7 @@ public class ReservationController {
         return ResponseEntity.ok(pastReservations);
     }
 
-    @PatchMapping("cancel/{id}")
+    @PatchMapping("/{id}/cancel")
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail cancelReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
