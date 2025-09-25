@@ -19,10 +19,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+
+    private static final Set<String> EXCLUDED_PATHS = Set.of(
+            "/api/auth/login",
+            "/api/auth/register"
+    );
 
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final JwtService jwtService;
@@ -34,19 +43,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String requestURI = request.getRequestURI();
-        if (shouldSkipFilter(requestURI, request.getMethod())) {
+        final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String token = authHeader.substring(7);
+        final String token = authHeader.substring(BEARER_PREFIX.length());
 
         try {
             if (!jwtService.isValidToken(token) || tokenBlacklistService.isTokenInBlacklist(token)) {
@@ -70,10 +74,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
     }
 
-
-    private boolean shouldSkipFilter(String requestURI, String method) {
-        return (requestURI.equals("/api/auth/login") && "POST".equals(method)) ||
-                (requestURI.equals("/api/auth/register") && "POST".equals(method));
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        // Skip the filter for excluded paths with POST method
+        String path = request.getRequestURI();
+        return EXCLUDED_PATHS.contains(path) && "POST".equalsIgnoreCase(request.getMethod());
     }
 }
-
