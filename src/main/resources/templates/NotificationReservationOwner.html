@@ -53,9 +53,12 @@
 <div class="email-container">
     <h1 th:text="'Hello, ' + ${ownerName} + '!'">Hello, Owner!</h1>
 
-    <img src="https://i.postimg.cc/RZrQfDFs/LOGO.png" alt="SleepUp Logo" style="float: right; width: 80px; height: auto; margin-top: -10px; margin-bottom: 10px;" />
+    <img src="https://res.cloudinary.com/sleepup/image/upload/v1758632236/18_confoz.png" alt="SleepUp Logo" style="float: right; width: 80px; height: auto; margin-top: -10px; margin-bottom: 10px;" />
 
-    <p>Your accommodation has just been booked:</p>
+    <p>Your accommodation has just been
+        <span style="background-color: orange; color: black; padding: 2px 5px; border-radius: 3px;">
+        booked
+        </span>:</p>
     <ul>
         <li><b>Accommodation:</b> <span th:text="${accommodationName}">Accommodation Name</span></li>
         <li><b>Location:</b> <span th:text="${location}">Location</span></li>

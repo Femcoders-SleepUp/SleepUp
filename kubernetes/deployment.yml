@@ -1,11 +1,11 @@
-# DreamRoute Application Deployment
-# This deployment manages the main application pods for the DreamRoute service
+# SleepUp Application Deployment
+# This deployment manages the main application pods for the SleepUp service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app
   labels:
-    app: dreamroute
+    app: sleepUp
     tier: backend
 spec:
   # Run 3 replicas for high availability

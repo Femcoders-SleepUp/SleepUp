@@ -1,0 +1,36 @@
+# Kustomization configuration for SleepUp application
+# This file defines how to customize and deploy the SleepUp Kubernetes resources
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: sleepUp
+
+# List of Kubernetes resource files to include in this deployment
+resources:
+  - deployment.yaml
+  - service.yaml
+  - configmap.yaml
+  - secret.yaml
+
+# Image customization - override image tags
+images:
+  - name: Femcoders-SleepUp/SleepUp
+    newTag: main
+
+# Add prefix to all resource names to avoid conflicts
+namePrefix: sleepUp-
+
+# Add common labels to all resources
+labels:
+  - pairs:
+      app: sleepUp
+      version: v1
+
+# Target namespace for deployment
+namespace: default
+
+# Override replica count for specific deployments
+replicas:
+  - name: app
+    count: 5
