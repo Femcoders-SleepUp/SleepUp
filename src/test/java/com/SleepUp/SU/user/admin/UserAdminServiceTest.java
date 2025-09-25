@@ -112,7 +112,6 @@ public class UserAdminServiceTest {
             existingUser.setRole(Role.USER);
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-            when(passwordEncoder.encode("newPassword")).thenReturn("encodedPass");
 
             User savedUser = new User();
             savedUser.setId(1L);
