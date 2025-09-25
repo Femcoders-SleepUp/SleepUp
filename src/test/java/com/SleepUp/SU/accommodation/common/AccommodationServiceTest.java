@@ -2,10 +2,12 @@ package com.SleepUp.SU.accommodation.common;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.AccommodationService;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -139,13 +140,13 @@ class AccommodationServiceTest {
 
     @Test
     void getAccommodationById_success() {
-        when(accommodationRepository.findById(1L)).thenReturn(Optional.of(existingAccommodation));
+        when(accommodationServiceHelper.getAccommodationEntityById(1L)).thenReturn(existingAccommodation);
         when(accommodationMapper.toDetail(existingAccommodation)).thenReturn(updatedAccommodationResponseDetail);
 
         AccommodationResponseDetail result = accommodationService.getAccommodationById(1L);
 
         assertEquals(updatedAccommodationResponseDetail, result);
-        verify(accommodationRepository).findById(1L);
+        verify(accommodationServiceHelper).getAccommodationEntityById(1L);
         verify(accommodationMapper).toDetail(existingAccommodation);
     }
 
@@ -169,7 +170,7 @@ class AccommodationServiceTest {
     void testUpdateAccommodation_whenNameChanged_callsValidateAndUpdatesFields() {
         Long id = existingAccommodation.getId();
 
-        when(accommodationRepository.findById(id)).thenReturn(Optional.of(existingAccommodation));
+        when(accommodationServiceHelper.getAccommodationEntityById(id)).thenReturn(existingAccommodation);
 
         doNothing().when(accommodationServiceHelper).validateAccommodationNameDoesNotExist("New Name");
         doAnswer(invocation -> null).when(entityUtil).updateField(any(), any(), any());
@@ -187,11 +188,11 @@ class AccommodationServiceTest {
 
     @Test
     void deleteAccommodation_success() {
-        when(accommodationRepository.findById(1L)).thenReturn(Optional.of(existingAccommodation));
+        when(accommodationServiceHelper.getAccommodationEntityById(1L)).thenReturn(existingAccommodation);
 
         accommodationService.deleteAccommodation(1L);
 
-        verify(accommodationRepository).findById(1L);
+        verify(accommodationServiceHelper).getAccommodationEntityById(1L);
         verify(accommodationRepository).delete(existingAccommodation);
     }
 }

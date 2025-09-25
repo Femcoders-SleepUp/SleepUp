@@ -1,14 +1,19 @@
 package com.SleepUp.SU.reservation;
 
 import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
+import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.EmailServiceHelper;
+import com.SleepUp.SU.utils.EntityUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,10 +37,10 @@ public class ReservationServiceTest {
     private ReservationService reservationService;
 
     @Mock
-    private ReservationRepository reservationRepository;
+    private EntityUtil entityUtil;
 
     @Mock
-    private AccommodationRepository accommodationRepository;
+    private ReservationRepository reservationRepository;
 
     @Mock
     private ReservationMapper reservationMapper;
@@ -44,7 +49,74 @@ public class ReservationServiceTest {
     private ReservationServiceHelper reservationServiceHelper;
 
     @Mock
+    private AccommodationServiceHelper accommodationServiceHelper;
+
+    @Mock
     private EmailServiceHelper emailServiceHelper;
+
+    private ReservationResponseSummary mappedDtos;
+    private Long userId;
+    private List<Reservation> mockReservations;
+
+    @BeforeEach
+    void setUp(){
+        mappedDtos = new ReservationResponseSummary(1L, "Maria",1,"María House",null,null,null,null,null);
+        userId = 1L;
+        mockReservations = List.of(new Reservation());
+
+    }
+
+    @Nested
+    class GetReservationsTest {
+        @Test
+        public void testGetMyReservations_All() {
+            when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.ALL);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_Id(userId);
+        }
+
+        @Test
+        public void testGetMyReservations_Past() {
+            LocalDate today = LocalDate.now();
+
+            when(reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.PAST);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_IdAndCheckInDateBefore(userId, today);
+        }
+
+        @Test
+        public void testGetMyReservations_Future() {
+            LocalDate today = LocalDate.now();
+
+            when(reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, ReservationTime.FUTURE);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_IdAndCheckInDateAfter(userId, today);
+        }
+
+        @Test
+        public void testGetMyReservations_NullTime() {
+            when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
+            when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
+
+            List<ReservationResponseSummary> result = reservationService.getMyReservations(userId, null);
+
+            assertEquals(List.of(mappedDtos), result);
+            verify(reservationRepository).findByUser_Id(userId);
+        }
+
+    }
 
     @Nested
     class CreateReservationTest {
@@ -76,7 +148,7 @@ public class ReservationServiceTest {
             );
 
             // When
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
             when(reservationMapper.toEntity(reservationRequest, BookingStatus.PENDING, user, accommodation, false))
                     .thenReturn(mappedReservation);
             when(reservationRepository.save(mappedReservation)).thenReturn(savedReservation);
@@ -101,7 +173,7 @@ public class ReservationServiceTest {
             verify(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             verify(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
             verify(reservationServiceHelper).validateAccommodationReservationOverlap(accommodationId, reservationRequest);
-            verify(accommodationRepository).findById(accommodationId);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
             verify(reservationRepository).save(mappedReservation);
             verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
         }
@@ -118,15 +190,15 @@ public class ReservationServiceTest {
             Long accommodationId = 999L;
 
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.empty());
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenThrow(new AccommodationNotFoundByIdException(accommodationId));
 
             // When & Then
-            RuntimeException exception = assertThrows(RuntimeException.class,
+            AccommodationNotFoundByIdException exception = assertThrows(AccommodationNotFoundByIdException.class,
                     () -> reservationService.createReservation(reservationRequest, user, accommodationId));
 
-            assertEquals("Accommodation not found", exception.getMessage());
+            assertEquals("Accommodation with id '999' not found", exception.getMessage());
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
-            verify(accommodationRepository).findById(accommodationId);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
             verifyNoInteractions(reservationRepository);
             verifyNoInteractions(emailServiceHelper);
         }
@@ -151,7 +223,7 @@ public class ReservationServiceTest {
 
             assertEquals("Check-in date must be before check-out date", exception.getMessage());
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
-            verifyNoInteractions(accommodationRepository);
+            verifyNoInteractions(accommodationServiceHelper);
             verifyNoInteractions(reservationRepository);
         }
 
@@ -167,7 +239,7 @@ public class ReservationServiceTest {
             Long accommodationId = 1L;
             Accommodation accommodation = createTestAccommodation();
 
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
             doThrow(new IllegalArgumentException("Accommodation supports maximum 4 guests, but 5 guests requested"))
                     .when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
@@ -177,7 +249,7 @@ public class ReservationServiceTest {
                     () -> reservationService.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("Accommodation supports maximum 4 guests, but 5 guests requested", exception.getMessage());
-            verify(accommodationRepository).findById(accommodationId);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
             verify(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             verifyNoInteractions(reservationRepository);
         }
@@ -194,7 +266,7 @@ public class ReservationServiceTest {
             Long accommodationId = 1L;
             Accommodation accommodation = createTestAccommodation();
 
-            when(accommodationRepository.findById(accommodationId)).thenReturn(Optional.of(accommodation));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
             doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             doThrow(new IllegalArgumentException("You already have a reservation that overlaps with these dates"))
@@ -206,7 +278,71 @@ public class ReservationServiceTest {
 
             assertEquals("You already have a reservation that overlaps with these dates", exception.getMessage());
             verify(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
-            verifyNoInteractions(reservationRepository);
+            verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
+        }
+
+        @Test
+        void should_cancelReservation_successfully() {
+            Long reservationId = 1L;
+            Long userId = 1L;
+
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+
+            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
+
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
+                    .thenReturn(testReservation);
+            when(reservationRepository.save(testReservation)).thenReturn(testReservation);
+            when(reservationMapper.toDetail(testReservation)).thenReturn(expectedCancelledResponse());
+
+            ReservationResponseDetail result = reservationService.cancelReservation(reservationId);
+
+            assertNotNull(result);
+            assertEquals(reservationId, result.id());
+            assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
+            verify(reservationRepository).save(testReservation);
+            verify(reservationMapper).toDetail(testReservation);
+        }
+
+        @Test
+        void should_cancelReservation_throw_exception_when_not_found() {
+            Long reservationId = 1L;
+            Long userId = 1L;
+
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
+                    .thenThrow(new RuntimeException("Reservation not found"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class,
+                    () -> reservationService.cancelReservation(reservationId));
+
+            assertEquals("Reservation not found", exception.getMessage());
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
+            verify(reservationRepository, never()).save(any());
+        }
+
+        @Test
+        void should_cancelReservation_throw_exception_when_already_cancelled() {
+            Long reservationId = 1L;
+            Long userId = 1L;
+
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+            testReservation.setBookingStatus(BookingStatus.CANCELLED);
+
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
+                    .thenReturn(testReservation);
+            doThrow(new IllegalStateException("Cannot modify a cancelled reservation"))
+                    .when(reservationServiceHelper).validateReservationCancellable(testReservation);
+
+            IllegalStateException exception = assertThrows(IllegalStateException.class,
+                    () -> reservationService.cancelReservation(reservationId));
+
+            assertEquals("Cannot modify a cancelled reservation", exception.getMessage());
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
+            verify(reservationServiceHelper).validateReservationCancellable(testReservation);
+            verify(reservationRepository, never()).save(any());
         }
 
         private User createTestUser() {
@@ -238,5 +374,14 @@ public class ReservationServiceTest {
             reservation.setEmailSent(false);
             return reservation;
         }
+
+        private ReservationResponseDetail expectedCancelledResponse() {
+            return new ReservationResponseDetail(
+                    1L, "Test User", 4, "Test Hotel",
+                    LocalDate.now().plusDays(1), LocalDate.now().plusDays(30),
+                    BookingStatus.CANCELLED, false, LocalDateTime.now()
+            );
+        }
+
     }
 }

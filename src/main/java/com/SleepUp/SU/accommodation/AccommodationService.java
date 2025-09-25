@@ -1,11 +1,10 @@
-package com.SleepUp.SU.accommodation.common;
+package com.SleepUp.SU.accommodation;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import jakarta.transaction.Transactional;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,13 +25,9 @@ public class AccommodationService {
         List<Accommodation> accommodations = accommodationRepository.findAll();
         return accommodations.stream().map(accommodationMapper::toSummary).toList();
     }
-    
-    public Accommodation getAccommodationEntityById(Long id) {
-        return accommodationRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Accommodation by id not found"));
-    }
 
     public AccommodationResponseDetail getAccommodationById(Long id) {
-        return accommodationMapper.toDetail(getAccommodationEntityById(id));
+        return accommodationMapper.toDetail(accommodationServiceHelper.getAccommodationEntityById(id));
     }
 
     @Transactional
@@ -45,7 +39,7 @@ public class AccommodationService {
     }
 
     public AccommodationResponseDetail updateAccommodation(Long id, AccommodationRequest accommodationRequest){
-        Accommodation accommodation = getAccommodationEntityById(id);
+        Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         if (!accommodation.getName().equals(accommodationRequest.name())){
             accommodationServiceHelper.validateAccommodationNameDoesNotExist(accommodationRequest.name());
         }
@@ -65,7 +59,7 @@ public class AccommodationService {
     }
 
     public void deleteAccommodation(Long id) {
-        Accommodation accommodation = getAccommodationEntityById(id);
+        Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
         accommodationRepository.delete(accommodation);
     }
 }

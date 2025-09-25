@@ -56,6 +56,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").authenticated()
 
+                        .requestMatchers(HttpMethod.GET,  "/api/users/my-user").authenticated()
+                        .requestMatchers(HttpMethod.PUT,  "/api/users/my-user").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,  "/api/users/my-user").authenticated()
+
                         .requestMatchers(HttpMethod.GET, "/api/accommodations").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/filter**").permitAll()
 
@@ -65,7 +69,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/accommodations/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/accommodations/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/reservations/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reservations/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/reservations/**").hasRole("USER")
+
+                        .requestMatchers(HttpMethod.PATCH, "/api/reservations/**").authenticated()
+
                         .anyRequest().authenticated()
                 );
 
