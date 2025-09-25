@@ -54,7 +54,7 @@ public class UserAdminControllerTest {
                     Role.USER
             );
 
-            when(UserAdminService.createUser(any(UserRequestAdmin.class)))
+            when(userAdminService.createUser(any(UserRequestAdmin.class)))
                     .thenReturn(response);
 
             mockMvc.perform(post("/api/users")
