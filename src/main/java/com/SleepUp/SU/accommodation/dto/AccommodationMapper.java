@@ -1,6 +1,6 @@
 package com.SleepUp.SU.accommodation.dto;
 
-import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

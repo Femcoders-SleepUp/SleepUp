@@ -1,6 +1,6 @@
 package com.SleepUp.SU.accommodation.security;
 
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;

@@ -1,12 +1,11 @@
 package com.SleepUp.SU.user.admin;
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
-import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;

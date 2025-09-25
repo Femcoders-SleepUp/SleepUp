@@ -1,7 +1,7 @@
 package com.SleepUp.SU.accommodation.owner;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.User;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class AccommodationOwnerServiceTest {
+public class AccommodationOwnerServiceImplTest {
 
     @Mock
     private AccommodationRepository accommodationRepository;
@@ -33,7 +33,7 @@ public class AccommodationOwnerServiceTest {
     private AccommodationMapper accommodationMapper;
 
     @InjectMocks
-    private AccommodationOwnerService accommodationOwnerService;
+    private AccommodationOwnerServiceImpl accommodationOwnerServiceImpl;
 
     private Long userId;
     private User user;
@@ -116,7 +116,7 @@ public class AccommodationOwnerServiceTest {
 //            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(accommodations);
 //            when(mapperUtil.mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(expectedSummaries);
 //
-//            List<AccommodationResponseSummary> actualSummaries = accommodationOwnerService.getAllAccommodationsByOwnerId(userId);
+//            List<AccommodationResponseSummary> actualSummaries = accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(userId);
 //
 //            assertEquals(expectedSummaries, actualSummaries);
 //
@@ -131,7 +131,7 @@ public class AccommodationOwnerServiceTest {
 //            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(List.of());
 //            when(mapperUtil.mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(List.of());
 //
-//            List<AccommodationResponseSummary> summaries = accommodationOwnerService.getAllAccommodationsByOwnerId(userId);
+//            List<AccommodationResponseSummary> summaries = accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(userId);
 //
 //            assertTrue(summaries.isEmpty());
 //

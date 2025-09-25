@@ -1,5 +1,6 @@
-package com.SleepUp.SU.accommodation;
+package com.SleepUp.SU.accommodation.repository;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

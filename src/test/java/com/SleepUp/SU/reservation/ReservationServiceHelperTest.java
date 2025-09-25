@@ -1,6 +1,6 @@
 package com.SleepUp.SU.reservation;
 
-import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;

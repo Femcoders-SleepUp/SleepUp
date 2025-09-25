@@ -1,6 +1,6 @@
 package com.SleepUp.SU.utils.email;
 
-import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.auth.AuthService;
 import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.user.User;

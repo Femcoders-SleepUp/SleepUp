@@ -1,7 +1,7 @@
 package com.SleepUp.SU.user.user;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.user.User;

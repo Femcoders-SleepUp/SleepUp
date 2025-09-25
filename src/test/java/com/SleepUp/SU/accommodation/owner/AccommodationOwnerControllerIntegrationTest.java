@@ -1,7 +1,7 @@
 package com.SleepUp.SU.accommodation.owner;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
@@ -39,7 +39,7 @@ class AccommodationOwnerControllerIntegrationTest {
     private AccommodationRepository accommodationRepository;
 
     @Autowired
-    private AccommodationOwnerService accommodationOwnerService;
+    private AccommodationOwnerServiceImpl accommodationOwnerServiceImpl;
 
     @Autowired
     private UserRepository userRepository;

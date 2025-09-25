@@ -1,8 +1,8 @@
 package com.SleepUp.SU.accommodation.common;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
-import com.SleepUp.SU.accommodation.AccommodationService;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
+import com.SleepUp.SU.accommodation.service.AccommodationServiceImpl;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AccommodationServiceTest {
+class AccommodationServiceImplTest {
 
     @Mock
     private AccommodationMapper accommodationMapper;
@@ -42,10 +42,10 @@ class AccommodationServiceTest {
     private AccommodationServiceHelper accommodationServiceHelper;
 
     @Mock
-    private AccommodationService accommodationServiceMock;
+    private AccommodationServiceImpl accommodationServiceImplMock;
 
     @InjectMocks
-    private AccommodationService accommodationService;
+    private AccommodationServiceImpl accommodationServiceImpl;
 
     private AccommodationRequest oldAccommodationRequest;
     private AccommodationRequest newAccommodationRequest;
@@ -150,7 +150,7 @@ class AccommodationServiceTest {
     void getAllAccommodations_success() {
         when(accommodationRepository.findAll()).thenReturn(java.util.List.of(existingAccommodation));
 
-        List<AccommodationResponseSummary> result = accommodationService.getAllAccommodations();
+        List<AccommodationResponseSummary> result = accommodationServiceImpl.getAllAccommodations();
 
         assertThat(result).hasSize(1);
         verify(accommodationRepository).findAll();
@@ -161,7 +161,7 @@ class AccommodationServiceTest {
         when(accommodationServiceHelper.getAccommodationEntityById(1L)).thenReturn(existingAccommodation);
         when(accommodationMapper.toDetail(existingAccommodation)).thenReturn(updatedAccommodationResponseDetail);
 
-        AccommodationResponseDetail result = accommodationService.getAccommodationById(1L);
+        AccommodationResponseDetail result = accommodationServiceImpl.getAccommodationById(1L);
 
         assertEquals(updatedAccommodationResponseDetail, result);
         verify(accommodationServiceHelper).getAccommodationEntityById(1L);
@@ -175,7 +175,7 @@ class AccommodationServiceTest {
         when(accommodationMapper.toDetail(updatedAccommodation)).thenReturn(updatedAccommodationResponseDetail);
         doNothing().when(accommodationServiceHelper).validateAccommodationNameDoesNotExist(oldAccommodationRequest.name());
 
-        AccommodationResponseDetail result = accommodationService.createAccommodation(oldAccommodationRequest, user);
+        AccommodationResponseDetail result = accommodationServiceImpl.createAccommodation(oldAccommodationRequest, user);
 
         assertEquals(updatedAccommodationResponseDetail, result);
         verify(accommodationMapper).toEntity(oldAccommodationRequest, user);
@@ -196,7 +196,7 @@ class AccommodationServiceTest {
 
         when(accommodationMapper.toDetail(any(Accommodation.class))).thenReturn(updatedAccommodationResponseDetail);
 
-        AccommodationResponseDetail result = accommodationService.updateAccommodation(id, newAccommodationRequest);
+        AccommodationResponseDetail result = accommodationServiceImpl.updateAccommodation(id, newAccommodationRequest);
 
         verify(accommodationServiceHelper).validateAccommodationNameDoesNotExist("New Name");
         verify(accommodationMapper).toDetail(any(Accommodation.class));
@@ -207,7 +207,7 @@ class AccommodationServiceTest {
     void deleteAccommodation_success() {
         when(accommodationServiceHelper.getAccommodationEntityById(1L)).thenReturn(existingAccommodation);
 
-        accommodationService.deleteAccommodation(1L);
+        accommodationServiceImpl.deleteAccommodation(1L);
 
         verify(accommodationServiceHelper).getAccommodationEntityById(1L);
         verify(accommodationRepository).delete(existingAccommodation);

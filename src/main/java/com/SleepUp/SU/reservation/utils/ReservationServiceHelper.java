@@ -1,6 +1,6 @@
 package com.SleepUp.SU.reservation.utils;
 
-import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
@@ -10,7 +10,6 @@ import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

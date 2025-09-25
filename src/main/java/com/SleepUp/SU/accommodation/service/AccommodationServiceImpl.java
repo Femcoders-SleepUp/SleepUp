@@ -1,5 +1,7 @@
-package com.SleepUp.SU.accommodation;
+package com.SleepUp.SU.accommodation.service;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
@@ -15,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccommodationService {
+public class AccommodationServiceImpl {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationMapper accommodationMapper;
     private final AccommodationServiceHelper accommodationServiceHelper;

@@ -1,13 +1,11 @@
 package com.SleepUp.SU.accommodation.utils;
 
-import com.SleepUp.SU.accommodation.Accommodation;
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
-import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.cloudinary.CloudinaryService;
-import com.SleepUp.SU.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

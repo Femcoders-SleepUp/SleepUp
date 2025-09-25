@@ -1,6 +1,6 @@
 package com.SleepUp.SU.accommodation.security;
 
-import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

@@ -1,0 +1,24 @@
+package com.SleepUp.SU.accommodation.owner;
+
+import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
+import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
+import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
+import com.SleepUp.SU.utils.EntityUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class AccommodationOwnerServiceImpl {
+    private final AccommodationRepository accommodationRepository;
+    private final EntityUtil mapperUtil;
+    private final AccommodationMapper accommodationMapper;
+
+    public List<AccommodationResponseSummary> getAllAccommodationsByOwnerId(Long userId){
+        List<Accommodation> accommodations = accommodationRepository.findByManagedBy_Id(userId);
+        return mapperUtil.mapEntitiesToDTOs(accommodations, accommodationMapper::toSummary);
+    }
+}

@@ -1,6 +1,6 @@
 package com.SleepUp.SU.reservation;
 
-import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.User;

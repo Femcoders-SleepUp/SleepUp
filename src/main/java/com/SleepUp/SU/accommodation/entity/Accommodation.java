@@ -1,4 +1,4 @@
-package com.SleepUp.SU.accommodation;
+package com.SleepUp.SU.accommodation.entity;
 
 import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.user.User;
