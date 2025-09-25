@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,9 +53,25 @@ class AccommodationControllerIntegrationTest {
     private AccommodationRequest accommodationUpdateRequest;
     private Long existingAccommodationId;
     private Accommodation savedAccommodation;
+    private MockMultipartFile imageFileOld;
+    private MockMultipartFile imageFileNew;
 
     @BeforeEach
     void setUp() {
+        imageFileOld = new MockMultipartFile(
+                "old-image",
+                "old-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
+
+        imageFileNew = new MockMultipartFile(
+                "new-image",
+                "new-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
+
         User savedUser = userRepository.findByUsername("TestUser2")
                 .orElseThrow(() -> new RuntimeException("TestUser not found"));
         customUserDetails = new CustomUserDetails(savedUser);
@@ -75,7 +92,7 @@ class AccommodationControllerIntegrationTest {
                 .availableFrom(LocalDate.of(2025, 6, 1))
                 .availableTo(LocalDate.of(2025, 12, 31))
                 .managedBy(savedUser)
-                .imageUrl("image1.jpg")
+                .imageUrl("http://test-image-url.com/old-image.jpg")
                 .build();
 
         accommodationRepository.save(accommodation1);
@@ -91,7 +108,7 @@ class AccommodationControllerIntegrationTest {
                 LocalTime.of(12, 0),
                 LocalDate.of(2025, 5, 1),
                 LocalDate.of(2025, 12, 31),
-                "image.jpg"
+                imageFileOld
         );
 
         accommodationUpdateRequest = new AccommodationRequest(
@@ -105,7 +122,7 @@ class AccommodationControllerIntegrationTest {
                 LocalTime.of(12, 0),
                 LocalDate.of(2025, 6, 1),
                 LocalDate.of(2025, 12, 31),
-                "updated-image.jpg"
+                imageFileNew
         );
     }
 

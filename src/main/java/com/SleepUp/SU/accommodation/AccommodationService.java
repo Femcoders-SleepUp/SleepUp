@@ -65,6 +65,7 @@ public class AccommodationService {
 
     public void deleteAccommodation(Long id) {
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(id);
+        accommodationServiceHelper.deleteImageCloudinary(accommodation.getImageUrl());
         accommodationRepository.delete(accommodation);
     }
 }

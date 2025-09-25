@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -52,9 +53,26 @@ class AccommodationServiceTest {
     private Accommodation updatedAccommodation;
     private AccommodationResponseDetail updatedAccommodationResponseDetail;
     private User user;
+    private MockMultipartFile imageFileOld;
+    private MockMultipartFile imageFileNew;
+
+
 
     @BeforeEach
     void setUp() {
+        imageFileOld = new MockMultipartFile(
+                "old-image",
+                "old-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
+
+        imageFileNew = new MockMultipartFile(
+                "new-image",
+                "new-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
 
         oldAccommodationRequest = new AccommodationRequest(
                 "Old Name",
@@ -67,7 +85,7 @@ class AccommodationServiceTest {
                 LocalTime.of(12, 0),
                 LocalDate.of(2025, 1, 1),
                 LocalDate.of(2025, 12, 31),
-                "old-image.jpg"
+                imageFileOld
         );
 
         newAccommodationRequest = new AccommodationRequest(
@@ -81,7 +99,7 @@ class AccommodationServiceTest {
                 LocalTime.of(12, 0),
                 LocalDate.of(2025, 9, 5),
                 LocalDate.of(2025, 10, 5),
-                "new-image.jpg"
+                imageFileNew
         );
 
         existingAccommodation = Accommodation.builder()
