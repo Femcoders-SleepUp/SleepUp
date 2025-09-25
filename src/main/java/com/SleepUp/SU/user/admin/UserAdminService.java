@@ -6,6 +6,7 @@ import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
@@ -52,17 +53,12 @@ public class UserAdminService implements UserDetailsService {
         return userMapper.toResponse(savedUser);
     }
 
+    @Transactional
     public UserResponse updateUser(Long userId, UserRequestAdmin userRequestAdmin) {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-        existingUser.setUsername(userRequestAdmin.username());
-        existingUser.setName(userRequestAdmin.name());
-        existingUser.setEmail(userRequestAdmin.email());
-
-        if (userRequestAdmin.password() != null && !userRequestAdmin.password().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(userRequestAdmin.password()));
-        }
+        userServiceHelper.updateUserDataAdmin(userRequestAdmin, existingUser);
 
         existingUser.setRole(userRequestAdmin.role());
 

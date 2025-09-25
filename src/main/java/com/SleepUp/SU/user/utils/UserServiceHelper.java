@@ -4,6 +4,7 @@ import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
+import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.exceptions.UserEmailAlreadyExistsException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByUsernameException;
@@ -11,6 +12,9 @@ import com.SleepUp.SU.utils.exceptions.UserUsernameAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,12 +47,25 @@ public class UserServiceHelper {
     }
 
 
+    @Transactional
     public void updateUserData(UserRequest request, User user) {
-        validateUserDoesNotExist(user.getUsername(), user.getEmail());
+        User isExistingUsername = userRepository.findByUsername(request.username())
+                .orElse(user);
+        User isExistingEmail = userRepository.findByEmail(request.email())
+                .orElse(user);
+
+        if (isExistingUsername.getId() != user.getId() || isExistingEmail.getId() != user.getId()){
+            throw new RuntimeException("This username or email already exist");
+        }
+
 
         String username = request.username() != null && !request.username().isEmpty()
                 ? request.username() :
                 user.getUsername();
+
+        String name = request.name() != null && !request.name().isEmpty()
+                ? request.name() :
+                user.getName();
 
         String email = request.email() != null && !request.email().isEmpty()
                 ? request.email() :
@@ -59,30 +76,28 @@ public class UserServiceHelper {
                 user.getPassword();
 
         user.setUsername(username);
+        user.setName(name);
         user.setEmail(email);
         user.setPassword(password);
-
-
     }
 
-    public void updateUserDataAdmin(UserRequestAdmin request, User user) {
-        validateUserDoesNotExist(user.getUsername(), user.getEmail());
+    @Transactional
+    public void updateUserDataAdmin(UserRequestAdmin userRequestAdmin, User user){
+        UserRequest userData = new UserRequest(
+                userRequestAdmin.username(),
+                userRequestAdmin.name(),
+                userRequestAdmin.email(),
+                userRequestAdmin.password()
+        );
 
-        String username = request.username() != null && !request.username().isEmpty()
-                ? request.username() :
-                user.getUsername();
+        updateUserData(userData, user);
 
-        String email = request.email() != null && !request.email().isEmpty()
-                ? request.email() :
-                user.getEmail();
+        Role role = userRequestAdmin.role() != null && !userRequestAdmin.role().getRoleName().isEmpty()
+                ? userRequestAdmin.role() :
+                user.getRole();
 
-        String password = request.password() != null && !request.password().isEmpty()
-                ? this.getEncodePassword(request.password()) :
-                user.getPassword();
-
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(password);
-
+        user.setRole(role);
     }
+
+
 }
