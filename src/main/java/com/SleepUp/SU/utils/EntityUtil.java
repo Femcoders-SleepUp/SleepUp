@@ -1,7 +1,10 @@
 package com.SleepUp.SU.utils;
 
+import com.SleepUp.SU.exceptions.InvalidDateRangeError;
+import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,4 +26,15 @@ public class EntityUtil {
             setter.accept(newValue);
         }
     }
+
+    public static void validateCheckInOutDates(LocalDate checkInDate, LocalDate checkOutDate) {
+        if (checkInDate.isBefore(LocalDate.now())) {
+            throw new InvalidDateRangeException(InvalidDateRangeError.PAST);
+        }
+
+        if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
+            throw new InvalidDateRangeException(InvalidDateRangeError.ORDER);
+        }
+    }
+
 }

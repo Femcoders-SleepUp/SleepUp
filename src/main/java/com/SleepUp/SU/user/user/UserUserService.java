@@ -1,5 +1,9 @@
 package com.SleepUp.SU.user.user;
 
+import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.reservation.Reservation;
+import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
@@ -7,8 +11,11 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +25,8 @@ public class UserUserService {
     private final UserMapper userMapper;
     private final EntityUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
+    private final AccommodationRepository accommodationRepository;
+    private final ReservationRepository reservationRepository;
 
     public UserResponse getLoggedUser(Long id){
         return userMapper.toResponse(userServiceHelper.findById(id));
@@ -29,7 +38,21 @@ public class UserUserService {
         return (userMapper.toResponse(user));
     }
 
+    @Transactional
     public void deleteMyUser(Long id){
+        User replacementUser = userServiceHelper.findById(id);
+        List<Accommodation> accommodationList = accommodationRepository.findByManagedBy_Id(id);
+        if (!accommodationList.isEmpty()) {
+            accommodationList.forEach(accommodation -> accommodation.setManagedBy(replacementUser));
+            accommodationRepository.saveAll(accommodationList);
+        }
+
+        List<Reservation> reservationList = reservationRepository.findByUser_Id(id);
+        if (!reservationList.isEmpty()) {
+            reservationList.forEach(reservation -> reservation.setUser(replacementUser));
+            reservationRepository.saveAll(reservationList);
+        }
+
         userRepository.deleteById(userServiceHelper.findById(id).getId());
     }
 }

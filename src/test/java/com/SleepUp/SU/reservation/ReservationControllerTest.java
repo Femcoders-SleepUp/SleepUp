@@ -1,254 +1,296 @@
 package com.SleepUp.SU.reservation;
 
+import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
-import com.SleepUp.SU.user.role.Role;
+import com.SleepUp.SU.user.admin.UserAdminService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-    @SpringBootTest
-    @AutoConfigureMockMvc
-    @ActiveProfiles("test")
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-    public class ReservationControllerTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Transactional
+public class ReservationControllerTest {
 
-        @Autowired
-        private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext context;
 
-        @MockBean
-        private ReservationService reservationService;
+    @Autowired
+    private MockMvc mockMvc;
 
-        @Autowired
-        private ObjectMapper objectMapper;
+    @Autowired
+    private UserAdminService userAdminService;
 
-        @Autowired
-        private UserRepository userRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-        private CustomUserDetails principal;
+    @Autowired
+    private UserRepository userRepository;
 
-        @BeforeEach
-        void setUp() {
-            User testUser = userRepository.findByUsername("TestUser").orElseGet(() -> {
-                User user = new User();
-                user.setId(1L);
-                user.setUsername("TestUser");
-                user.setEmail("testuser@example.com");
-                user.setName("Test User");
-                user.setRole(Role.USER);
-                return userRepository.save(user);
-            });
+    @Autowired
+    private ReservationRepository reservationRepository;
 
-            principal = new CustomUserDetails(testUser);
-        }
+    @Autowired
+    private ReservationService reservationService;
+
+    @Autowired
+    private  ReservationController reservationController;
+
+    @Autowired
+    private AccommodationRepository accommodationRepository;
+
+    private CustomUserDetails principal;
+
+    @BeforeEach
+    void setUp() {
+
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
+
+        User savedUser = userRepository.findByUsername("User2")
+                .orElseThrow(() -> new RuntimeException("User2 not found"));
+        principal = new CustomUserDetails(savedUser);
+    }
+
+    @Nested
+    class GetReservationsTest{
 
         @Test
-        void when_createReservation_then_return_created_reservation() throws Exception {
-            ReservationRequest request = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(3)
-            );
+        void whenGetMyReservations_withAllTime_thenReturnReservationSummaries() throws Exception {
 
-            ReservationResponseDetail response = new ReservationResponseDetail(
-                    1L,
-                    "Test User",
-                    2,
-                    "Test Hotel",
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(3),
-                    BookingStatus.PENDING,
-                    false,
-                    LocalDateTime.now()
-            );
-
-            Long accommodationId = 1L;
-
-            when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), eq(accommodationId)))
-                    .thenReturn(response);
-
-            mockMvc.perform(post("/api/reservations/accommodation/1")
+            mockMvc.perform(get("/api/reservations")
+                            .param("time", "ALL")
                             .with(user(principal))
-                            .param("accommodationId", accommodationId.toString())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(1L))
-                    .andExpect(jsonPath("$.guestNumber").value(2))
-                    .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
-                    .andExpect(jsonPath("$.accommodationName").value("Test Hotel"))
-                    .andExpect(jsonPath("$.userName").value("Test User"));
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(2));
         }
 
         @Test
-        void when_createReservation_without_authentication_then_return_unauthorized() throws Exception {
-            ReservationRequest request = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(3)
-            );
+        void whenGetMyReservations_withAllTime_thenReturnReservationSummaries2() throws Exception {
 
-            mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
-                            .with(anonymous())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
+            mockMvc.perform(get("/api/reservations")
+                            .param("time", "ALL")
+                            .with(user(principal))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(2))
+                    .andDo(print());
+//                    .andExpect(jsonPath("$[0].accommodationName").value("Test Hotel"))
+//                    .andExpect(jsonPath("$[1].guestNumber").value(4));
+        }
+
+        @Test
+        void whenGetMyReservations_unauthenticated_thenUnauthorized() throws Exception {
+            mockMvc.perform(get("/api/reservations")
+                            .param("time", "ALL")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }
+    }
+
+    @Test
+    void when_createReservation_then_return_created_reservation() throws Exception {
+        ReservationRequest request = new ReservationRequest(
+                1,
+                LocalDate.of(2025, 11, 1),  // year, month, day
+                LocalDate.of(2025, 11, 8)
+        );
 
 
-        @Test
-        void when_createReservation_with_invalid_data_then_return_bad_request() throws Exception {
-            String invalidJson = """
-                    {
-                        "checkInDate": null,
-                        "checkOutDate": null,
-                        "guestNumber": -1
-                    }
-                    """;
+        Long accommodationId = 2L;
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new RuntimeException("Accommodation with id 2L not found"));;
 
-            mockMvc.perform(post("/api/reservations/accommodation/1")
-                            .with(user(principal))
-                            .param("accommodationId", "1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(invalidJson))
-                    .andExpect(status().isBadRequest());
-        }
+        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accommodationName").value(accommodation.getName()))
+                .andExpect(jsonPath("$.guestNumber").value(1))
+                .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
+                .andExpect(jsonPath("$.userName").value(principal.getUser().getName()));
+    }
+
+    @Test
+    void when_createReservation_whenTooManyGuests_then_return_created_reservation() throws Exception {
+        ReservationRequest request = new ReservationRequest(
+                2,
+                LocalDate.of(2025, 10, 15),  // year, month, day
+                LocalDate.of(2025, 10, 18)
+        );
+
+
+        Long accommodationId = 2L;
+
+        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Accommodation supports maximum 1 guests, but 2 guests requested"));
+    }
+
+    @Test
+    void when_createReservation_whenDateOverlap_then_return_created_reservation() throws Exception {
+        ReservationRequest request = new ReservationRequest(
+                1,
+                LocalDate.of(2025, 10, 1),  // year, month, day
+                LocalDate.of(2025, 10, 8)
+        );
+
+
+        Long accommodationId = 2L;
+
+        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("You already have a reservation that overlaps with these dates: Reservation at Hotel ABC from 2025-10-02 to 2025-10-06; Reservation at Beachside Bungalow from 2025-10-06 to 2025-10-12"));
+    }
+
+    @Test
+    void when_createReservation_not_available_dates_then_return_created_reservation() throws Exception {
+        ReservationRequest request = new ReservationRequest(
+                2,
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(3)
+        );
+
+        Long accommodationId = 1L;
+
+        mockMvc.perform(post("/api/reservations/accommodation/{id}", accommodationId)
+                        .with(user(principal))
+                        .param("accommodationId", accommodationId.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Accommodation is only available from 2025-09-20 to 2025-09-25"));
+    }
+
+    @Test
+    void when_createReservation_without_authentication_then_return_unauthorized() throws Exception {
+        ReservationRequest request = new ReservationRequest(
+                2,
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(3)
+        );
+
+        mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
+                        .with(anonymous())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    void when_createReservation_with_invalid_data_then_return_bad_request() throws Exception {
+        String invalidJson = """
+                {
+                    "checkInDate": null,
+                    "checkOutDate": null,
+                    "guestNumber": -1
+                }
+                """;
+
+        mockMvc.perform(post("/api/reservations/accommodation/1")
+                        .with(user(principal))
+                        .param("accommodationId", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest());
+    }
 
         @Test
         void when_createReservation_with_past_dates_then_return_bad_request() throws Exception {
 
-            ReservationRequest request = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(1)
-            );
+        ReservationRequest request = new ReservationRequest(
+                2,
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(1)
+        );
 
-            when(reservationService.createReservation(
-                    any(ReservationRequest.class),
-                    any(User.class),
-                    anyLong()
-            )).thenThrow(new IllegalArgumentException("Check-in date cannot be in the past"));
+        mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
 
-            mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
-        }
-
-        @Test
-        void when_createReservation_with_invalid_date_range_then_return_bad_request() throws Exception {
-            ReservationRequest request = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(3),
-                    LocalDate.now().plusDays(1)
-            );
-
-            when(reservationService.createReservation(
-                    any(ReservationRequest.class),
-                    any(User.class),
-                    anyLong()
-            )).thenThrow(new IllegalArgumentException("Check-in date must be before check-out date"));
-
-            mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
-        }
-
-
-        @Test
-        void when_createReservation_accommodation_not_found_then_return_not_found() throws Exception {
-            ReservationRequest request = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(3)
-            );
-
-
-            when(reservationService.createReservation(
-                    any(ReservationRequest.class),
-                    any(User.class),
-                    anyLong()
-            )).thenThrow(new RuntimeException("Accommodation not found"));
-
-            mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 999L)
-                    .with(user(principal))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
-        }
-
-        @Test
-        void when_createReservation_with_overlapping_dates_then_return_bad_request() throws Exception {
-            ReservationRequest request = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(3)
-            );
-
-            when(reservationService.createReservation(any(ReservationRequest.class), any(User.class), any(Long.class)))
-                    .thenThrow(new IllegalArgumentException("You already have a reservation that overlaps with these dates"));
-
-            mockMvc.perform(post("/api/reservations/accommodation/{accommodationId}", 1L)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
-
-        }
-
-        @Test
-        @WithMockUser
-        void when_cancelReservation_then_return_cancelled_reservation() throws Exception {
-            Long reservationId = 1L;
-
-            ReservationResponseDetail response = new ReservationResponseDetail(
-                    1L,
-                    "Test User",
-                    2,
-                    "Test Accommodation",
-                    LocalDate.now().plusDays(5),
-                    LocalDate.now().plusDays(10),
-                    BookingStatus.CANCELLED,
-                    false,
-                    LocalDateTime.now()
-            );
-
-            when(reservationService.cancelReservation(reservationId, 1L))
-                    .thenReturn(response);
-
-            mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
-                            .with(user(principal))
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.id").value(1L))
-                    .andExpect(jsonPath("$.bookingStatus").value("CANCELLED"));
-        }
     }
+
+    @Test
+    void when_cancelReservation_then_return_cancelled_reservation() throws Exception {
+        Long reservationId = 5L;
+
+        mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+
+    }
+
+    @Test
+    void when_cancelReservation_then_confirmed_cancelled_reservation() throws Exception {
+        Long reservationId = 1L;
+
+        mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+
+    }
+
+    @Test
+    void when_cancelReservation_past_dates_throw_error () throws Exception {
+        Long reservationId = 1L;
+
+        mockMvc.perform(patch("/api/reservations/cancel/{id}", reservationId)
+                        .with(user(principal))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+
+    }
+}

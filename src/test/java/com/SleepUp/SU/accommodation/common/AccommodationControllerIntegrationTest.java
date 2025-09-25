@@ -2,7 +2,9 @@ package com.SleepUp.SU.accommodation.common;
 
 import com.SleepUp.SU.accommodation.Accommodation;
 import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.accommodation.AccommodationService;
 import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
+import com.SleepUp.SU.cloudinary.CloudinaryService;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
@@ -13,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -46,17 +50,38 @@ class AccommodationControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private CloudinaryService cloudinaryService;
+
     private CustomUserDetails customUserDetails;
     private AccommodationRequest accommodationRequest;
     private Accommodation accommodation1;
     private AccommodationRequest accommodationUpdateRequest;
     private Long existingAccommodationId;
     private Accommodation savedAccommodation;
+    private MockMultipartFile imageFileOld;
+    private MockMultipartFile imageFileNew;
 
     @BeforeEach
     void setUp() {
-        User savedUser = userRepository.findByUsername("TestUser2")
-                .orElseThrow(() -> new RuntimeException("TestUser not found"));
+
+        User savedUser = userRepository.findByUsername("User2")
+                .orElseThrow(() -> new RuntimeException("User2 not found"));
+
+        imageFileOld = new MockMultipartFile(
+                "image",
+                "old-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
+
+        imageFileNew = new MockMultipartFile(
+                "image",
+                "new-image.jpg",
+                "image/jpeg",
+                "test image content".getBytes()
+        );
+      
         customUserDetails = new CustomUserDetails(savedUser);
 
         savedAccommodation = accommodationRepository.findByManagedBy_Id(savedUser.getId()).getFirst();
@@ -75,7 +100,7 @@ class AccommodationControllerIntegrationTest {
                 .availableFrom(LocalDate.of(2025, 6, 1))
                 .availableTo(LocalDate.of(2025, 12, 31))
                 .managedBy(savedUser)
-                .imageUrl("image1.jpg")
+                .imageUrl("http://test-image-url.com/old-image.jpg")
                 .build();
 
         accommodationRepository.save(accommodation1);
@@ -91,7 +116,7 @@ class AccommodationControllerIntegrationTest {
                 LocalTime.of(12, 0),
                 LocalDate.of(2025, 5, 1),
                 LocalDate.of(2025, 12, 31),
-                "image.jpg"
+                imageFileOld
         );
 
         accommodationUpdateRequest = new AccommodationRequest(
@@ -105,7 +130,7 @@ class AccommodationControllerIntegrationTest {
                 LocalTime.of(12, 0),
                 LocalDate.of(2025, 6, 1),
                 LocalDate.of(2025, 12, 31),
-                "updated-image.jpg"
+                imageFileNew
         );
     }
 
@@ -139,15 +164,37 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("11:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.managedByUsername").value("nameTest2"));
+                .andExpect(jsonPath("$.managedByUsername").value("Name2"));
+    }
+
+    @Test
+    void getAccommodationById_NotExisting_shouldThrow() throws Exception {
+        Long nonExistingId = 999L;
+        mockMvc.perform(get("/api/accommodations/{id}", nonExistingId)
+                        .with(user(customUserDetails))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Accommodation with id '" + nonExistingId + "' not found"));
+
     }
 
     @Test
     void createAccommodation_shouldReturnAccommodationResponseDetail() throws Exception {
-        mockMvc.perform(post("/api/accommodations")
-                        .with(user(customUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accommodationRequest)))
+        when(cloudinaryService.uploadFile(any(), anyString())).thenReturn(java.util.Map.of("secure_url", "http://example.com/updated-image.jpg"));
+
+        mockMvc.perform(multipart("/api/accommodations")
+                        .file(imageFileOld)
+                        .param("name", "Test Apartment")
+                        .param("price", "120.0")
+                        .param("guestNumber", "3")
+                        .param("petFriendly", "true")
+                        .param("location", "Downtown")
+                        .param("description", "A nice place to stay")
+                        .param("checkInTime", "14:00:00")
+                        .param("checkOutTime", "12:00:00")
+                        .param("availableFrom", "2025-05-01")
+                        .param("availableTo", "2025-12-31")
+                        .with(user(customUserDetails)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Test Apartment"))
@@ -160,15 +207,28 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("12:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-05-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.managedByUsername").value("nameTest2"));
+                .andExpect(jsonPath("$.managedByUsername").value("Name2"));
     }
 
     @Test
     void updateAccommodation_shouldReturnUpdatedAccommodationResponse() throws Exception {
-        mockMvc.perform(put("/api/accommodations/{id}", savedAccommodation.getId())
+
+        when(cloudinaryService.uploadFile(any(), anyString())).thenReturn(java.util.Map.of("secure_url", "http://example.com/updated-image.jpg"));
+
+        mockMvc.perform(multipart("/api/accommodations/{id}", savedAccommodation.getId())
+                        .file(imageFileNew)
+                        .param("name", "Updated Apartment")
+                        .param("price", "130.0")
+                        .param("guestNumber", "3")
+                        .param("petFriendly", "true")
+                        .param("location", "New Downtown")
+                        .param("description", "Updated description")
+                        .param("checkInTime", "15:00:00")
+                        .param("checkOutTime", "12:00:00")
+                        .param("availableFrom", "2025-06-01")
+                        .param("availableTo", "2025-12-31")
                         .with(user(customUserDetails))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accommodationUpdateRequest)))
+                        .with(request -> { request.setMethod("PUT"); return request; })) // <-- forzar PUT
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Updated Apartment"))
@@ -181,7 +241,7 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$.checkOutTime").value("12:00:00"))
                 .andExpect(jsonPath("$.availableFrom").value("2025-06-01"))
                 .andExpect(jsonPath("$.availableTo").value("2025-12-31"))
-                .andExpect(jsonPath("$.imageUrl").value("updated-image.jpg"));
+                .andExpect(jsonPath("$.imageUrl").value("http://example.com/updated-image.jpg"));
     }
 
     @Test

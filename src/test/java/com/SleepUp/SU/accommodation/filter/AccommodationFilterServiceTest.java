@@ -8,6 +8,7 @@ import com.SleepUp.SU.accommodation.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
+import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -62,5 +63,33 @@ class AccommodationFilterServiceTest {
         assertEquals(new PageImpl<>(List.of(expectedDto), pageable, 1), result);
         assertEquals(expectedDto, result.getContent().getFirst());
         assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void testGetAllFilteredAccommodationsWithPagination_checkOutBeforeCheckIn() {
+        FilterAccommodationDTO filter = new FilterAccommodationDTO("Hotel", "Nice place", 50.0, 200.0, 2, "New York", LocalDate.now().plusDays(10), LocalDate.now().plusDays(5));
+        Pageable pageable = PageRequest.of(0, 10);
+
+        InvalidDateRangeException exception = assertThrows(
+                InvalidDateRangeException.class,
+                () -> accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable)
+        );
+
+        assertEquals("Check-in date must be before check-out date", exception.getMessage());
+
+    }
+
+    @Test
+    void testGetAllFilteredAccommodationsWithPagination_checkInBeforeToday() {
+        FilterAccommodationDTO filter = new FilterAccommodationDTO("Hotel", "Nice place", 50.0, 200.0, 2, "New York", LocalDate.now().minusDays(1), LocalDate.now().plusDays(5));
+        Pageable pageable = PageRequest.of(0, 10);
+
+        InvalidDateRangeException exception = assertThrows(
+                InvalidDateRangeException.class,
+                () -> accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable)
+        );
+
+        assertEquals("Check-in date cannot be in the past", exception.getMessage());
+
     }
 }

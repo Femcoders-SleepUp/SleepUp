@@ -3,6 +3,7 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.owner.ReservationOwnerService;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
@@ -17,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -138,7 +138,7 @@ public class ReservationOwnerControllerTest {
             when(reservationOwnerService.updateStatus(id, authRequest))
                     .thenReturn(detailDto);
 
-            mockMvc.perform(post("/api/reservations/authorize/{id}", id)
+            mockMvc.perform(patch("/api/reservations/{id}/status", id)
                             .with(user(principal))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(authRequest)))

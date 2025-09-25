@@ -1,5 +1,6 @@
 -- Insert users
 INSERT INTO users (username, name, email, password, role) VALUES
+('disabled_user', 'Disabled User', 'disabledUser@sleepup.com', '$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2', 'USER'),
 ('admin', 'Administrator', 'admin@sleepup.com', '$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2', 'ADMIN'),
 ('user1', 'User One', 'user1@sleepup.com', '$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2', 'USER'),
 ('carlos_garcia', 'Carlos García', 'carlos@gmail.com', '$2a$10$HsMF2wIVlZAelTWGNHD/r.lbHJemKWx0.HEfqHKHF91CR8R3fDjX2', 'USER'),

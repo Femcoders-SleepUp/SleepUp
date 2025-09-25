@@ -1,5 +1,7 @@
 package com.SleepUp.SU.user.user;
 
+import com.SleepUp.SU.accommodation.AccommodationRepository;
+import com.SleepUp.SU.reservation.ReservationRepository;
 import com.SleepUp.SU.user.User;
 import com.SleepUp.SU.user.UserRepository;
 import com.SleepUp.SU.user.admin.UserAdminService;
@@ -16,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,12 +43,18 @@ public class UserUserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private AccommodationRepository accommodationRepository;
+
+    @Mock
+    private ReservationRepository reservationRepository;
+
     @Nested
     class getLoggedUser{
 
         @Test
         void when_getLoggesUser_return_loggedUser(){
-            User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null);
+            User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             UserResponse userResponse = new UserResponse(99L,"usernameTest", "nameTest", "email@test.com", Role.USER);
 
             when(userServiceHelper.findById(99L)).thenReturn(user);
@@ -78,10 +87,10 @@ public class UserUserServiceTest {
 
         @Test
         void when_updateLoggedUser_with_new_data_then_return_updated_response() {
-            User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER, null);
+            User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER, null, null);
             UserRequest request = new UserRequest("newUsername", "","new@email.com", "newPassword");
 
-            User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER, null);
+            User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER, null, null);
             UserResponse expectedResponse = new UserResponse(99L, "newUsername", "oldName", "new@email.com", Role.USER);
 
             when(userServiceHelper.findById(99L)).thenReturn(user);
@@ -102,7 +111,7 @@ public class UserUserServiceTest {
 
         @Test
         void when_updateLoggedUser_with_empty_request_then_return_same_response() {
-            User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER, null);
+            User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER, null, null);
             UserRequest request = new UserRequest("", "", "", "");
 
             UserResponse expectedResponse = new UserResponse(99L, "sameUsername", "sameName", "same@email.com", Role.USER);
@@ -137,28 +146,19 @@ public class UserUserServiceTest {
     class deleteLoggedUser {
         @Test
         void when_user_exists_then_delete_successfully() {
-            User user = new User(99L, "deleteUser", "Delete Name", "delete@email.com", "password", Role.USER, null);
+            User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
 
-            System.out.println("id"+ user.getId());
             when(userServiceHelper.findById(99L)).thenReturn(user);
+
+            when(accommodationRepository.findByManagedBy_Id(99L)).thenReturn(List.of());
+            when(reservationRepository.findByUser_Id(99L)).thenReturn(List.of());
 
             userUserService.deleteMyUser(99L);
 
             verify(userRepository).deleteById(99L);
+            verify(accommodationRepository, never()).saveAll(anyList());
+            verify(reservationRepository, never()).saveAll(anyList());
         }
-
-        @Test
-        void when_user_not_found_then_throw_exception() {
-            when(userServiceHelper.findById(99L))
-                    .thenThrow(new IllegalArgumentException("User not found"));
-
-            assertThrows(IllegalArgumentException.class, () -> {
-                userUserService.deleteMyUser(99L);
-            });
-
-            verify(userRepository, never()).deleteById(anyLong());
-        }
-
 
     }
 

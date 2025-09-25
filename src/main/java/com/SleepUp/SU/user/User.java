@@ -1,6 +1,7 @@
 package com.SleepUp.SU.user;
 
 import com.SleepUp.SU.accommodation.Accommodation;
+import com.SleepUp.SU.reservation.Reservation;
 import com.SleepUp.SU.user.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,6 +37,9 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "managedBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "managedBy", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Accommodation> accommodations = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Set<Reservation> reservations = new HashSet<>();
 }

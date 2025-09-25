@@ -52,11 +52,15 @@
 <body>
 <div class="email-container">
 
-    <img src="https://i.postimg.cc/RZrQfDFs/LOGO.png" alt="SleepUp Logo" style="float: right; width: 80px; height: auto; margin-top: -10px; margin-bottom: 10px;" />
+    <img src="https://res.cloudinary.com/sleepup/image/upload/v1758632236/18_confoz.png" alt="SleepUp Logo" style="float: right; width: 80px; height: auto; margin-top: -10px; margin-bottom: 10px;" />
 
     <h1 th:text="'Hello, ' + ${userName} + '!'">Hello, Guest!</h1>
 
-    <p>Your booking has been successfully confirmed:</p>
+    <p>Your booking has been successfully
+        <span style="background-color: green; color: white; padding: 2px 5px; border-radius: 3px;">
+        confirmed
+        </span>:
+    </p>
     <ul>
         <li>
             <b>Accommodation:</b>
