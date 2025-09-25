@@ -70,4 +70,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     List<Reservation> findByUser_IdAndCheckInDateAfter(Long userId, LocalDate date);
 
     List<Reservation> findByAccommodationId(Long id);
+
+    List<Reservation> findByCheckInDate(LocalDate date);
 }
