@@ -8,36 +8,34 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestAuthenticationEntryPoint.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomAccessDeniedHandler.class);
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException {
 
-        logger.warn("Unauthorized error: {}", authException.getMessage(), authException);
+        logger.warn("Unauthorized error: {}", accessDeniedException.getMessage(), accessDeniedException);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED,
-                "Unauthorized. " + authException.getMessage(),
+                HttpStatus.FORBIDDEN,
+                "Access Denied. " + accessDeniedException.getMessage(),
                 request
         );
-
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
