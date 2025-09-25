@@ -291,17 +291,17 @@ public class ReservationServiceTest {
 
             ReservationResponseDetail expectedResponse = expectedCancelledResponse();
 
-            when(reservationServiceHelper.findReservationByIdAndUser(reservationId, userId))
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
                     .thenReturn(testReservation);
             when(reservationRepository.save(testReservation)).thenReturn(testReservation);
             when(reservationMapper.toDetail(testReservation)).thenReturn(expectedCancelledResponse());
 
-            ReservationResponseDetail result = reservationService.cancelReservation(reservationId, userId);
+            ReservationResponseDetail result = reservationService.cancelReservation(reservationId);
 
             assertNotNull(result);
             assertEquals(reservationId, result.id());
             assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
-            verify(reservationServiceHelper).findReservationByIdAndUser(reservationId, userId);
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
             verify(reservationRepository).save(testReservation);
             verify(reservationMapper).toDetail(testReservation);
         }
@@ -311,14 +311,14 @@ public class ReservationServiceTest {
             Long reservationId = 1L;
             Long userId = 1L;
 
-            when(reservationServiceHelper.findReservationByIdAndUser(reservationId, userId))
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
                     .thenThrow(new RuntimeException("Reservation not found"));
 
             RuntimeException exception = assertThrows(RuntimeException.class,
-                    () -> reservationService.cancelReservation(reservationId, userId));
+                    () -> reservationService.cancelReservation(reservationId));
 
             assertEquals("Reservation not found", exception.getMessage());
-            verify(reservationServiceHelper).findReservationByIdAndUser(reservationId, userId);
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
             verify(reservationRepository, never()).save(any());
         }
 
@@ -331,16 +331,16 @@ public class ReservationServiceTest {
             testReservation.setId(reservationId);
             testReservation.setBookingStatus(BookingStatus.CANCELLED);
 
-            when(reservationServiceHelper.findReservationByIdAndUser(reservationId, userId))
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
                     .thenReturn(testReservation);
             doThrow(new IllegalStateException("Cannot modify a cancelled reservation"))
                     .when(reservationServiceHelper).validateReservationCancellable(testReservation);
 
             IllegalStateException exception = assertThrows(IllegalStateException.class,
-                    () -> reservationService.cancelReservation(reservationId, userId));
+                    () -> reservationService.cancelReservation(reservationId));
 
             assertEquals("Cannot modify a cancelled reservation", exception.getMessage());
-            verify(reservationServiceHelper).findReservationByIdAndUser(reservationId, userId);
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
             verify(reservationServiceHelper).validateReservationCancellable(testReservation);
             verify(reservationRepository, never()).save(any());
         }

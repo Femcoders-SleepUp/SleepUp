@@ -7,6 +7,7 @@ import com.SleepUp.SU.user.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +40,13 @@ public class ReservationController {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
 
-    @PatchMapping("cancel/{id}")
+    @PatchMapping(value = "cancel/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail cancelReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long id
     ) {
-        return reservationService.cancelReservation(id, customUserDetails.getUser().getId());
+        return reservationService.cancelReservation(id);
     }
 
 }
