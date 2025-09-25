@@ -11,12 +11,10 @@ import org.mapstruct.Mapping;
 public interface ReservationMapper {
     @Mapping(target = "userName", source = "user.name")
     @Mapping(target = "accommodationName", source = "accommodation.name")
-    @Mapping(target = "guestNumber", source = "accommodation.guestNumber")
     ReservationResponseSummary toSummary(Reservation reservation);
 
     @Mapping(target = "userName", source = "user.name")
     @Mapping(target = "accommodationName", source = "accommodation.name")
-    @Mapping(target = "guestNumber", source = "accommodation.guestNumber")
     ReservationResponseDetail toDetail(Reservation reservation);
 
     @Mapping(target = "user", source = "user")
