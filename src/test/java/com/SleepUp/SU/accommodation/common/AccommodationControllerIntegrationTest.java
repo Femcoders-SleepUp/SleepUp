@@ -143,6 +143,17 @@ class AccommodationControllerIntegrationTest {
     }
 
     @Test
+    void getAccommodationById_NotExisting_shouldThrow() throws Exception {
+        Long nonExistingId = 999L;
+        mockMvc.perform(get("/api/accommodations/{id}", nonExistingId)
+                        .with(user(customUserDetails))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Accommodation with id '" + nonExistingId + "' not found"));
+
+    }
+
+    @Test
     void createAccommodation_shouldReturnAccommodationResponseDetail() throws Exception {
         mockMvc.perform(post("/api/accommodations")
                         .with(user(customUserDetails))
