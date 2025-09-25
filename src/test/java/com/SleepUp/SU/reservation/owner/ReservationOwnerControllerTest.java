@@ -1,9 +1,8 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.owner;
 
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
-import com.SleepUp.SU.reservation.owner.ReservationOwnerService;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.CustomUserDetails;
 import com.SleepUp.SU.user.User;
