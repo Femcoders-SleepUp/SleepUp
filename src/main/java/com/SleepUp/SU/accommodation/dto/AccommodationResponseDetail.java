@@ -1,6 +1,7 @@
 package com.SleepUp.SU.accommodation.dto;
 
 public record AccommodationResponseDetail(
+        Long id,
         String name,
         Double price,
         int guestNumber,
