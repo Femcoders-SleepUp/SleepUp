@@ -131,6 +131,7 @@ class AccommodationServiceImplTest {
                 .build();
 
         updatedAccommodationResponseDetail = new AccommodationResponseDetail(
+                1L,
                 "New Name",
                 150.0,
                 3,

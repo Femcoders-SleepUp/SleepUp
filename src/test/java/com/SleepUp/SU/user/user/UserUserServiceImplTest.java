@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -145,8 +146,10 @@ public class UserUserServiceImplTest {
         @Test
         void when_user_exists_then_delete_successfully() {
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
+            User user1 = new User(1L,"usernameTest1", "nameTest1", "email1@test.com", "testPassword", Role.USER, null, null);
 
             when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
 
             when(accommodationRepository.findByManagedBy_Id(99L)).thenReturn(List.of());
             when(reservationRepository.findByUser_Id(99L)).thenReturn(List.of());
