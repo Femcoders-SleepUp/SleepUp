@@ -13,8 +13,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @Transactional
 public class AccommodationFilterControllerIntegrationTest {
 
@@ -24,7 +24,7 @@ public class AccommodationFilterControllerIntegrationTest {
     @Test
     public void testGetAllFilteredAccommodationsWithPagination() throws Exception {
 
-        mockMvc.perform(get("/api/accommodations/filter")
+        mockMvc.perform(get("/accommodations/filter")
                         .param("name", "Hotel ABC")
                         .param("page", "0")
                         .param("size", "5")

@@ -96,7 +96,7 @@ class AccommodationOwnerControllerIntegrationTest {
     @WithMockUser(username = "testUser", authorities = {"USER"})
     void shouldReturnAllOwnerAccommodations() throws Exception {
 
-        mockMvc.perform(get("/api/accommodations/my-user")
+        mockMvc.perform(get("/accommodations/me")
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
