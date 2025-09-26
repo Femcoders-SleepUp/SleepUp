@@ -68,7 +68,7 @@ public class UserUserControllerTest {
 
             when(userUserServiceImpl.getLoggedUser(anyLong())).thenReturn(response);
 
-            mockMvc.perform(get("/api/users/my-user")
+            mockMvc.perform(get("/api/users/me")
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -79,7 +79,7 @@ public class UserUserControllerTest {
 
         @Test
         void when_not_authenticated_then_return_unauthorized() throws Exception {
-            mockMvc.perform(get("/api/users/my-user")
+            mockMvc.perform(get("/api/users/me")
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }
@@ -96,7 +96,7 @@ public class UserUserControllerTest {
             when(userUserServiceImpl.updateLoggedUser(any(UserRequest.class), anyLong())).thenReturn(response);
 
             mockMvc.perform(
-                            put("/api/users/my-user")
+                            put("/api/users/me")
                                     .with(user(customUserDetails))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
@@ -119,7 +119,7 @@ public class UserUserControllerTest {
         """;
 
             mockMvc.perform(
-                            put("/api/users/my-user")
+                            put("/api/users/me")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonRequest)
                                     .accept(MediaType.APPLICATION_JSON)
@@ -143,7 +143,7 @@ public class UserUserControllerTest {
         """;
 
             mockMvc.perform(
-                            put("/api/users/my-user")
+                            put("/api/users/me")
                                     .with(user(customUserDetails))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonRequest)
@@ -158,7 +158,7 @@ public class UserUserControllerTest {
 
         @Test
         void when_authenticated_then_delete_logged_user() throws Exception {
-            mockMvc.perform(delete("/api/users/my-user")
+            mockMvc.perform(delete("/api/users/me")
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -167,7 +167,7 @@ public class UserUserControllerTest {
 
         @Test
         void when_not_authenticated_then_delete_fails_with_unauthorized() throws Exception {
-            mockMvc.perform(delete("/api/users/my-user")
+            mockMvc.perform(delete("/api/users/me")
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }
