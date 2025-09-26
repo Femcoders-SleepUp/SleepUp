@@ -36,10 +36,10 @@ public class ReservationServiceImplHelperTest {
     private ReservationRepository reservationRepository;
 
     @Nested
-    class ValidateReservationDatesTest {
+    class ValidateReservationDates {
 
         @Test
-        void should_validateReservationDates_successfully() {
+        void validateReservationDates_validRequest_shouldReturnSuccessfully() {
             ReservationRequest request = new ReservationRequest(
                     2,
                     LocalDate.now().plusDays(1),
@@ -50,7 +50,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateReservationDates_throw_exception_when_checkIn_after_checkOut() {
+        void validateReservationDates_checkInAfterCheckOut_shouldThrowException() {
             ReservationRequest request = new ReservationRequest(
                     2,
                     LocalDate.now().plusDays(3),
@@ -64,7 +64,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateReservationDates_throw_exception_when_checkIn_equals_checkOut() {
+        void validateReservationDates_checkInEqualsCheckOut_shouldThrowException() {
             LocalDate sameDate = LocalDate.now().plusDays(1);
             ReservationRequest request = new ReservationRequest(2, sameDate, sameDate);
 
@@ -75,7 +75,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateReservationDates_throw_exception_when_checkIn_in_past() {
+        void validateReservationDates_checkInInPast_shouldThrowException() {
             ReservationRequest request = new ReservationRequest(
                     2,
                     LocalDate.now().minusDays(1),
@@ -90,10 +90,10 @@ public class ReservationServiceImplHelperTest {
     }
 
     @Nested
-    class ValidateAccommodationAvailabilityTest {
+    class ValidateAccommodationAvailability {
 
         @Test
-        void should_validateAccommodationAvailability_successfully() {
+        void validateAccommodationAvailability_validRequest_shouldReturnSuccessfully() {
             Accommodation accommodation = createAccommodation();
             ReservationRequest request = new ReservationRequest(
                     3,
@@ -105,7 +105,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateAccommodationAvailability_throw_exception_when_checkIn_before_available() {
+        void validateAccommodationAvailability_checkInBeforeAvailable_shouldThrowException() {
             Accommodation accommodation = createAccommodation();
             ReservationRequest request = new ReservationRequest(
                     2,
@@ -120,7 +120,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateAccommodationAvailability_throw_exception_when_checkOut_after_available() {
+        void validateAccommodationAvailability_checkOutAfterAvailable_shouldThrowException() {
             Accommodation accommodation = createAccommodation();
             ReservationRequest request = new ReservationRequest(
                     2,
@@ -135,7 +135,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateAccommodationAvailability_throw_exception_when_guests_exceed_capacity() {
+        void validateAccommodationAvailability_guestExceedsCapacity_shouldThrowException() {
             Accommodation accommodation = createAccommodation();
             ReservationRequest request = new ReservationRequest(
                     6,
@@ -161,10 +161,10 @@ public class ReservationServiceImplHelperTest {
     }
 
     @Nested
-    class ValidateUserReservationOverlapTest {
+    class ValidateUserReservationOverlap {
 
         @Test
-        void should_validateUserReservationOverlap_successfully_when_no_overlap() {
+        void validateUserReservationOverlap_noOverlap_shouldReturnSuccessfully() {
             Long userId = 1L;
             ReservationRequest request = new ReservationRequest(
                     2,
@@ -180,7 +180,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateUserReservationOverlap_throw_exception_when_overlap_exists() {
+        void validateUserReservationOverlap_overlapExists_shouldThrowException() {
             Long userId = 1L;
             ReservationRequest request = new ReservationRequest(
                     2,
@@ -219,10 +219,10 @@ public class ReservationServiceImplHelperTest {
     }
 
     @Nested
-    class ValidateAccommodationReservationOverlapTest {
+    class ValidateAccommodationReservationOverlap {
 
         @Test
-        void should_validateAccommodationReservationOverlap_successfully_when_no_overlap() {
+        void validateAccommodationReservationOverlap_noOverlap_shouldReturnSuccessfully() {
             Long accommodationId = 1L;
             ReservationRequest request = new ReservationRequest(
                     2,
@@ -238,7 +238,7 @@ public class ReservationServiceImplHelperTest {
         }
 
         @Test
-        void should_validateAccommodationReservationOverlap_throw_exception_when_overlap_exists() {
+        void validateAccommodationReservationOverlap_overlapExists_shouldThrowException() {
             Long accommodationId = 1L;
             ReservationRequest request = new ReservationRequest(
                     2,
