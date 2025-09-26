@@ -8,6 +8,7 @@ import com.SleepUp.SU.user.entity.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,10 +35,10 @@ public class AccommodationController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public AccommodationResponseDetail createAccommodation(
-            @RequestBody @Valid @ModelAttribute AccommodationRequest accommodationRequest,
+            @Valid @ModelAttribute AccommodationRequest accommodationRequest,
             @AuthenticationPrincipal CustomUserDetails customUserDetails){
         return accommodationService.createAccommodation(accommodationRequest, customUserDetails.getUser());
     }
