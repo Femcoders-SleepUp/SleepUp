@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class AccommodationControllerIntegrationTest {
 
+    private static final String BASE_API_PATH = "/accommodations";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -48,7 +50,7 @@ class AccommodationControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private CloudinaryService cloudinaryService;
 
     private CustomUserDetails customUserDetails;
@@ -79,7 +81,7 @@ class AccommodationControllerIntegrationTest {
                 "image/jpeg",
                 "test image content".getBytes()
         );
-      
+
         customUserDetails = new CustomUserDetails(savedUser);
 
         savedAccommodation = accommodationRepository.findByManagedBy_Id(savedUser.getId()).getFirst();
@@ -134,7 +136,7 @@ class AccommodationControllerIntegrationTest {
 
     @Test
     void getAccommodations_shouldReturnListOfAccommodations() throws Exception {
-        mockMvc.perform(get("/api/accommodations")
+        mockMvc.perform(get(BASE_API_PATH)
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -143,12 +145,11 @@ class AccommodationControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].guestNumber").value(2))
                 .andExpect(jsonPath("$[0].petFriendly").value(true))
                 .andExpect(jsonPath("$[0].location").value("New York"));
-
     }
 
     @Test
     void getAccommodationById_shouldReturnAccommodationDetail() throws Exception {
-        mockMvc.perform(get("/api/accommodations/{id}", accommodation1.getId())
+        mockMvc.perform(get(BASE_API_PATH + "/{id}", accommodation1.getId())
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -168,19 +169,18 @@ class AccommodationControllerIntegrationTest {
     @Test
     void getAccommodationById_NotExisting_shouldThrow() throws Exception {
         Long nonExistingId = 999L;
-        mockMvc.perform(get("/api/accommodations/{id}", nonExistingId)
+        mockMvc.perform(get(BASE_API_PATH + "/{id}", nonExistingId)
                         .with(user(customUserDetails))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Accommodation with id '" + nonExistingId + "' not found"));
-
     }
 
     @Test
     void createAccommodation_shouldReturnAccommodationResponseDetail() throws Exception {
         when(cloudinaryService.uploadFile(any(), anyString())).thenReturn(java.util.Map.of("secure_url", "http://example.com/updated-image.jpg"));
 
-        mockMvc.perform(multipart("/api/accommodations")
+        mockMvc.perform(multipart(BASE_API_PATH)
                         .file(imageFileOld)
                         .param("name", "Test Apartment")
                         .param("price", "120.0")
@@ -210,10 +210,9 @@ class AccommodationControllerIntegrationTest {
 
     @Test
     void updateAccommodation_shouldReturnUpdatedAccommodationResponse() throws Exception {
-
         when(cloudinaryService.uploadFile(any(), anyString())).thenReturn(java.util.Map.of("secure_url", "http://example.com/updated-image.jpg"));
 
-        mockMvc.perform(multipart("/api/accommodations/{id}", savedAccommodation.getId())
+        mockMvc.perform(multipart(BASE_API_PATH + "/{id}", savedAccommodation.getId())
                         .file(imageFileNew)
                         .param("name", "Updated Apartment")
                         .param("price", "130.0")
@@ -226,7 +225,7 @@ class AccommodationControllerIntegrationTest {
                         .param("availableFrom", "2025-06-01")
                         .param("availableTo", "2025-12-31")
                         .with(user(customUserDetails))
-                        .with(request -> { request.setMethod("PUT"); return request; })) // <-- forzar PUT
+                        .with(request -> { request.setMethod("PUT"); return request; })) // force PUT
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Updated Apartment"))
@@ -244,8 +243,8 @@ class AccommodationControllerIntegrationTest {
 
     @Test
     void deleteAccommodation_shouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/api/accommodations/{id}", existingAccommodationId)
-                .with(user(customUserDetails)))
+        mockMvc.perform(delete(BASE_API_PATH + "/{id}", existingAccommodationId)
+                        .with(user(customUserDetails)))
                 .andExpect(status().isNoContent());
     }
 }

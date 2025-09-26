@@ -1,6 +1,5 @@
 package com.SleepUp.SU.security.config;
 
-
 import com.SleepUp.SU.auth.TokenBlacklistService;
 import com.SleepUp.SU.security.CustomAccessDeniedHandler;
 import com.SleepUp.SU.security.RestAuthenticationEntryPoint;
@@ -57,32 +56,34 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(ApiPrefixHelper.prefixPaths("/swagger-ui/**", "/v3/api-docs/**")).permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, ("/auth/register")).permitAll()
+                        .requestMatchers(HttpMethod.POST, ("/auth/logout")).authenticated()
+                        .requestMatchers(HttpMethod.POST, ("/auth/refresh")).authenticated()
 
-                        .requestMatchers(HttpMethod.GET,  "/api/users/my-user").authenticated()
-                        .requestMatchers(HttpMethod.PUT,  "/api/users/my-user").authenticated()
-                        .requestMatchers(HttpMethod.DELETE,  "/api/users/my-user").authenticated()
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
+                        .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
+                        .requestMatchers(HttpMethod.DELETE, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
 
-                        .requestMatchers(HttpMethod.GET,"/api/users/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/api/users/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/api/accommodations").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/accommodations/filter**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations")).permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations/filter**")).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/accommodations/filter**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/accommodations/my-user").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/accommodations").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations/me")).hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/accommodations")).hasRole("USER")
 
-                        .requestMatchers(HttpMethod.PUT, "/api/accommodations/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/accommodations/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/accommodations/**")).authenticated()
+                        .requestMatchers(HttpMethod.DELETE, ApiPrefixHelper.prefixPaths("/accommodations/**")).authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/accommodations/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/accommodations/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/accommodations/**")).hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations/**")).hasRole("USER")
 
-                        .requestMatchers(HttpMethod.PATCH, "/api/accommodations/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, ApiPrefixHelper.prefixPaths("/accommodations/**")).authenticated()
 
                         .anyRequest().authenticated()
                 );

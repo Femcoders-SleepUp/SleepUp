@@ -15,17 +15,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,10 +37,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ReservationOwnerControllerTest {
 
+    private static final String RESERVATIONS_ACCOMMODATION_PATH = "/reservations/accommodation/{id}";
+    private static final String RESERVATION_STATUS_PATH = "/reservations/{id}/status";
+    private static final String RESERVATION_BY_ID_PATH = "/reservations/{id}";
+
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
 
     @Autowired
@@ -66,7 +70,7 @@ public class ReservationOwnerControllerTest {
     }
 
     @Nested
-    class getReservationOnMyAccommodationTest{
+    class GetReservationOnMyAccommodationTest {
         @Test
         void getReservationOnMyAccommodation_authorized_shouldReturnOk() throws Exception {
             List<ReservationResponseSummary> summaries = List.of(
@@ -98,7 +102,7 @@ public class ReservationOwnerControllerTest {
                     .getAllReservationsOnMyAccommodation(principal.getUser(), accommodationId))
                     .thenReturn(summaries);
 
-            mockMvc.perform(get("/api/reservations/accommodation/{id}", accommodationId)
+            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
                             .with(user(principal))
                             .param("id", accommodationId.toString())
                             .accept(MediaType.APPLICATION_JSON))
@@ -109,14 +113,14 @@ public class ReservationOwnerControllerTest {
 
         @Test
         void getReservationOnMyAccommodation_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get("/api/reservations/accommodation/{id}", accommodationId)
+            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
                             .with(anonymous()))
                     .andExpect(status().isUnauthorized());
         }
     }
 
     @Nested
-    class updateReservationStatusTest{
+    class UpdateReservationStatusTest {
         @Test
         void updateReservationStatus_authorized_shouldReturnOk() throws Exception {
             Long id = 42L;
@@ -137,7 +141,7 @@ public class ReservationOwnerControllerTest {
             when(reservationOwnerServiceImpl.updateStatus(id, authRequest))
                     .thenReturn(detailDto);
 
-            mockMvc.perform(patch("/api/reservations/{id}/status", id)
+            mockMvc.perform(patch(RESERVATION_STATUS_PATH, id)
                             .with(user(principal))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(authRequest)))
@@ -148,7 +152,7 @@ public class ReservationOwnerControllerTest {
     }
 
     @Nested
-    class getReservationByIdTest {
+    class GetReservationByIdTest {
 
         @Test
         void getReservationById_authorized_shouldReturnOk() throws Exception {
@@ -169,7 +173,7 @@ public class ReservationOwnerControllerTest {
             when(reservationOwnerServiceImpl.getReservationById(id))
                     .thenReturn(detailDto);
 
-            mockMvc.perform(post("/api/reservations/{id}", id)
+            mockMvc.perform(post(RESERVATION_BY_ID_PATH, id)
                             .with(user(principal))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -177,5 +181,4 @@ public class ReservationOwnerControllerTest {
         }
 
     }
-
 }
