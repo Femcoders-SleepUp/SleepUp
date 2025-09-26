@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/accommodations")
+@RequestMapping("/accommodations")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class AccommodationOwnerController {
     private final AccommodationOwnerService accommodationOwnerService;
 
-    @GetMapping("/my-user")
+    @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     public List<AccommodationResponseSummary> getAllOwnerAccommodations(@AuthenticationPrincipal CustomUserDetails customUserDetails){
         return accommodationOwnerService.getAllAccommodationsByOwnerId(customUserDetails.getId());

@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/accommodations")
+@RequestMapping("/accommodations")
 @RequiredArgsConstructor
 public class AccommodationFilterController {
 
