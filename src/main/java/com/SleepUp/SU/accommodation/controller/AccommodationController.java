@@ -44,11 +44,11 @@ public class AccommodationController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or @accommodationAccessEvaluator.isOwner(#id, principal.id)")
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public AccommodationResponseDetail updateAccommodation(
             @PathVariable Long id,
-            @RequestBody @Valid @ModelAttribute AccommodationRequest accommodationRequest){
+            @Valid @ModelAttribute AccommodationRequest accommodationRequest){
         return accommodationService.updateAccommodation(id, accommodationRequest);
     }
 
