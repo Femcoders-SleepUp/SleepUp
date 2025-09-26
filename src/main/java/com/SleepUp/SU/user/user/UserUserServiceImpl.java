@@ -43,8 +43,11 @@ public class UserUserServiceImpl implements UserUserService{
     @Override
     @Transactional
     public void deleteMyUser(Long id){
-        User replacementUser = userServiceHelper.findById(id);
+        User replacementUser = userRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Replacement user with ID 1 not found"));
+
         List<Accommodation> accommodationList = accommodationRepository.findByManagedBy_Id(id);
+
         if (!accommodationList.isEmpty()) {
             accommodationList.forEach(accommodation -> accommodation.setManagedBy(replacementUser));
             accommodationRepository.saveAll(accommodationList);
