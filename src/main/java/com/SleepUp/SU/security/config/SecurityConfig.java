@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(ApiPrefixHelper.prefixPaths("/swagger-ui/**", "/v3/api-docs/**")).permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/health").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, ("/auth/register")).permitAll()
                         .requestMatchers(HttpMethod.POST, ("/auth/logout")).authenticated()
