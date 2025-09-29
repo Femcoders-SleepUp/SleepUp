@@ -1,9 +1,12 @@
 package com.SleepUp.SU.reservation.dto;
 
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import lombok.Builder;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Builder
 public record ReservationResponseDetail(
         Long id,
         String userName,

@@ -1,5 +1,8 @@
 package com.SleepUp.SU.accommodation.dto;
 
+import lombok.Builder;
+
+@Builder
 public record AccommodationResponseDetail(
         Long id,
         String name,
