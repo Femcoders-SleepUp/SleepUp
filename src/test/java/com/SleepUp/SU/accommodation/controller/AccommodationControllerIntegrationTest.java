@@ -107,6 +107,42 @@ class AccommodationControllerIntegrationTest {
     }
 
     @Nested
+    class GetAccommodationById {
+
+        @Test
+        void getAccommodationById_validUser_shouldReturnAccommodationResponseDetail() throws Exception {
+            mockMvc.perform(get(BASE_API_PATH+ "/{id}", existingAccommodationId)
+                            .with(user(customUserDetails))
+                            .accept("application/json"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Downtown Studio"))
+                    .andExpect(jsonPath("$.price").value(220.0))
+                    .andExpect(jsonPath("$.guestNumber").value(1))
+                    .andExpect(jsonPath("$.petFriendly").value(false))
+                    .andExpect(jsonPath("$.location").value("Los Angeles"));
+        }
+
+        @Test
+        void getAccommodationById_withNoUser_shouldReturnAccommodationResponseDetail() throws Exception {
+            mockMvc.perform(get(BASE_API_PATH+ "/{id}", existingAccommodationId)
+                            .accept("application/json"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Downtown Studio"))
+                    .andExpect(jsonPath("$.price").value(220.0))
+                    .andExpect(jsonPath("$.guestNumber").value(1))
+                    .andExpect(jsonPath("$.petFriendly").value(false))
+                    .andExpect(jsonPath("$.location").value("Los Angeles"));
+        }
+
+        @Test
+        void getAccommodationById_nonExistingId_shouldReturnNotFound() throws Exception {
+            mockMvc.perform(delete(BASE_API_PATH + "/{id}", 999999L)
+                            .with(user(adminUserDetails)))
+                    .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
     class CreateAccommodation {
 
         @Test
@@ -116,7 +152,7 @@ class AccommodationControllerIntegrationTest {
             when(cloudinaryService.uploadFile(any(), anyString()))
                     .thenReturn(Map.of("secure_url", "http://example.com/updated-image.jpg"));
 
-            mockMvc.perform(multipart(BASE_API_PATH)
+            mockMvc.perform(multipart(BASE_API_PATH )
                             .file(imageFileOld)
                             .param("name", request.name())
                             .param("price", request.price().toString())
@@ -241,7 +277,7 @@ class AccommodationControllerIntegrationTest {
         @Test
         void deleteAccommodation_userWithoutPermission_nonExistingId_shouldReturnForbidden() throws Exception {
             mockMvc.perform(delete(BASE_API_PATH + "/{id}", 999999L)
-                            .with(user(customUserDetails))) // Assuming this user lacks permission
+                            .with(user(customUserDetails)))
                     .andExpect(status().isForbidden());
         }
 
