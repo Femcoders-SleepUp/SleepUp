@@ -14,72 +14,66 @@ import org.springframework.stereotype.Component;
 public class AppProperties {
 
     @Valid
-    private DatasourceProperties datasource = new DatasourceProperties();
-
-    @NotNull(message = "server.port must not be null")
-    private Integer serverPort = 8080;
+    private DatasourceProperties datasource;
 
     @Valid
-    private MailProperties mail = new MailProperties();
+    private MailProperties mail;
 
     @Valid
-    private JwtProperties jwt = new JwtProperties();
-
-    @NotBlank(message = "spring.application.name must not be blank")
-    private String applicationName = "SleepUpApp";
+    private JwtProperties jwt;
 
     @Valid
-    private CloudinaryProperties cloudinary = new CloudinaryProperties();
+    private CloudinaryProperties cloudinary;
 
     @Data
-    @Validated
     public static class DatasourceProperties {
         @NotBlank(message = "spring.datasource.url must not be blank")
-        private String url = "jdbc:mysql://localhost:3306/testdb";
+        private String url;
 
         @NotBlank(message = "spring.datasource.username must not be blank")
-        private String username = "root";
+        private String username;
 
         @NotBlank(message = "spring.datasource.password must not be blank")
-        private String password = "password";
+        private String password;
     }
 
     @Data
-    @Validated
     public static class MailProperties {
         @NotBlank(message = "spring.mail.username must not be blank")
-        private String username = "example@gmail.com";
+        private String username;
 
         @NotBlank(message = "spring.mail.password must not be blank")
-        private String password = "secret";
+        private String password;
 
         @NotBlank(message = "spring.mail.from must not be blank")
-        private String from = "example@gmail.com";
+        private String from;
+
+        @NotNull(message = "spring.mail.port must not be null")
+        private Integer port;
     }
 
+
     @Data
-    @Validated
     public static class JwtProperties {
         @NotBlank(message = "jwt.secret must not be blank")
-        private String secret = "default_jwt_secret";
+        private String secret;
 
         @NotNull(message = "jwt.expiration-ms must not be null")
-        private Long expirationMs = 1800000L;
+        private Long expirationMs;
 
         @NotNull(message = "jwt.refresh-expiration-ms must not be null")
-        private Long refreshExpirationMs = 604800000L;
+        private Long refreshExpirationMs;
     }
 
     @Data
-    @Validated
     public static class CloudinaryProperties {
         @NotBlank(message = "cloudinary.cloud_name must not be blank")
-        private String cloudName = "test_cloud";
+        private String cloudName;
 
         @NotBlank(message = "cloudinary.api_key must not be blank")
-        private String apiKey = "test_key";
+        private String apiKey;
 
         @NotBlank(message = "cloudinary.api_secret must not be blank")
-        private String apiSecret = "test_secret";
+        private String apiSecret;
     }
 }
