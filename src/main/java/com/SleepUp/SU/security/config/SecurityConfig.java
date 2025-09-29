@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations")).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/accommodations").permitAll()
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations/filter**")).permitAll()
                         .requestMatchers(HttpMethod.GET, "/accommodations/filter**").permitAll()
 

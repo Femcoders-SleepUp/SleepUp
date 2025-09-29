@@ -27,9 +27,15 @@ public class AccommodationTestData {
                 .checkOutTime(LocalTime.of(11, 0))
                 .availableFrom(LocalDate.now())
                 .availableTo(LocalDate.now().plusDays(10))
-                .image(new MockMultipartFile("image", "test.jpg", "image/jpeg", new byte[0]))
+                // Provide non-empty byte[] content for MockMultipartFile
+                .image(new MockMultipartFile(
+                        "image",          // field name must match DTO field name
+                        "test.jpg",
+                        "image/jpeg",
+                        "test image content".getBytes()))
                 .build();
     }
+
 
     public static AccommodationRequest defaultUpdateRequestBuilder() {
         return AccommodationRequest.builder()
@@ -43,7 +49,6 @@ public class AccommodationTestData {
                 .checkOutTime(LocalTime.of(12, 0))
                 .availableFrom(LocalDate.now())
                 .availableTo(LocalDate.now().plusDays(20))
-                .image(new MockMultipartFile("image", "update.jpg", "image/jpeg", new byte[0]))
                 .build();
     }
 
@@ -72,10 +77,10 @@ public class AccommodationTestData {
                 .guestNumber(2)
                 .location("Test Location")
                 .description("Test Description")
-                .checkInTime(LocalTime.of(14, 0).toString())
-                .checkOutTime(LocalTime.of(11, 0).toString())
-                .availableFrom(LocalDate.now().toString())
-                .availableTo(LocalDate.now().plusDays(10).toString())
+                .checkInTime(LocalTime.of(14, 0))
+                .checkOutTime(LocalTime.of(11, 0))
+                .availableFrom(LocalDate.now())
+                .availableTo(LocalDate.now().plusDays(10))
                 .managedByUsername("testUser")
                 .imageUrl("http://image.url")
                 .build();
