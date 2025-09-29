@@ -26,7 +26,7 @@ public class JwtService {
 
     private final SecretKey secretKey;
     private final long jwtExpirationMs;
-    private final long jwtRefreshExpirationMs = 7 * 24 * 60 * 60 * 1000; // Example: 7 days in milliseconds
+    private final long jwtRefreshExpirationMs = 7 * 24 * 60 * 60 * 1000;
 
     public JwtService(
             @Value("${jwt.secret}") String secret,
@@ -93,7 +93,7 @@ public class JwtService {
                 .getPayload();
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(Date.from(Instant.now()));
     }
 
