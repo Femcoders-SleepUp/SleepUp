@@ -20,7 +20,6 @@ public class EmailServiceHelper {
     private final EmailService emailService;
     public Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    private final AppProperties appProperties;
     public MailProperties mailProperties;
     private boolean emailEnabled;
 

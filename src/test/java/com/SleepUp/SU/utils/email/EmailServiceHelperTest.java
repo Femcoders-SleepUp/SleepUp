@@ -1,7 +1,6 @@
 package com.SleepUp.SU.utils.email;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
-import com.SleepUp.SU.config.properties.AppProperties;
 import com.SleepUp.SU.config.properties.MailProperties;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
@@ -25,9 +24,6 @@ class EmailServiceHelperTest {
 
     @Mock
     private Logger logger;
-
-    @Mock
-    private AppProperties appProperties;
 
     @Mock
     private MailProperties mailProperties;
@@ -64,7 +60,7 @@ class EmailServiceHelperTest {
                 .password("password123")
                 .build();
 
-        emailServiceHelper = spy(new EmailServiceHelper(emailService, appProperties));
+        emailServiceHelper = spy(new EmailServiceHelper(emailService));
         emailServiceHelper.logger = logger;
     }
 
