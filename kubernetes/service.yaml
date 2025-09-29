@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: service
   labels:
-    app: sleepUp
+    app: sleepup
     tier: backend
   annotations:
     # AWS Load Balancer SSL certificate configuration
@@ -32,5 +32,5 @@ spec:
       name: https
   # Select pods with these labels
   selector:
-    app: sleepUp
+    app: sleepup
     tier: backend

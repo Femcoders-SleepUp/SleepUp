@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   name: config
   labels:
-    app: sleepUp
+    app: sleepup
 data:
   # Database connection URL (without credentials)
-  db-url: "jdbc:mysql://mysql:3306/sleepUp"
+  db-url: "jdbc:mysql://mysql:3306/sleepup"
 
   # Application configuration
   show-sql: "false"
