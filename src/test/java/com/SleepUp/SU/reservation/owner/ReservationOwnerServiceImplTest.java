@@ -86,11 +86,6 @@ class ReservationOwnerServiceImplTest {
                 LocalDateTime.of(2025, 9, 15, 14, 0)
         );
 
-        doNothing().when(emailServiceHelper).sendCancellationByOwnerNotificationEmail(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()
-        );
     }
 
     @Nested
