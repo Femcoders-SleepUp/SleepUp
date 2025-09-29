@@ -7,6 +7,10 @@ import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
+import com.SleepUp.SU.reservation.dto.ReservationMapper;
+import com.SleepUp.SU.reservation.dto.ReservationRequest;
+import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
+import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
@@ -85,5 +89,8 @@ public class ReservationServiceImpl implements ReservationService{
         );
 
         return new ApiMessage(message);
+        emailServiceHelper.sendCancellationConfirmationEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
+        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
+        return reservationMapper.toDetail(savedReservation);
     }
 }

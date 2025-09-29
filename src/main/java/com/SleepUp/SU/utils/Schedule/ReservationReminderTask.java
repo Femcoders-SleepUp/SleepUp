@@ -57,6 +57,10 @@ public class ReservationReminderTask {
                                 reservation
                         );
 
+                        emailServiceHelper.sendOwnerReservationReminderEmail(
+                                reservation.getAccommodation(),
+                                reservation);
+
                         successCount++;
                         log.debug("Reminder sent successfully for reservation ID: {} - Guest: {}, Accommodation: {}",
                                 reservation.getId(),
