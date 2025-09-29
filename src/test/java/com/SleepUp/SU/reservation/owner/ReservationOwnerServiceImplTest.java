@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation.owner;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
@@ -11,12 +12,14 @@ import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
 import com.SleepUp.SU.user.entity.User;
+import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -41,6 +44,9 @@ class ReservationOwnerServiceImplTest {
 
     @Mock
     private ReservationServiceHelper reservationServiceHelper;
+
+    @Mock
+    private EmailServiceHelper emailServiceHelper;
 
     @Mock
     private EntityUtil entityUtil;
@@ -78,6 +84,12 @@ class ReservationOwnerServiceImplTest {
                 BookingStatus.PENDING,
                 false,
                 LocalDateTime.of(2025, 9, 15, 14, 0)
+        );
+
+        doNothing().when(emailServiceHelper).sendCancellationByOwnerNotificationEmail(
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any()
         );
     }
 
