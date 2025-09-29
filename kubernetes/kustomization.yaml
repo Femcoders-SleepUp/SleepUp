@@ -8,10 +8,9 @@ metadata:
 
 # List of Kubernetes resource files to include in this deployment
 resources:
-  - deployment.yaml
+  - deployment.yml
   - service.yaml
   - configmap.yaml
-  - secret.yaml
 
 # Image customization - override image tags
 images:
