@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation.controller;
 
+import com.SleepUp.SU.reservation.dto.ApiMessage;
 import com.SleepUp.SU.reservation.service.ReservationService;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
@@ -44,7 +45,7 @@ public class ReservationController {
 
     @PatchMapping(value = "/accommodations/{accommodationId}/reservations/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ReservationResponseDetail cancelReservation(
+    public ApiMessage cancelReservation(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Long accommodationId
     ) {
