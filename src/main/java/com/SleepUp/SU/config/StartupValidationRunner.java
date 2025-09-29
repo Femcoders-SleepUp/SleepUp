@@ -1,5 +1,6 @@
 package com.SleepUp.SU.config;
 
+import com.SleepUp.SU.config.properties.DatasourceProperties;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,8 @@ public class StartupValidationRunner implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(StartupValidationRunner.class);
 
-    private final AppProperties appProperties;
     private final DataSource dataSource;
+    private final DatasourceProperties datasourceProperties;
 
     @Autowired
     private final Cloudinary cloudinary;
@@ -40,9 +41,9 @@ public class StartupValidationRunner implements ApplicationRunner {
     private void validateDatabaseConnection() {
         logger.info("Validating database connection");
 
-        if (appProperties.getDatasource() == null
-                || appProperties.getDatasource().getUrl() == null
-                || appProperties.getDatasource().getUrl().isEmpty()) {
+        if (datasourceProperties == null
+                || datasourceProperties.getUrl() == null
+                || datasourceProperties.getUrl().isEmpty()) {
             logger.warn("DB URL is invalid or missing");
             throw new RuntimeException("DB URL is invalid or missing");
         }
