@@ -2,20 +2,18 @@ package com.SleepUp.SU.reservation.service;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
+import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
-import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -72,7 +70,7 @@ public class ReservationServiceImpl implements ReservationService{
     }
 
     @Override
-    public ReservationResponseDetail cancelReservation(Long reservationId) {
+    public ApiMessage cancelReservation(Long reservationId) {
         Reservation reservation = reservationServiceHelper.getReservationEntityById(reservationId);
 
         reservationServiceHelper.validateReservationCancellable(reservation);
@@ -81,6 +79,14 @@ public class ReservationServiceImpl implements ReservationService{
 
         emailServiceHelper.sendCancellationConfirmationEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
         emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
-        return reservationMapper.toDetail(savedReservation);
+      
+        String message = String.format(
+                "Your reservation in %s from %s to %s has been cancelled",
+                savedReservation.getAccommodation().getName(),
+                savedReservation.getCheckInDate(),
+                savedReservation.getCheckOutDate()
+        );
+
+        return new ApiMessage(message);
     }
 }

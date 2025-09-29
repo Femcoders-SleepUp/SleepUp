@@ -66,7 +66,6 @@ public class AccommodationServiceImpl implements AccommodationService{
 
         accommodationServiceHelper.cloudinaryManagement(accommodationRequest, accommodation);
 
-        // Accommodation savedAccommodation = accommodationRepository.save(accommodation);
         return accommodationMapper.toDetail(accommodation);
     }
 
