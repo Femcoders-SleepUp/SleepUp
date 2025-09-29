@@ -3,6 +3,7 @@ package com.SleepUp.SU.reservation.service;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
@@ -53,6 +54,7 @@ public class ReservationServiceImpl implements ReservationService{
         reservationServiceHelper.validateReservationDates(reservationRequest);
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
 
+        if (accommodation.getManagedBy().getId().equals(user.getId())){throw new ReservationAccommodationOwnerException();}
         reservationServiceHelper.validateAccommodationAvailability(accommodation, reservationRequest);
         reservationServiceHelper.validateUserReservationOverlap(user.getId(), reservationRequest);
         reservationServiceHelper.validateAccommodationReservationOverlap(accommodationId, reservationRequest);
