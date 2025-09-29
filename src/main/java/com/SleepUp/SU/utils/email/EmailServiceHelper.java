@@ -18,10 +18,10 @@ import org.springframework.stereotype.Service;
 public class EmailServiceHelper {
 
     private final EmailService emailService;
-    private final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    public Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final AppProperties appProperties;
-    private MailProperties mailProperties;
+    public MailProperties mailProperties;
     private boolean emailEnabled;
 
     @PostConstruct
