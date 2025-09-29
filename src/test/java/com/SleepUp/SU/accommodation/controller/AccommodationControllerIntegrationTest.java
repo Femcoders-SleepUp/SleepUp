@@ -70,8 +70,6 @@ class AccommodationControllerIntegrationTest {
 
         imageFileOld = (MockMultipartFile) AccommodationTestData.defaultAccommodationRequestBuilder().image();
 
-
-
         existingAccommodationId = accommodationRepository.findByManagedBy_Id(savedUser.getId())
                 .getFirst()
                 .getId();
