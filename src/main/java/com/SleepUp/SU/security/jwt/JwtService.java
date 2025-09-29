@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -34,22 +36,28 @@ public class JwtService {
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        Map<String, Object> claims = Map.of(
-                ROLE_CLAIM, userDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList()
-        );
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(ROLE_CLAIM, userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList());
+        claims.put("jti", UUID.randomUUID().toString());
+        claims.put("iat", System.currentTimeMillis());
+
         return buildToken(claims, userDetails.getUsername(), jwtRefreshExpirationMs);
     }
 
+
     public String generateAccessToken(UserDetails userDetails) {
-        Map<String, Object> claims = Map.of(
-                ROLE_CLAIM, userDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList()
-        );
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(ROLE_CLAIM, userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList());
+        claims.put("jti", UUID.randomUUID().toString());
+        claims.put("iat", System.currentTimeMillis());
+
         return buildToken(claims, userDetails.getUsername(), jwtExpirationMs);
     }
+
 
     private String buildToken(Map<String, Object> claims, String subject, long expirationMs) {
         Instant now = Instant.now();
