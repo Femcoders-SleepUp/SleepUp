@@ -3,10 +3,7 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
-import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
@@ -275,16 +272,18 @@ public class ReservationServiceImplTest {
             Reservation testReservation = createTestReservation();
             testReservation.setId(reservationId);
 
-            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
+            Accommodation accommodation = new Accommodation();
+            accommodation.setName("Test Accommodation");
+            testReservation.setAccommodation(accommodation);
 
             when(reservationServiceHelper.getReservationEntityById(reservationId)).thenReturn(testReservation);
             when(reservationRepository.save(testReservation)).thenReturn(testReservation);
-            when(reservationMapper.toDetail(testReservation)).thenReturn(expectedResponse);
 
-            ReservationResponseDetail result = reservationServiceImpl.cancelReservation(reservationId);
+            ApiMessage result = reservationServiceImpl.cancelReservation(reservationId);
 
             assertNotNull(result);
-            assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
+            assertTrue(result.getMessage().contains("has been cancelled"));
+            assertTrue(result.getMessage().contains("Test Accommodation"));
         }
 
         @Test
