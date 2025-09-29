@@ -23,7 +23,7 @@ spec:
       containers:
         - name: sleepup
           # Application container image
-          image: sleepup:latest
+          image: sleepup/sleepup:main
           ports:
             - containerPort: 8080
               name: http
