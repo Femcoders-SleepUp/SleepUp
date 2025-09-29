@@ -1,5 +1,5 @@
-# SleepUp Application Deployment
-# This deployment manages the main application pods for the SleepUp service
+# sleepup Application Deployment
+# This deployment manages the main application pods for the sleepup service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,7 +23,7 @@ spec:
       containers:
         - name: sleepup
           # Application container image
-          image: sleepUp:latest
+          image: sleepup:latest
           ports:
             - containerPort: 8080
               name: http

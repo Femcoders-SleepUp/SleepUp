@@ -13,7 +13,7 @@ resources:
   - configmap.yaml
 # Image customization - override image tags
 images:
-  - name: Femcoders-SleepUp/SleepUp
+  - name: sleepup/sleepup
     newTag: main
 
 # Add prefix to all resource names to avoid conflicts
@@ -22,7 +22,7 @@ namePrefix: sleepup-
 # Add common labels to all resources
 labels:
   - pairs:
-      app: sleepup
+      app: sleepUp
       version: v1
 
 # Target namespace for deployment
