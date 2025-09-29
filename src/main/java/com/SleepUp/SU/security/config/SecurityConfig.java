@@ -65,12 +65,19 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, ("/auth/logout")).authenticated()
                         .requestMatchers(HttpMethod.POST, ("/auth/refresh")).authenticated()
 
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/auth/login")).permitAll()
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/auth/register")).permitAll()
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/auth/logout")).authenticated()
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/auth/refresh")).authenticated()
+
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
                         .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
                         .requestMatchers(HttpMethod.DELETE, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
 
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/reservations/admin")).hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations")).permitAll()
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/accommodations/filter**")).permitAll()
