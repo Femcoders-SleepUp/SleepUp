@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation.service;
 
+import com.SleepUp.SU.reservation.dto.ApiMessage;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
@@ -14,5 +15,5 @@ public interface ReservationService {
 
     ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId);
 
-    ReservationResponseDetail cancelReservation(Long reservationId);
+    ApiMessage cancelReservation(Long reservationId);
 }
