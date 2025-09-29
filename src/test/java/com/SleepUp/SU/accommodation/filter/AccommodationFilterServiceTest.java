@@ -43,9 +43,16 @@ class AccommodationFilterServiceTest {
     }
 
     private FilterAccommodationDTO createFilter(LocalDate fromDate, LocalDate toDate) {
-        return new FilterAccommodationDTO(
-                "Hotel", "Nice place", 50.0, 200.0,
-                2, "New York", fromDate, toDate);
+        return FilterAccommodationDTO.builder()
+                .name("Hotel")
+                .description("Nice place")
+                .minPrice(50.0)
+                .maxPrice(200.0)
+                .guestNumber(2)
+                .location("New York")
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .build();
     }
 
     private void mockSpecificationAndRepository(FilterAccommodationDTO filter,
@@ -60,8 +67,15 @@ class AccommodationFilterServiceTest {
     void getAllFilteredAccommodationsWithPagination_validFilter_shouldReturnPageOfAccommodationSummaries() {
         FilterAccommodationDTO filter = createFilter(LocalDate.now(), LocalDate.now().plusDays(5));
 
-        AccommodationResponseSummary expectedDto = new AccommodationResponseSummary(
-                1L, "Hotel ABC", 10.0, 1, true, "Park Av", "image.url");
+        AccommodationResponseSummary expectedDto = AccommodationResponseSummary.builder()
+                .id(1L)
+                .name("Hotel ABC")
+                .price(10.0)
+                .guestNumber(1)
+                .petFriendly(true)
+                .location("Park Av")
+                .imageUrl("image.url")
+                .build();
 
         Accommodation accommodation = Accommodation.builder()
                 .id(1L)
