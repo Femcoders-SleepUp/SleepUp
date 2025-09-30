@@ -1,10 +1,13 @@
 package com.SleepUp.SU.reservation.reservationGuest;
 
+import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ReservationGuestControllerTest {
 
     private static final String RESERVATION_CANCEL_PATH = "/reservations/{id}/cancel";
+    private static final String RESERVATION_UPDATE_PATH = "/reservations/{id}";
     private static final String RESERVATION_BY_ID_PATH = "/reservations/{id}";
 
     @Autowired
@@ -83,6 +87,38 @@ public class ReservationGuestControllerTest {
 
         }
 
+    }
+
+    @Nested
+    class UpdateReservationByIdTest {
+
+
+        @Test
+        void updateReservation_validRequest_shouldReturnUpdatedMessage() throws Exception {
+            Long reservationId = 5L;
+
+            ReservationRequest updateRequest = ReservationRequest.builder()
+                    .guestNumber(3)
+                    .checkInDate(LocalDate.of(2025, 11, 2))
+                    .checkOutDate(LocalDate.of(2025, 11, 8))
+                    .build();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            System.out.println("here" + objectMapper.writeValueAsString(updateRequest));
+            mockMvc.perform(put(RESERVATION_UPDATE_PATH, reservationId)
+                            .with(user(principal))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateRequest)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message", allOf(
+                            containsString("updated"),
+                            containsString("reservation")
+                    )));
+        }
     }
 
     @Nested
