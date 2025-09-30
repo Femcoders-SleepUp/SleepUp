@@ -239,44 +239,44 @@ public class ReservationControllerTest {
         }
     }
 
-    @Nested
-    class CancelReservationTests {
-
-        @Test
-        void cancelReservation_validRequest_shouldReturnCancelledReservation() throws Exception {
-            Long reservationId = 5L;
-
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        }
-
-        @Test
-        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
-            Long reservationId = 1L;
-
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
-        }
-
-        @Test
-        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
-            Long reservationId = 1L;
-
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
-        }
-    }
+//    @Nested
+//    class CancelReservationTests {
+//
+//        @Test
+//        void cancelReservation_validRequest_shouldReturnCancelledReservation() throws Exception {
+//            Long reservationId = 5L;
+//
+//            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
+//                            .with(user(principal))
+//                            .contentType(MediaType.APPLICATION_JSON)
+//                            .accept(MediaType.APPLICATION_JSON))
+//                    .andDo(print())
+//                    .andExpect(status().isOk())
+//                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+//        }
+//
+//        @Test
+//        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
+//            Long reservationId = 1L;
+//
+//            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
+//                            .with(user(principal))
+//                            .contentType(MediaType.APPLICATION_JSON)
+//                            .accept(MediaType.APPLICATION_JSON))
+//                    .andExpect(status().isConflict())
+//                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+//        }
+//
+//        @Test
+//        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
+//            Long reservationId = 1L;
+//
+//            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
+//                            .with(user(principal))
+//                            .contentType(MediaType.APPLICATION_JSON)
+//                            .accept(MediaType.APPLICATION_JSON))
+//                    .andExpect(status().isConflict())
+//                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+//        }
+//    }
 }

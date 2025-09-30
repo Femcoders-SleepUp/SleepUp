@@ -1,18 +1,13 @@
 package com.SleepUp.SU.reservation.admin;
 
-import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.entity.Reservation;
-import com.SleepUp.SU.reservation.owner.ReservationOwnerServiceImpl;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
-import net.bytebuddy.asm.Advice;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,13 +19,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
