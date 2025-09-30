@@ -35,14 +35,13 @@ public class StartupValidationRunner implements ApplicationRunner {
 
     private void validateConnections() {
         validateDatabaseConnection();
-//        validateCloudinaryConnection();
+        validateCloudinaryConnection();
     }
 
     private void validateDatabaseConnection() {
         logger.info("Validating database connection");
 
-        if (datasourceProperties == null
-                || datasourceProperties.getUrl() == null
+        if (datasourceProperties.getUrl() == null
                 || datasourceProperties.getUrl().isEmpty()) {
             logger.warn("DB URL is invalid or missing");
             throw new RuntimeException("DB URL is invalid or missing");
