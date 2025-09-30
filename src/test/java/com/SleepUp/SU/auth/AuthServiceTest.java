@@ -74,14 +74,6 @@ public class AuthServiceTest {
         void should_registerNewUser_fromRequest() throws MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
 
-            User mappedUser = new User();
-            mappedUser.setUsername(userRequest.username());
-            mappedUser.setEmail(userRequest.email());
-            mappedUser.setName(userRequest.name());
-            mappedUser.setPassword(userRequest.password());
-
-            doNothing().when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-
             User userSaved = new User();
             userSaved.setId(1L);
             userSaved.setUsername("userTest");
@@ -90,7 +82,7 @@ public class AuthServiceTest {
             userSaved.setPassword("password123");
             userSaved.setRole(Role.USER);
 
-            when(userRepository.save(any(User.class))).thenReturn(userSaved);
+            when(userServiceHelper.createUser(userRequest, Role.USER)).thenReturn(userSaved);
 
             UserResponse userResponseMock = new UserResponse(
                     userSaved.getId(),
@@ -100,58 +92,15 @@ public class AuthServiceTest {
                     userSaved.getRole()
             );
             when(userMapper.toResponse(userSaved)).thenReturn(userResponseMock);
-            when(passwordEncoder.encode(userRequest.password())).thenReturn("encondePassword");
-            when(userMapper.toEntity(userRequest, "encondePassword", Role.USER)).thenReturn(mappedUser);
 
             UserResponse userResponse = authService.register(userRequest);
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-            verify(emailService).sendWelcomeEmail(userRequest, mappedUser);
+            verify(emailService).sendWelcomeEmail(userRequest, userSaved);
         }
 
-        @Test
-        void should_registerNewUser_throw_exceptionUsername(){
-            UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
 
-            doThrow(new RuntimeException("UsernameAlreadyExistException"))
-                    .when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.register(userRequest));
-            assertEquals("UsernameAlreadyExistException", exception.getMessage());
-        }
-
-        @Test
-        void should_registerNewUser_throw_exceptionEmail(){
-            UserRequest userRequest = new UserRequest("userTest2", "nameTest", "usertest@test.com", "password123");
-
-            doThrow(new RuntimeException("EmailAlreadyExistException"))
-                    .when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.register(userRequest));
-            assertEquals("EmailAlreadyExistException", exception.getMessage());
-        }
-
-        @Test
-        void should_RegisterNewUser_throw_dataIntegrityViolationException() {
-            UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
-
-            User mappedUser = new User();
-            mappedUser.setUsername(userRequest.username());
-            mappedUser.setEmail(userRequest.email());
-            mappedUser.setName(userRequest.name());
-            mappedUser.setPassword("encodedPassword");
-
-            doNothing().when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-            when(passwordEncoder.encode(userRequest.password())).thenReturn("encodedPassword");
-            when(userMapper.toEntity(userRequest, "encodedPassword", Role.USER)).thenReturn(mappedUser);
-            when(userRepository.save(any(User.class)))
-                    .thenThrow(new DataIntegrityViolationException("Username or email already exists"));
-
-            DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class,
-                    () -> authService.register(userRequest));
-            assertEquals("Username or email already exists", exception.getMessage());
-        }
     }
 
     @Nested

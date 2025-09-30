@@ -75,7 +75,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, ApiPrefixHelper.prefixPaths("/users/me")).authenticated()
 
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, ApiPrefixHelper.prefixPaths("/users/admin/**")).hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, ApiPrefixHelper.prefixPaths("/reservations/admin")).hasRole("ADMIN")
 

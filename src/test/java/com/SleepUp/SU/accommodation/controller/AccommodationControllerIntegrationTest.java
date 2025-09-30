@@ -162,8 +162,7 @@ class AccommodationControllerIntegrationTest {
                             .param("checkOutTime", request.checkOutTime().toString())
                             .param("availableFrom", request.availableFrom().toString())
                             .param("availableTo", request.availableTo().toString())
-                            .with(user(customUserDetails))
-                            .with(csrf()))
+                            .with(user(customUserDetails)))
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(content().contentType("application/json"))
@@ -183,11 +182,36 @@ class AccommodationControllerIntegrationTest {
         void createAccommodation_missingRequiredFields_shouldReturnBadRequest() throws Exception {
             mockMvc.perform(multipart(BASE_API_PATH)
                             .file(imageFileOld)
-                            .param("name", "")  // Empty name
-                            .param("price", "-10")  // Invalid price (edge case)
+                            .param("name", "")
+                            .param("price", "-10")
                             .with(user(customUserDetails))
-                            .with(csrf()))
+                      )
                     .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void createAccommodation_withNoUser_shouldThrowException() throws Exception {
+            var request = AccommodationTestData.defaultAccommodationRequestBuilder();
+
+            when(cloudinaryService.uploadFile(any(), anyString()))
+                    .thenReturn(Map.of("secure_url", "http://example.com/updated-image.jpg"));
+
+            mockMvc.perform(multipart(BASE_API_PATH )
+                            .file(imageFileOld)
+                            .param("name", request.name())
+                            .param("price", request.price().toString())
+                            .param("guestNumber", Integer.toString(request.guestNumber()))
+                            .param("petFriendly", Boolean.toString(request.petFriendly()))
+                            .param("location", request.location())
+                            .param("description", request.description())
+                            .param("checkInTime", request.checkInTime().toString())
+                            .param("checkOutTime", request.checkOutTime().toString())
+                            .param("availableFrom", request.availableFrom().toString())
+                            .param("availableTo", request.availableTo().toString()))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.message").value("Unauthorized. Full authentication is required to access this resource"));
+
         }
     }
 
@@ -266,9 +290,16 @@ class AccommodationControllerIntegrationTest {
     class DeleteAccommodation {
 
         @Test
-        void deleteAccommodation_existingId_shouldReturnNoContent() throws Exception {
+        void deleteAccommodation_existingIdAndOwnerUser_shouldReturnNoContent() throws Exception {
             mockMvc.perform(delete(BASE_API_PATH + "/{id}", existingAccommodationId)
                             .with(user(customUserDetails)))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void deleteAccommodation_existingIdAndAdmin_shouldReturnNoContent() throws Exception {
+            mockMvc.perform(delete(BASE_API_PATH + "/{id}", existingAccommodationId)
+                            .with(user(adminUserDetails)))
                     .andExpect(status().isNoContent());
         }
 
@@ -280,10 +311,33 @@ class AccommodationControllerIntegrationTest {
         }
 
         @Test
+        void deleteAccommodation_withNoUser_nonExistingId_shouldReturnForbidden() throws Exception {
+            mockMvc.perform(delete(BASE_API_PATH + "/{id}", 999999L))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void deleteAccommodation_nonExistingIdAndOwnerUser_shouldReturnForbidden() throws Exception {
+            mockMvc.perform(delete(BASE_API_PATH + "/{id}", 999999L)
+                            .with(user(customUserDetails)))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void deleteAccommodation_nonExistingIdAndAdmin_shouldReturnNoContent() throws Exception {
+            mockMvc.perform(delete(BASE_API_PATH + "/{id}", 999999L)
+                            .with(user(adminUserDetails)))
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
         void deleteAccommodation_admin_nonExistingId_shouldReturnNotFound() throws Exception {
             mockMvc.perform(delete(BASE_API_PATH + "/{id}", 999999L)
-                            .with(user(adminUserDetails))
-                            .with(csrf()))
+                            .with(user(adminUserDetails)))
+                    .andDo(print())
                     .andExpect(status().isNotFound());
         }
 

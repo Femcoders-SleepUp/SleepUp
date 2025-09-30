@@ -1,10 +1,13 @@
 package com.SleepUp.SU.user.admin;
 
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.dto.UserResponse;
+import com.SleepUp.SU.user.role.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +18,7 @@ import java.util.List;
 
 @Tag(name = "User Admin", description = "Operations related to user management by admin")
 @RestController
-@RequestMapping("/api/users/admin")
+@RequestMapping("/users/admin")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class UserAdminController {
@@ -55,8 +58,9 @@ public class UserAdminController {
                     @ApiResponse(responseCode = "409", ref = "#/components/responses/Conflict"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
-        public ResponseEntity<UserResponse> createUser(@RequestBody UserRequestAdmin userRequestAdmin) {
-        UserResponse newUser = userAdminService.createUser(userRequestAdmin);
+        public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest,
+                                                       @RequestParam Role role) {
+        UserResponse newUser = userAdminService.createUser(userRequest, role);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
