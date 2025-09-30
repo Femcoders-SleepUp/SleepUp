@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -73,7 +74,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
             "AND r.createdDate >= :oneYearAgo")
     boolean existsReservationLessThanYear(@Param("userId") Long userId,
                                           @Param("accommodationId") Long accommodationId,
-                                          @Param("oneYearAgo") LocalDate oneYearAgo,
+                                          @Param("oneYearAgo") LocalDateTime oneYearAgo,
                                           @Param("cancelledStatus") BookingStatus cancelledStatus);
 
     List<Reservation> findByUser_Id(Long userId);
