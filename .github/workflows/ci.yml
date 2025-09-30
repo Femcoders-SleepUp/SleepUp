@@ -36,9 +36,10 @@ jobs:
       DB_PASSWORD: password
       SERVER_PORT: 8080
       # Cloudinary dummy variables for testing
-      CLOUDINARY_CLOUD_NAME: dummy_cloud_name
-      CLOUDINARY_API_KEY: dummy_api_key
-      CLOUDINARY_API_SECRET: dummy_api_secret
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+
       # Email dummy variables for testing
       EMAIL: test@example.com
       EMAIL_PASSWORD: dummy_password
