@@ -4,7 +4,7 @@ import com.SleepUp.SU.reservation.controller.ReservationController;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
+import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;

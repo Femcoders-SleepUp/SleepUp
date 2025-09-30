@@ -76,7 +76,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // Skip the filter for excluded paths with POST method
         String path = request.getRequestURI();
         return EXCLUDED_PATHS.contains(path) && "POST".equalsIgnoreCase(request.getMethod());
     }

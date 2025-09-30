@@ -1,8 +1,11 @@
 package com.SleepUp.SU.accommodation.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
+
 import java.time.LocalDate;
 
+@Builder
 public record FilterAccommodationDTO(
         @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
         String name,

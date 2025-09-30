@@ -2,14 +2,11 @@ package com.SleepUp.SU.reservation.service;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
+import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
-import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
@@ -19,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -67,26 +65,15 @@ public class ReservationServiceImpl implements ReservationService{
 
         Reservation savedReservation = reservationRepository.save(newReservation);
 
-        emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
-        return reservationMapper.toDetail(savedReservation);
-    }
+        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
+        double amount = days * accommodation.getPrice() ;
 
-    @Override
-    public ReservationResponseDetail cancelReservation(Long reservationId) {
-        Reservation reservation = reservationServiceHelper.getReservationEntityById(reservationId);
-
-        reservationServiceHelper.validateReservationCancellable(reservation);
-        reservation.setBookingStatus(BookingStatus.CANCELLED);
-        Reservation savedReservation = reservationRepository.save(reservation);
-
-        return reservationMapper.toDetail(savedReservation);
-    }
-
-    @Override
-    public void deleteReservationByAdmin(Long reservationId) {
-        if (!reservationRepository.existsById(reservationId)) {
-            throw new RuntimeException("Reservation not found with id: " + reservationId);
+        if(reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId())){
+            amount = amount - amount*0.20;
         }
-        reservationRepository.deleteById(reservationId);
+
+        emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation,amount);
+        return reservationMapper.toDetail(savedReservation);
     }
+
 }

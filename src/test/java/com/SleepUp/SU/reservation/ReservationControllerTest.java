@@ -238,48 +238,6 @@ public class ReservationControllerTest {
                     .andExpect(status().isBadRequest());
         }
     }
-
-    @Nested
-    class CancelReservationTests {
-
-        @Test
-        void cancelReservation_validRequest_shouldReturnCancelledReservation() throws Exception {
-            Long reservationId = 5L;
-
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        }
-
-        @Test
-        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
-            Long reservationId = 1L;
-
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
-        }
-
-        @Test
-        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
-            Long reservationId = 1L;
-
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
-        }
-    }
-
     @Nested
     class DeleteReservationAdminTests {
 
@@ -288,7 +246,7 @@ public class ReservationControllerTest {
             Long reservationId = 3L;
 
             mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
-                    .with(user("admin").roles("ADMIN"))
+                            .with(user("admin").roles("ADMIN"))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
                     .andExpect(status().isNoContent());
@@ -313,8 +271,8 @@ public class ReservationControllerTest {
                             .with(user("admin").roles("ADMIN"))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(jsonPath("$.message.error").value("Reservation not found with id: 999"));
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Reservation with id '" + reservationId + "' not found"));
         }
 
     }

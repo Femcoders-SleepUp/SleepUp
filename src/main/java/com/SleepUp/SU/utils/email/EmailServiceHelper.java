@@ -2,7 +2,7 @@ package com.SleepUp.SU.utils.email;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.auth.AuthService;
-import com.SleepUp.SU.config.AppProperties;
+import com.SleepUp.SU.config.properties.MailProperties;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.dto.UserRequest;
@@ -17,15 +17,13 @@ import org.springframework.stereotype.Service;
 public class EmailServiceHelper {
 
     private final EmailService emailService;
-    private final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    public Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    private final AppProperties appProperties;
-    private AppProperties.MailProperties mailProperties;
+    public MailProperties mailProperties;
     private boolean emailEnabled;
 
     @PostConstruct
     public void validateEmailConfig() {
-        mailProperties = appProperties.getMail(); // Access nested MailProperties
         emailEnabled = mailProperties != null
                 && mailProperties.getFrom() != null && !mailProperties.getFrom().isBlank()
                 && mailProperties.getUsername() != null && !mailProperties.getUsername().isBlank()
@@ -47,18 +45,18 @@ public class EmailServiceHelper {
         }
     }
 
-    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation) {
+    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation, double amount) {
         try {
-            emailService.sendOwnerReservedNotification(user, accommodation, reservation);
+            emailService.sendOwnerReservedNotification(user, accommodation, reservation, amount);
             logger.info("New reservation sent successfully to: {}", user.getEmail());
         } catch (Exception e) {
             logger.warn("Failed to send new reservation email to {}: {}", user.getEmail(), e.getMessage());
         }
     }
 
-    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation) {
+    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, double amount) {
         try {
-            emailService.sendReservationConfirmationEmail(guest, accommodation, reservation);
+            emailService.sendReservationConfirmationEmail(guest, accommodation, reservation, amount);
             logger.info("Reservation confirmation email sent successfully to: {}", guest.getEmail());
         } catch (Exception e) {
             logger.warn("Failed to send reservation confirmation email to {}: {}", guest.getEmail(), e.getMessage());
@@ -115,12 +113,12 @@ public class EmailServiceHelper {
         }
     }
 
-    public void handleNewReservationEmails(User guest, Accommodation accommodation, Reservation reservation) {
+    public void handleNewReservationEmails(User guest, Accommodation accommodation, Reservation reservation, double amount) {
         logger.info("Processing emails for new reservation - Guest: {}, Accommodation: {}",
                 guest.getEmail(), accommodation.getName());
 
-        sendReservationConfirmationEmail(guest, accommodation, reservation);
-        sendOwnerReservedNotification(guest, accommodation, reservation);
+        sendReservationConfirmationEmail(guest, accommodation, reservation, amount);
+        sendOwnerReservedNotification(guest, accommodation, reservation, amount);
 
         logger.info("New reservation email processing completed");
     }

@@ -2,11 +2,13 @@ package com.SleepUp.SU.accommodation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Builder
 public record AccommodationRequest (
         @NotBlank(message = "Name must be between 2 and 100 characters")
         @Size(min = 2, max = 100)

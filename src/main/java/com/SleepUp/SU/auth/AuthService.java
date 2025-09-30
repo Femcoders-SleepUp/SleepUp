@@ -10,7 +10,7 @@ import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
-import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;

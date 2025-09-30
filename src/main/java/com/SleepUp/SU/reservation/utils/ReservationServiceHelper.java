@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -120,5 +121,16 @@ public class ReservationServiceHelper {
         if (reservation.getCheckInDate().isBefore(LocalDate.now())) {
             throw new ReservationModificationException("Cannot modify a reservation that has already started");
         }
+    }
+
+    public boolean validateReservationAccommodationLessThanOneYear(Long accommodationId, Long userId){
+
+        LocalDateTime oneYearAgo = LocalDate.now().minusYears(1).atStartOfDay();
+
+        return reservationRepository.existsReservationLessThanYear(
+                userId,
+                accommodationId,
+                oneYearAgo,
+                BookingStatus.CANCELLED);
     }
 }

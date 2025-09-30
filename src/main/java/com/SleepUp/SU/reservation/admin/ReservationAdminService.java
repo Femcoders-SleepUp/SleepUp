@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ReservationAdminService {
     List<ReservationResponseSummary> getAllReservations();
+
+    void deleteReservationByAdmin(Long reservationId);
 }

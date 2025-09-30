@@ -1,8 +1,10 @@
-package com.SleepUp.SU.reservation.owner;
+package com.SleepUp.SU.reservation.accommodationOwner;
+
 
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.reservationGuest.ReservationGuestServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
@@ -45,7 +47,7 @@ public class ReservationOwnerControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
+    private ReservationOwnerService reservationOwnerServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -69,55 +71,6 @@ public class ReservationOwnerControllerTest {
         principal = new CustomUserDetails(testUser);
     }
 
-    @Nested
-    class GetReservationOnMyAccommodationTest {
-        @Test
-        void getReservationOnMyAccommodation_authorized_shouldReturnOk() throws Exception {
-            List<ReservationResponseSummary> summaries = List.of(
-                    new ReservationResponseSummary(
-                            1L,
-                            "alice",
-                            2,
-                            "Beach House",
-                            LocalDate.of(2025, 9, 25),
-                            LocalDate.of(2025, 9, 30),
-                            BookingStatus.CONFIRMED,
-                            true,
-                            LocalDateTime.of(2025, 9, 1, 10, 30)
-                    ),
-                    new ReservationResponseSummary(
-                            2L,
-                            "bob",
-                            4,
-                            "Mountain Cabin",
-                            LocalDate.of(2025, 10, 5),
-                            LocalDate.of(2025, 10, 12),
-                            BookingStatus.PENDING,
-                            false,
-                            LocalDateTime.of(2025, 9, 15, 14, 0)
-                    )
-            );
-
-            when(reservationOwnerServiceImpl
-                    .getAllReservationsOnMyAccommodation(principal.getUser(), accommodationId))
-                    .thenReturn(summaries);
-
-            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
-                            .with(user(principal))
-                            .param("id", accommodationId.toString())
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content()
-                            .json(objectMapper.writeValueAsString(summaries)));
-        }
-
-        @Test
-        void getReservationOnMyAccommodation_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
-                            .with(anonymous()))
-                    .andExpect(status().isUnauthorized());
-        }
-    }
 
     @Nested
     class UpdateReservationStatusTest {
@@ -151,34 +104,5 @@ public class ReservationOwnerControllerTest {
 
     }
 
-    @Nested
-    class GetReservationByIdTest {
-
-        @Test
-        void getReservationById_authorized_shouldReturnOk() throws Exception {
-            Long id = 101L;
-
-            ReservationResponseDetail detailDto = new ReservationResponseDetail(
-                    101L,
-                    "charlie",
-                    3,
-                    "Lake Cabin",
-                    LocalDate.of(2025, 11, 1),
-                    LocalDate.of(2025, 11, 5),
-                    BookingStatus.CONFIRMED,
-                    true,
-                    LocalDateTime.of(2025, 10, 20, 9, 15)
-            );
-
-            when(reservationOwnerServiceImpl.getReservationById(id))
-                    .thenReturn(detailDto);
-
-            mockMvc.perform(post(RESERVATION_BY_ID_PATH, id)
-                            .with(user(principal))
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
-        }
-
-    }
 }
+

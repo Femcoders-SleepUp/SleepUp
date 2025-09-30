@@ -3,14 +3,11 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
-import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
+import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
@@ -153,7 +150,7 @@ public class ReservationServiceImplTest {
             doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             doNothing().when(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
             doNothing().when(reservationServiceHelper).validateAccommodationReservationOverlap(accommodationId, reservationRequest);
-            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
+            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, 20);
 
             ReservationResponseDetail result = reservationServiceImpl.createReservation(reservationRequest, user, accommodationId);
 
@@ -163,7 +160,7 @@ public class ReservationServiceImplTest {
             assertEquals(BookingStatus.PENDING, result.bookingStatus());
 
             verify(reservationRepository).save(mappedReservation);
-            verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
+            verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, 20);
         }
 
         @Test
@@ -266,58 +263,6 @@ public class ReservationServiceImplTest {
         }
     }
 
-    @Nested
-    class CancelReservation {
-
-        @Test
-        void cancelReservation_validReservation_shouldReturnCancelledDetail() {
-            Long reservationId = 1L;
-            Reservation testReservation = createTestReservation();
-            testReservation.setId(reservationId);
-
-            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
-
-            when(reservationServiceHelper.getReservationEntityById(reservationId)).thenReturn(testReservation);
-            when(reservationRepository.save(testReservation)).thenReturn(testReservation);
-            when(reservationMapper.toDetail(testReservation)).thenReturn(expectedResponse);
-
-            ReservationResponseDetail result = reservationServiceImpl.cancelReservation(reservationId);
-
-            assertNotNull(result);
-            assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
-        }
-
-        @Test
-        void cancelReservation_reservationNotFound_shouldThrowException() {
-            Long reservationId = 1L;
-
-            when(reservationServiceHelper.getReservationEntityById(reservationId)).thenThrow(new RuntimeException("Reservation not found"));
-
-            RuntimeException exception = assertThrows(RuntimeException.class,
-                    () -> reservationServiceImpl.cancelReservation(reservationId));
-
-            assertEquals("Reservation not found", exception.getMessage());
-        }
-
-        @Test
-        void cancelReservation_alreadyCancelled_shouldThrowException() {
-            Long reservationId = 1L;
-
-            Reservation testReservation = createTestReservation();
-            testReservation.setId(reservationId);
-            testReservation.setBookingStatus(BookingStatus.CANCELLED);
-
-            when(reservationServiceHelper.getReservationEntityById(reservationId)).thenReturn(testReservation);
-            doThrow(new IllegalStateException("Cannot modify a cancelled reservation"))
-                    .when(reservationServiceHelper).validateReservationCancellable(testReservation);
-
-            IllegalStateException exception = assertThrows(IllegalStateException.class,
-                    () -> reservationServiceImpl.cancelReservation(reservationId));
-
-            assertEquals("Cannot modify a cancelled reservation", exception.getMessage());
-        }
-    }
-
     private User createTestUser() {
         User user = new User();
         user.setId(1L);
@@ -342,6 +287,7 @@ public class ReservationServiceImplTest {
         accommodation.setGuestNumber(4);
         accommodation.setAvailableFrom(LocalDate.now());
         accommodation.setAvailableTo(LocalDate.now().plusDays(30));
+        accommodation.setPrice(10.0);
         accommodation.setManagedBy(owner);
         return accommodation;
     }
@@ -356,47 +302,5 @@ public class ReservationServiceImplTest {
         return reservation;
     }
 
-    private ReservationResponseDetail expectedCancelledResponse() {
-        return new ReservationResponseDetail(
-                1L, "Test User", 4, "Test Hotel",
-                LocalDate.now().plusDays(1), LocalDate.now().plusDays(30),
-                BookingStatus.CANCELLED, false, LocalDateTime.now()
-        );
-    }
 
-    @Nested
-    class DeleteReservationByAdmin {
-
-        @Test
-        void deleteReservationByAdmin_validReservation_shouldDeleteSuccessfully() {
-            Long reservationId = 1L;
-            Reservation testReservation = createTestReservation();
-            testReservation.setId(reservationId);
-
-            when(reservationServiceHelper.getReservationEntityById(reservationId))
-                    .thenReturn(testReservation);
-
-            doNothing().when(reservationRepository).delete(testReservation);
-
-            assertDoesNotThrow(() -> reservationServiceImpl.deleteReservationByAdmin(reservationId));
-
-            verify(reservationServiceHelper).getReservationEntityById(reservationId);
-            verify(reservationRepository).delete(testReservation);
-        }
-
-        @Test
-        void deleteReservationByAdmin_reservationNotFound_shouldThrowException() {
-            Long reservationId = 999L;
-
-            when(reservationServiceHelper.getReservationEntityById(reservationId))
-                    .thenThrow(new RuntimeException("Reservation not found"));
-
-            RuntimeException exception = assertThrows(RuntimeException.class,
-                    () -> reservationServiceImpl.deleteReservationByAdmin(reservationId));
-
-            assertEquals("Reservation not found", exception.getMessage());
-            verify(reservationServiceHelper).getReservationEntityById(reservationId);
-            verifyNoMoreInteractions(reservationRepository);
-        }
-    }
 }

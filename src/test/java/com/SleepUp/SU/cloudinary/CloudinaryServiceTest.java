@@ -38,8 +38,8 @@ public class CloudinaryServiceTest {
     class uploadFile {
 
         @Test
-        void uploadFile_success() throws IOException {
-            MockMultipartFile image =  new MockMultipartFile(
+        void uploadFile_validFileWithFolder_shouldReturnSecureUrl() throws IOException {
+            MockMultipartFile image = new MockMultipartFile(
                     "image",
                     "test-image.jpg",
                     "image/jpeg",
@@ -56,13 +56,32 @@ public class CloudinaryServiceTest {
 
             assertEquals("http://cloudinary.com/image/upload/example.jpg", result.get("secure_url"));
         }
+
+        @Test
+        void uploadFile_nullFolder_shouldReturnSecureUrl() throws IOException {
+            MockMultipartFile image = new MockMultipartFile(
+                    "image",
+                    "test-image.jpg",
+                    "image/jpeg",
+                    "Test Image Content".getBytes()
+            );
+
+            Map<String, String> response = new HashMap<>();
+            response.put("secure_url", "http://cloudinary.com/image/upload/example-null-folder.jpg");
+
+            Mockito.when(cloudinary.uploader()).thenReturn(uploader);
+            Mockito.when(uploader.upload(any(), anyMap())).thenReturn(response);
+
+            Map result = cloudinaryService.uploadFile(image, null);
+
+            assertEquals("http://cloudinary.com/image/upload/example-null-folder.jpg", result.get("secure_url"));
+        }
     }
 
     @Nested
     class deleteFile {
         @Test
-        void deleteFile_success() throws IOException {
-
+        void deleteFile_validPublicId_shouldNotThrow() throws IOException {
             Map<String, String> response = new HashMap<>();
             response.put("result", "ok");
 
