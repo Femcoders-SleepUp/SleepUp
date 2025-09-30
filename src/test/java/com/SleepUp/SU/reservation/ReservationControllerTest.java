@@ -11,6 +11,8 @@ import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.admin.UserAdminServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -125,6 +127,11 @@ public class ReservationControllerTest {
             Long accommodationId = 2L;
             Accommodation accommodation = accommodationRepository.findById(accommodationId)
                     .orElseThrow(() -> new RuntimeException("Accommodation with id 2L not found"));
+
+            System.out.println(accommodation.);
+
+            objectMapper.registerModule(new JavaTimeModule());
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
             mockMvc.perform(post(ACCOMMODATIONS_PATH + "/{accommodationId}/reservations", accommodationId)
                             .with(user(principal2))

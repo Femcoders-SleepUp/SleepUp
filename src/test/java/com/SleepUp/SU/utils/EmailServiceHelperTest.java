@@ -114,11 +114,11 @@ class EmailServiceHelperTest {
     class SendOwnerReservedNotificationGroup {
         @Test
         void sendOwnerReservedNotification_Success() throws MessagingException {
-            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any());
+            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any(), anyDouble());
 
-            emailServiceHelper.sendOwnerReservedNotification(guest, accommodation, reservation);
+            emailServiceHelper.sendOwnerReservedNotification(guest, accommodation, reservation,3);
 
-            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation);
+            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation,3);
         }
     }
 
@@ -126,11 +126,11 @@ class EmailServiceHelperTest {
     class SendReservationConfirmationEmailGroup {
         @Test
         void sendReservationConfirmationEmail_Success() throws MessagingException {
-            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any());
+            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any(), anyDouble());
 
-            emailServiceHelper.sendReservationConfirmationEmail(guest, accommodation, reservation);
+            emailServiceHelper.sendReservationConfirmationEmail(guest, accommodation, reservation,3);
 
-            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation);
+            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation,3);
         }
     }
 
@@ -198,13 +198,13 @@ class EmailServiceHelperTest {
     class HandleNewReservationEmailsGroup {
         @Test
         void handleNewReservationEmails_SendsBothEmails() throws MessagingException {
-            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any());
-            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any());
+            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any(), anyDouble());
+            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any(), anyDouble());
 
-            emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation);
+            emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation,3);
 
-            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation);
-            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation);
+            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation,3);
+            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation,3);
         }
     }
 
@@ -339,12 +339,12 @@ class EmailServiceHelperTest {
         @Test
         void allEmailMethods_HandleExceptionsGracefully() throws MessagingException {
             doThrow(new MessagingException("Error")).when(emailService)
-                    .sendReservationConfirmationEmail(any(), any(), any());
+                    .sendReservationConfirmationEmail(any(), any(), any(), anyDouble());
             doThrow(new MessagingException("Error")).when(emailService)
-                    .sendOwnerReservedNotification(any(), any(), any());
+                    .sendOwnerReservedNotification(any(), any(), any(), anyDouble());
 
             assertDoesNotThrow(() ->
-                    emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation)
+                    emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation,3)
             );
         }
     }

@@ -149,8 +149,20 @@ class ReservationOwnerServiceImplTest {
             Long id = 77L;
             ReservationAuthRequest authRequest = new ReservationAuthRequest(BookingStatus.CANCELLED);
 
+            Accommodation accommodation = new Accommodation();
+            accommodation.setPrice(10.0);
+
+            User user = new User();
+            user.setId(1L);
+            accommodation.setManagedBy(user);
+
             Reservation existing = new Reservation();
             existing.setBookingStatus(BookingStatus.PENDING);
+            existing.setCheckInDate(LocalDate.now());
+            existing.setCheckOutDate(LocalDate.now().plusDays(3));
+            existing.setAccommodation(accommodation);
+
+
 
             when(reservationServiceHelper.getReservationEntityById(id)).thenReturn(existing);
             ReservationResponseDetail detailDto = mock(ReservationResponseDetail.class);

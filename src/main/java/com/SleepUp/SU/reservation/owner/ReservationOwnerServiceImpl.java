@@ -41,6 +41,7 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
     public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest){
         Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
+
         long days = ChronoUnit.DAYS.between(isExisting.getCheckInDate(), isExisting.getCheckOutDate());
 
         double amount = days * isExisting.getAccommodation().getPrice() ;
