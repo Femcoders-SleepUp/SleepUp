@@ -363,4 +363,40 @@ public class ReservationServiceImplTest {
                 BookingStatus.CANCELLED, false, LocalDateTime.now()
         );
     }
+
+    @Nested
+    class DeleteReservationByAdmin {
+
+        @Test
+        void deleteReservationByAdmin_validReservation_shouldDeleteSuccessfully() {
+            Long reservationId = 1L;
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
+                    .thenReturn(testReservation);
+
+            doNothing().when(reservationRepository).delete(testReservation);
+
+            assertDoesNotThrow(() -> reservationServiceImpl.deleteReservationByAdmin(reservationId));
+
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
+            verify(reservationRepository).delete(testReservation);
+        }
+
+        @Test
+        void deleteReservationByAdmin_reservationNotFound_shouldThrowException() {
+            Long reservationId = 999L;
+
+            when(reservationServiceHelper.getReservationEntityById(reservationId))
+                    .thenThrow(new RuntimeException("Reservation not found"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class,
+                    () -> reservationServiceImpl.deleteReservationByAdmin(reservationId));
+
+            assertEquals("Reservation not found", exception.getMessage());
+            verify(reservationServiceHelper).getReservationEntityById(reservationId);
+            verifyNoMoreInteractions(reservationRepository);
+        }
+    }
 }

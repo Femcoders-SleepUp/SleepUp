@@ -15,4 +15,6 @@ public interface ReservationService {
     ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId);
 
     ReservationResponseDetail cancelReservation(Long reservationId);
+
+    void deleteReservationByAdmin(Long reservationId);
 }

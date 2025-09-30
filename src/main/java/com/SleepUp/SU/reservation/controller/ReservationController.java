@@ -51,4 +51,11 @@ public class ReservationController {
         return reservationService.cancelReservation(accommodationId);
     }
 
+    @DeleteMapping("/reservations/admin/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteReservationByAdmin(@PathVariable Long id) {
+        reservationService.deleteReservationByAdmin(id);
+    }
+
 }

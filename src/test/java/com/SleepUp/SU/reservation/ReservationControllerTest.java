@@ -279,4 +279,43 @@ public class ReservationControllerTest {
                     .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
         }
     }
+
+    @Nested
+    class DeleteReservationAdminTests {
+
+        @Test
+        void deleteReservation_asAdmin_shouldReturnNoContent() throws  Exception {
+            Long reservationId = 3L;
+
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                    .with(user("admin").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void deleteReservation_nonAdmin_shouldReturnForbidden() throws Exception {
+            Long reservationId = 3L;
+
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user(principal)) // usuario normal
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void deleteReservation_notFound_shouldReturnNotFound() throws Exception {
+            Long reservationId = 999L;
+
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user("admin").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.message.error").value("Reservation not found with id: 999"));
+        }
+
+    }
 }

@@ -81,4 +81,12 @@ public class ReservationServiceImpl implements ReservationService{
 
         return reservationMapper.toDetail(savedReservation);
     }
+
+    @Override
+    public void deleteReservationByAdmin(Long reservationId) {
+        if (!reservationRepository.existsById(reservationId)) {
+            throw new RuntimeException("Reservation not found with id: " + reservationId);
+        }
+        reservationRepository.deleteById(reservationId);
+    }
 }
