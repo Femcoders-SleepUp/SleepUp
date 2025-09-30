@@ -31,12 +31,12 @@ public class UserUserServiceImpl implements UserUserService{
 
     @Override
     public UserResponse getLoggedUser(Long id){
-        return userMapper.toResponse(userServiceHelper.findById(id));
+        return userMapper.toResponse(userServiceHelper.getUserEntityById(id));
     }
 
     @Override
     public UserResponse updateLoggedUser(UserRequest userRequest, Long id){
-        User user = userServiceHelper.findById(id);
+        User user = userServiceHelper.getUserEntityById(id);
         userServiceHelper.updateUserData(userRequest, user);
         return (userMapper.toResponse(user));
     }
@@ -61,6 +61,6 @@ public class UserUserServiceImpl implements UserUserService{
             reservationRepository.saveAll(reservationList);
         }
 
-        userRepository.deleteById(userServiceHelper.findById(id).getId());
+        userRepository.deleteById(userServiceHelper.getUserEntityById(id).getId());
     }
 }
