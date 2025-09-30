@@ -1,6 +1,5 @@
 package com.SleepUp.SU.reservation.reservationGuest;
 
-import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
@@ -18,13 +17,6 @@ public class ReservationGuestController {
 
     private final ReservationGuestService reservationGuestService;
 
-//    @GetMapping("/accommodation/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<ReservationResponseSummary> getReservationOnMyAccommodation(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-//                                                                            @PathVariable Long id){
-//        return reservationGuestService.getAllReservationsOnMyAccommodation(customUserDetails.getUser(), id);
-//    }
-
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail getReservationById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -40,14 +32,6 @@ public class ReservationGuestController {
         return reservationGuestService.updateReservation(id, reservationRequest, customUserDetails.getUser());
     }
 
-    @PatchMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.OK)
-    public ReservationResponseDetail updateReservationStatus(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                             @PathVariable Long id,
-                                                             @RequestBody ReservationAuthRequest reservationAuthRequest){
-        return reservationGuestService.updateStatus(id, reservationAuthRequest);
-    }
-
     @PatchMapping(value = "/accommodations/{accommodationId}/reservations/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ApiMessageDto cancelReservation(
@@ -56,6 +40,5 @@ public class ReservationGuestController {
     ) {
         return reservationGuestService.cancelReservation(accommodationId);
     }
-
 
 }
