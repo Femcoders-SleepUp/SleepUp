@@ -15,10 +15,10 @@ import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.EntityUtil;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +43,7 @@ public class UserAdminServiceImpl implements UserAdminService {
 
     @Override
     public UserResponse getUserById(Long userId) {
-        return userMapper.toResponse(userServiceHelper.findById(userId));
+        return userMapper.toResponse(userServiceHelper.getUserEntityById(userId));
     }
 
     @Override
@@ -55,16 +55,9 @@ public class UserAdminServiceImpl implements UserAdminService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(Long userId, UserRequestAdmin userRequestAdmin) {
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        System.out.println(userRequestAdmin);
-        userServiceHelper.updateUserDataAdmin(userRequestAdmin, existingUser);
-
-        existingUser.setRole(userRequestAdmin.role());
-
-        User updatedUser = userRepository.save(existingUser);
+    public UserResponse updateUser(Long userId, UserRequestAdmin userRequestAdmin) {;
+        User user = userServiceHelper.getUserEntityById(userId);
+        User updatedUser = userServiceHelper.updateUserDataAdmin(userRequestAdmin, user);
         return userMapper.toResponse(updatedUser);
     }
 
@@ -76,7 +69,7 @@ public class UserAdminServiceImpl implements UserAdminService {
         }
 
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User with id " + id + " does not exist");
+            throw new UserNotFoundByIdException(id);
         }
 
         User replacementUser = userRepository.findById(1L)
@@ -100,7 +93,7 @@ public class UserAdminServiceImpl implements UserAdminService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userServiceHelper.findByUsername(username);
+        User user = userServiceHelper.getUserEntityByUsername(username);
         return new CustomUserDetails(user);
     }
 }

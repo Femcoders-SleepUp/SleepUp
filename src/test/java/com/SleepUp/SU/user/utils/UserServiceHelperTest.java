@@ -43,10 +43,10 @@ public class UserServiceHelperTest {
             user.setUsername("test");
             when(userRepository.findById(99L)).thenReturn(Optional.of(user));
 
-            User result = userServiceHelper.findById(99L);
+            User result = userServiceHelper.getUserEntityById(99L);
 
             assertNotNull(result);
-            assertDoesNotThrow(() ->userServiceHelper.findById(99L));
+            assertDoesNotThrow(() ->userServiceHelper.getUserEntityById(99L));
             assertEquals(99L, result.getId());
             assertEquals("test", result.getUsername());
         }

@@ -56,7 +56,7 @@ public class UserUserServiceImplTest {
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             UserResponse userResponse = new UserResponse(99L,"usernameTest", "nameTest", "email@test.com", Role.USER);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             when(userMapper.toResponse(user)).thenReturn(userResponse);
             UserResponse response = userUserServiceImpl.getLoggedUser(99L);
 
@@ -68,7 +68,7 @@ public class UserUserServiceImplTest {
 
         @Test
         void when_getLoggedUser_throw_exception() {
-            when(userServiceHelper.findById(99L))
+            when(userServiceHelper.getUserEntityById(99L))
                     .thenThrow(new IllegalArgumentException("Username by id does not exist"));
 
             IllegalArgumentException exception = assertThrows(
@@ -92,7 +92,7 @@ public class UserUserServiceImplTest {
             User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER, null, null);
             UserResponse expectedResponse = new UserResponse(99L, "newUsername", "oldName", "new@email.com", Role.USER);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             doAnswer(invocation -> {
                 user.setUsername("newUsername");
                 user.setEmail("new@email.com");
@@ -115,7 +115,7 @@ public class UserUserServiceImplTest {
 
             UserResponse expectedResponse = new UserResponse(99L, "sameUsername", "sameName", "same@email.com", Role.USER);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             doAnswer(invocation -> {
                 return null;
             }).when(userServiceHelper).updateUserData(request, user);
@@ -132,7 +132,7 @@ public class UserUserServiceImplTest {
         void when_updateLoggedUser_user_not_found_then_throw_exception() {
             UserRequest request = new UserRequest("any", "any", "any", "any");
 
-            when(userServiceHelper.findById(99L))
+            when(userServiceHelper.getUserEntityById(99L))
                     .thenThrow(new IllegalArgumentException("User not found"));
 
             assertThrows(IllegalArgumentException.class, () -> {
@@ -148,7 +148,7 @@ public class UserUserServiceImplTest {
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             User user1 = new User(1L,"usernameTest1", "nameTest1", "email1@test.com", "testPassword", Role.USER, null, null);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
 
             when(accommodationRepository.findByManagedBy_Id(99L)).thenReturn(List.of());

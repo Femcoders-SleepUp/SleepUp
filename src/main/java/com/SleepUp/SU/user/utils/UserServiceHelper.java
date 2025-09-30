@@ -6,6 +6,7 @@ import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.role.Role;
+import com.SleepUp.SU.utils.EntityUtil;
 import com.SleepUp.SU.utils.exceptions.UserEmailAlreadyExistsException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByUsernameException;
@@ -21,21 +22,30 @@ public class UserServiceHelper {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final EntityUtil entityUtil;
 
-    public User findById(Long id) {
+    public User getUserEntityById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundByIdException(id));
     }
 
-    public User findByUsername(String username) {
+    public User getUserEntityByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundByUsernameException(username));
     }
 
     public void validateUserDoesNotExist(String username, String email) {
+        validateUsernameDoesNotExist(username);
+        validateEmailDoesNotExist(email);
+    }
+
+    public void validateUsernameDoesNotExist(String username) {
         if (userRepository.existsByUsername(username)) {
             throw new UserUsernameAlreadyExistsException(username);
         }
+    }
+
+    public void validateEmailDoesNotExist(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserEmailAlreadyExistsException(email);
         }
@@ -54,42 +64,37 @@ public class UserServiceHelper {
         return userRepository.save(user);
     }
 
-    @Transactional
-    public void updateUserData(UserRequest request, User user) {
-        User isExistingUsername = userRepository.findByUsername(request.username())
-                .orElse(user);
-        User isExistingEmail = userRepository.findByEmail(request.email())
-                .orElse(user);
+    public User updateUser(UserRequest request, User existingUser) {
 
-        if (isExistingUsername.getId() != user.getId() || isExistingEmail.getId() != user.getId()){
-            throw new RuntimeException("This username or email already exist");
+        if(!request.username().equals(existingUser.getUsername())){
+            validateUsernameDoesNotExist(request.username());
         }
 
+        if(!request.email().equals(existingUser.getEmail())){
+            validateUsernameDoesNotExist(request.username());
+        }
 
-        String username = request.username() != null && !request.username().isEmpty()
-                ? request.username() :
-                user.getUsername();
-
-        String name = request.name() != null && !request.name().isEmpty()
-                ? request.name() :
-                user.getName();
-
-        String email = request.email() != null && !request.email().isEmpty()
-                ? request.email() :
-                user.getEmail();
+        entityUtil.updateField(request.username(), existingUser::getUsername, existingUser::setUsername);
+        entityUtil.updateField(request.email(), existingUser::getEmail, existingUser::setEmail);
+        entityUtil.updateField(request.name(), existingUser::getName, existingUser::setName);
 
         String password = request.password() != null && !request.password().isEmpty()
                 ? this.getEncodePassword(request.password()) :
-                user.getPassword();
+                existingUser.getPassword();
 
-        user.setUsername(username);
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(password);
+        existingUser.setPassword(password);
+
+        return existingUser;
+
     }
 
     @Transactional
-    public void updateUserDataAdmin(UserRequestAdmin userRequestAdmin, User user){
+    public User updateUserData(UserRequest request, User user) {
+        return updateUser(request, user);
+    }
+
+    @Transactional
+    public User updateUserDataAdmin(UserRequestAdmin userRequestAdmin, User user){
         UserRequest userData = new UserRequest(
                 userRequestAdmin.username(),
                 userRequestAdmin.name(),
@@ -97,14 +102,14 @@ public class UserServiceHelper {
                 userRequestAdmin.password()
         );
 
-        updateUserData(userData, user);
+        User updatedUser = updateUser(userData, user);
 
         Role role = userRequestAdmin.role() != null && !userRequestAdmin.role().getRoleName().isEmpty()
                 ? userRequestAdmin.role() :
-                user.getRole();
+                updatedUser.getRole();
 
-        user.setRole(role);
+        updatedUser.setRole(role);
+        return updatedUser;
     }
-
 
 }
