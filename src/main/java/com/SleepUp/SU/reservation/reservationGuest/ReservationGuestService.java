@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface ReservationGuestService {
 
-    ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest);
-
     ApiMessageDto updateReservation(Long id, ReservationRequest reservationRequest, User user);
 
     ReservationResponseDetail getReservationById(Long id);

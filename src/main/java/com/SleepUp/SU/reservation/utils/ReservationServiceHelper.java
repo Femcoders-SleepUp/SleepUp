@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -124,12 +125,12 @@ public class ReservationServiceHelper {
 
     public boolean validateReservationAccommodationLessThanOneYear(Long accommodationId, Long userId){
 
-        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
+        LocalDateTime oneYearAgo = LocalDate.now().minusYears(1).atStartOfDay();
 
-            return reservationRepository.existsReservationLessThanYear(
-                    userId,
-                    accommodationId,
-                    oneYearAgo,
-                    BookingStatus.CANCELLED);
+        return reservationRepository.existsReservationLessThanYear(
+                userId,
+                accommodationId,
+                oneYearAgo,
+                BookingStatus.CANCELLED);
     }
 }
