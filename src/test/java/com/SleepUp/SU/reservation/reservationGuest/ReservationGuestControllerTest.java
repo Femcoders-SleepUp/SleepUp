@@ -21,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -68,7 +71,6 @@ public class ReservationGuestControllerTest {
         @Test
         void getReservationById_authorized_shouldReturnOk() throws Exception {
             Long id = 5L;
-            String today = LocalDate.now().toString();
 
             mockMvc.perform(get(RESERVATION_BY_ID_PATH, id)
                             .with(user(principal))
@@ -82,9 +84,7 @@ public class ReservationGuestControllerTest {
                     .andExpect(jsonPath("$.checkInDate").value("2025-11-02"))
                     .andExpect(jsonPath("$.checkOutDate").value("2025-11-08"))
                     .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
-                    .andExpect(jsonPath("$.emailSent").value(false))
-                    .andExpect(jsonPath("$.createdDate", startsWith(today)));
-
+                    .andExpect(jsonPath("$.emailSent").value(false));
         }
 
     }

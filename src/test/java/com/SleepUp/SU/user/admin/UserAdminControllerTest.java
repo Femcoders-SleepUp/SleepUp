@@ -1,5 +1,6 @@
 package com.SleepUp.SU.user.admin;
 
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
@@ -46,7 +47,7 @@ public class UserAdminControllerTest {
     private CustomUserDetails adminCustomUserDetails;
     private CustomUserDetails userCustomUserDetails;
 
-    private UserRequestAdmin userRequestAdmin;
+    private UserRequest userRequest;
     private UserRequestAdmin updateUserRequestAdmin;
 
     @BeforeEach
@@ -59,12 +60,11 @@ public class UserAdminControllerTest {
                 .orElseThrow(() -> new RuntimeException("User1 not found"));
         userCustomUserDetails = new CustomUserDetails(savedUser);
 
-        userRequestAdmin = UserRequestAdmin.builder()
+        userRequest = UserRequest.builder()
                 .username("newUser")
                 .name("New User")
                 .email("newuser@test.com")
                 .password(passwordEncoder.encode("password123"))
-                .role(Role.USER)
                 .build();
 
         updateUserRequestAdmin = UserRequestAdmin.builder()
@@ -84,7 +84,8 @@ public class UserAdminControllerTest {
             mockMvc.perform(post(BASE_PATH)
                             .with(user(adminCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(userRequestAdmin)))
+                            .content(objectMapper.writeValueAsString(userRequest))
+                            .param("role", Role.USER.name()))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.username").value("newUser"))
                     .andExpect(jsonPath("$.email").value("newuser@test.com"))
@@ -96,7 +97,8 @@ public class UserAdminControllerTest {
             mockMvc.perform(post(BASE_PATH)
                             .with(user(userCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(userRequestAdmin)))
+                            .content(objectMapper.writeValueAsString(userRequest))
+                            .param("role", Role.USER.name()))
                     .andExpect(status().isForbidden());
         }
 
@@ -104,7 +106,7 @@ public class UserAdminControllerTest {
         void createUser_whenNoAuth_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(post(BASE_PATH)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(userRequestAdmin)))
+                            .content(objectMapper.writeValueAsString(userRequest)))
                     .andExpect(status().isUnauthorized());
         }
     }
@@ -117,7 +119,8 @@ public class UserAdminControllerTest {
             mockMvc.perform(put(USER_PATH_ID, 1L)
                             .with(user(adminCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin)))
+                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
+                            .param("role", Role.ADMIN.name()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.username").value("updatedUser"))
                     .andExpect(jsonPath("$.email").value("updated@test.com"))
@@ -129,7 +132,8 @@ public class UserAdminControllerTest {
             mockMvc.perform(put(USER_PATH_ID, 1L)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
-                            .with(user(userCustomUserDetails)))
+                            .with(user(userCustomUserDetails))
+                            .param("role", Role.ADMIN.name()))
                     .andExpect(status().isForbidden());
         }
 
@@ -137,7 +141,8 @@ public class UserAdminControllerTest {
         void updateUser_whenNoAuth_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(put(USER_PATH_ID, 1L)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin)))
+                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
+                            .param("role", Role.ADMIN.name()))
                     .andExpect(status().isUnauthorized());
         }
     }
