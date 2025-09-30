@@ -3,6 +3,7 @@ import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
@@ -91,6 +92,7 @@ public class UserAdminServiceImpl implements UserAdminService {
         List<Reservation> reservationList = reservationRepository.findByUser_Id(id);
         if (!reservationList.isEmpty()) {
             reservationList.forEach(reservation -> reservation.setUser(replacementUser));
+            reservationList.forEach(reservation -> reservation.setBookingStatus(BookingStatus.CANCELLED));
             reservationRepository.saveAll(reservationList);
         }
 
