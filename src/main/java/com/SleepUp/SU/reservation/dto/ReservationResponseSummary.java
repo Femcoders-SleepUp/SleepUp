@@ -1,6 +1,7 @@
 package com.SleepUp.SU.reservation.dto;
 
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -12,7 +13,9 @@ public record ReservationResponseSummary(
         String userName,
         Integer guestNumber,
         String accommodationName,
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate checkInDate,
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate checkOutDate,
         BookingStatus bookingStatus,
         Boolean emailSent,

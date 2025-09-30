@@ -42,9 +42,9 @@ public class AuthService {
 
     @Transactional
     public UserResponse register(UserRequest request) throws MessagingException {
-        User user = userServiceHelper.createUser(request, Role.USER);
-        emailServiceHelper.sendWelcomeEmail(request, user);
-        return userMapper.toResponse(userRepository.save(user));
+        User savedUser = userServiceHelper.createUser(request, Role.USER);
+        emailServiceHelper.sendWelcomeEmail(request, savedUser);
+        return userMapper.toResponse(savedUser);
     }
 
     public AuthResponse login(LoginRequest loginRequest) {

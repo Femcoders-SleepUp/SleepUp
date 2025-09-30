@@ -4,14 +4,17 @@ import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
+import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.EntityUtil;
+import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,9 +32,9 @@ public class UserAdminServiceImpl implements UserAdminService {
     private final UserMapper userMapper;
     private final EntityUtil mapperUtil;
     private final UserServiceHelper userServiceHelper;
-    private final PasswordEncoder passwordEncoder;
     private final AccommodationRepository accommodationRepository;
     private final ReservationRepository reservationRepository;
+    private final EmailServiceHelper emailServiceHelper;
 
     @Override
     public List<UserResponse> getAllUsers() {
@@ -44,14 +47,9 @@ public class UserAdminServiceImpl implements UserAdminService {
     }
 
     @Override
-    public UserResponse createUser(UserRequestAdmin userRequestAdmin) {
-        if (userRepository.findByUsername(userRequestAdmin.username()).isPresent()) {
-            throw new RuntimeException("Username already exists " + userRequestAdmin.username());
-        }
-
-        String encodedPassword = passwordEncoder.encode(userRequestAdmin.password());
-        User user = userMapper.toEntityAdmin(userRequestAdmin, encodedPassword);
-        User savedUser = userRepository.save(user);
+    public UserResponse createUser(UserRequest userRequest, Role role) {
+        User savedUser = userServiceHelper.createUser(userRequest, role);
+        emailServiceHelper.sendWelcomeEmail(userRequest, savedUser);
         return userMapper.toResponse(savedUser);
     }
 
@@ -61,6 +59,7 @@ public class UserAdminServiceImpl implements UserAdminService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
+        System.out.println(userRequestAdmin);
         userServiceHelper.updateUserDataAdmin(userRequestAdmin, existingUser);
 
         existingUser.setRole(userRequestAdmin.role());
