@@ -15,7 +15,7 @@ import java.util.List;
 
 @Tag(name = "User Admin", description = "Operations related to user management by admin")
 @RestController
-@RequestMapping("/api/users/admin")
+@RequestMapping("/users/admin")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class UserAdminController {
