@@ -81,6 +81,9 @@ public class ReservationServiceImpl implements ReservationService{
         reservation.setBookingStatus(BookingStatus.CANCELLED);
         Reservation savedReservation = reservationRepository.save(reservation);
 
+        emailServiceHelper.sendCancellationConfirmationEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
+        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
+
         String message = String.format(
                 "Your reservation in %s from %s to %s has been cancelled",
                 savedReservation.getAccommodation().getName(),
@@ -89,8 +92,5 @@ public class ReservationServiceImpl implements ReservationService{
         );
 
         return new ApiMessage(message);
-        emailServiceHelper.sendCancellationConfirmationEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
-        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
-        return reservationMapper.toDetail(savedReservation);
     }
 }
