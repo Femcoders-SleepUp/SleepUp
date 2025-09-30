@@ -61,5 +61,4 @@ public class ReservationController {
     ) {
         return reservationService.createReservation(reservationRequest, customUserDetails.getUser(), accommodationId);
     }
-
 }

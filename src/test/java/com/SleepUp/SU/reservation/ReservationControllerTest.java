@@ -11,8 +11,6 @@ import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.admin.UserAdminServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -240,5 +238,42 @@ public class ReservationControllerTest {
                     .andExpect(status().isBadRequest());
         }
     }
+    @Nested
+    class DeleteReservationAdminTests {
 
+        @Test
+        void deleteReservation_asAdmin_shouldReturnNoContent() throws  Exception {
+            Long reservationId = 3L;
+
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user("admin").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void deleteReservation_nonAdmin_shouldReturnForbidden() throws Exception {
+            Long reservationId = 3L;
+
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user(principal)) // usuario normal
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void deleteReservation_notFound_shouldReturnNotFound() throws Exception {
+            Long reservationId = 999L;
+
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user("admin").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Reservation with id '" + reservationId + "' not found"));
+        }
+
+    }
 }
