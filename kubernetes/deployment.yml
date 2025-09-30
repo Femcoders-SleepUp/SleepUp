@@ -38,7 +38,10 @@ spec:
           env:
             # Spring Boot profile configuration
             - name: SPRING_PROFILES_ACTIVE
-              value: "kubernetes"
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: spring-profiles-active
             # Application server port
             - name: SERVER_PORT
               value: "8080"
