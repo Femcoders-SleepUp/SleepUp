@@ -1,14 +1,13 @@
 package com.SleepUp.SU.reservation.reservationGuest;
 
-import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
-import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,36 +15,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 public class ReservationGuestControllerTest {
 
-    private static final String RESERVATIONS_ACCOMMODATION_PATH = "/reservations/accommodation/{id}";
-    private static final String RESERVATION_STATUS_PATH = "/reservations/{id}/status";
+    private static final String RESERVATION_CANCEL_PATH = "/reservations/{id}/cancel";
+    private static final String RESERVATION_UPDATE_PATH = "/reservations/{id}";
     private static final String RESERVATION_BY_ID_PATH = "/reservations/{id}";
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockitoBean
-    private ReservationGuestServiceImpl reservationOwnerServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -54,7 +48,6 @@ public class ReservationGuestControllerTest {
     private UserRepository userRepository;
 
     private CustomUserDetails principal;
-    private Long accommodationId = 123L;
 
     @BeforeEach
     void setUp() {
@@ -74,30 +67,96 @@ public class ReservationGuestControllerTest {
 
         @Test
         void getReservationById_authorized_shouldReturnOk() throws Exception {
-            Long id = 101L;
+            Long id = 5L;
+            String today = LocalDate.now().toString();
 
-            ReservationResponseDetail detailDto = new ReservationResponseDetail(
-                    101L,
-                    "charlie",
-                    3,
-                    "Lake Cabin",
-                    LocalDate.of(2025, 11, 1),
-                    LocalDate.of(2025, 11, 5),
-                    BookingStatus.CONFIRMED,
-                    true,
-                    LocalDateTime.of(2025, 10, 20, 9, 15)
-            );
-
-            when(reservationOwnerServiceImpl.getReservationById(id))
-                    .thenReturn(detailDto);
-
-            mockMvc.perform(post(RESERVATION_BY_ID_PATH, id)
+            mockMvc.perform(get(RESERVATION_BY_ID_PATH, id)
                             .with(user(principal))
                             .accept(MediaType.APPLICATION_JSON))
+                    .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
+                    .andExpect(jsonPath("$.id").value(5))
+                    .andExpect(jsonPath("$.userName").value("Name1"))
+                    .andExpect(jsonPath("$.guestNumber").isEmpty())
+                    .andExpect(jsonPath("$.accommodationName").value("Mountain View Cabin"))
+                    .andExpect(jsonPath("$.checkInDate").value("2025-11-02"))
+                    .andExpect(jsonPath("$.checkOutDate").value("2025-11-08"))
+                    .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
+                    .andExpect(jsonPath("$.emailSent").value(false))
+                    .andExpect(jsonPath("$.createdDate", startsWith(today)));
+
         }
 
+    }
+
+    @Nested
+    class UpdateReservationByIdTest {
+
+
+        @Test
+        void updateReservation_validRequest_shouldReturnUpdatedMessage() throws Exception {
+            Long reservationId = 5L;
+
+            ReservationRequest updateRequest = ReservationRequest.builder()
+                    .guestNumber(3)
+                    .checkInDate(LocalDate.of(2025, 11, 2))
+                    .checkOutDate(LocalDate.of(2025, 11, 8))
+                    .build();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            System.out.println("here" + objectMapper.writeValueAsString(updateRequest));
+            mockMvc.perform(put(RESERVATION_UPDATE_PATH, reservationId)
+                            .with(user(principal))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateRequest)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message", allOf(
+                            containsString("updated"),
+                            containsString("reservation")
+                    )));
+        }
+    }
+
+    @Nested
+    class CancelReservationTests {
+
+        @Test
+        void cancelReservation_validRequest_shouldReturnCancelledReservation2() throws Exception {
+            Long reservationId = 5L;
+
+            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
+                            .with(user(principal)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message", allOf(containsString("reservation"), containsString("cancelled"))));
+        }
+
+
+        @Test
+        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
+            Long reservationId = 1L;
+
+            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
+                            .with(user(principal)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+        }
+
+        @Test
+        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
+            Long reservationId = 1L;
+
+            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
+                            .with(user(principal))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+        }
     }
 }
 

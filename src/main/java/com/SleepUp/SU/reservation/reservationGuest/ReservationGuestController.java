@@ -17,10 +17,9 @@ public class ReservationGuestController {
 
     private final ReservationGuestService reservationGuestService;
 
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ReservationResponseDetail getReservationById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                        @PathVariable Long id){
+    public ReservationResponseDetail getReservationById(@PathVariable Long id){
         return reservationGuestService.getReservationById(id);
     }
 
@@ -32,13 +31,12 @@ public class ReservationGuestController {
         return reservationGuestService.updateReservation(id, reservationRequest, customUserDetails.getUser());
     }
 
-    @PatchMapping(value = "/accommodations/{accommodationId}/reservations/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{id}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ApiMessageDto cancelReservation(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable Long accommodationId
+            @PathVariable Long id
     ) {
-        return reservationGuestService.cancelReservation(accommodationId);
+        return reservationGuestService.cancelReservation(id);
     }
 
 }

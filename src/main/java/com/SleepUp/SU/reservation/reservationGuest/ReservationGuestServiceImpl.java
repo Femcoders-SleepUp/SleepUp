@@ -9,11 +9,8 @@ import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
