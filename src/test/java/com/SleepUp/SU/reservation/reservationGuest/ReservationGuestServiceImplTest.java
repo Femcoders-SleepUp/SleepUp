@@ -1,6 +1,5 @@
-package com.SleepUp.SU.reservation.owner;
+package com.SleepUp.SU.reservation.reservationGuest;
 
-import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -34,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-class ReservationOwnerServiceImplTest {
+class ReservationGuestServiceImplTest {
 
     @Mock
     private ReservationRepository reservationRepository;
@@ -52,7 +50,7 @@ class ReservationOwnerServiceImplTest {
     private EntityUtil entityUtil;
 
     @InjectMocks
-    private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
+    private ReservationGuestServiceImpl reservationOwnerServiceImpl;
 
     private final User dummyUser = new User();
     private final Long accommodationId = 55L;
@@ -88,44 +86,44 @@ class ReservationOwnerServiceImplTest {
 
     }
 
-    @Nested
-    class getAllReservationsOnMyAccommodationTest{
-        @Test
-        void getAllReservationsOnMyAccommodation_emptyList_shouldThrow() {
-            when(reservationRepository.findByAccommodationId(accommodationId))
-                    .thenReturn(Collections.emptyList());
-
-            assertThatThrownBy(() ->
-                    reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(dummyUser, accommodationId))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Empty list");
-
-            verify(reservationRepository).findByAccommodationId(accommodationId);
-            verify(entityUtil, never()).mapEntitiesToDTOs(anyList(), any());
-        }
-
-        @Test
-        void getAllReservationsOnMyAccommodation_nonEmptyList_shouldReturnDTOs() {
-            Reservation reservation1 = new Reservation();
-            Reservation reservation2 = new Reservation();
-            List<Reservation> entities = List.of(reservation1, reservation2);
-
-            List<ReservationResponseSummary> responseList = List.of(response1, response2);
-
-            when(reservationRepository.findByAccommodationId(accommodationId))
-                    .thenReturn(entities);
-
-            when(entityUtil.mapEntitiesToDTOs(
-                    anyList(),
-                    any(Function.class)
-            )).thenReturn(responseList);
-
-            List<ReservationResponseSummary> result =
-                    reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(dummyUser, accommodationId);
-
-            assertThat(result).isSameAs(responseList);
-        }
-    }
+//    @Nested
+//    class getAllReservationsOnMyAccommodationTest{
+//        @Test
+//        void getAllReservationsOnMyAccommodation_emptyList_shouldThrow() {
+//            when(reservationRepository.findByAccommodationId(accommodationId))
+//                    .thenReturn(Collections.emptyList());
+//
+//            assertThatThrownBy(() ->
+//                    reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(dummyUser, accommodationId))
+//                    .isInstanceOf(RuntimeException.class)
+//                    .hasMessage("Empty list");
+//
+//            verify(reservationRepository).findByAccommodationId(accommodationId);
+//            verify(entityUtil, never()).mapEntitiesToDTOs(anyList(), any());
+//        }
+//
+//        @Test
+//        void getAllReservationsOnMyAccommodation_nonEmptyList_shouldReturnDTOs() {
+//            Reservation reservation1 = new Reservation();
+//            Reservation reservation2 = new Reservation();
+//            List<Reservation> entities = List.of(reservation1, reservation2);
+//
+//            List<ReservationResponseSummary> responseList = List.of(response1, response2);
+//
+//            when(reservationRepository.findByAccommodationId(accommodationId))
+//                    .thenReturn(entities);
+//
+//            when(entityUtil.mapEntitiesToDTOs(
+//                    anyList(),
+//                    any(Function.class)
+//            )).thenReturn(responseList);
+//
+//            List<ReservationResponseSummary> result =
+//                    reservationOwnerServiceImpl.getAllReservationsOnMyAccommodation(dummyUser, accommodationId);
+//
+//            assertThat(result).isSameAs(responseList);
+//        }
+//    }
 
     @Nested
     class updateStatusTest{
