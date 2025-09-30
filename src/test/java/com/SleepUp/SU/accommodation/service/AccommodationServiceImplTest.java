@@ -4,6 +4,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationRequest;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseDetail;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
+import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
@@ -214,11 +215,11 @@ class AccommodationServiceImplTest {
             AccommodationRequest updatedRequest = defaultUpdateRequestBuilder();
 
             when(accommodationServiceHelper.getAccommodationEntityById(1L)).thenReturn(accommodation);
-            doThrow(new IllegalArgumentException("Name exists")).when(accommodationServiceHelper).validateAccommodationNameDoesNotExist(updatedRequest.name());
+            doThrow(new AccommodationAlreadyExistsByNameException(updatedRequest.name())).when(accommodationServiceHelper).validateAccommodationNameDoesNotExist(updatedRequest.name());
 
             assertThatThrownBy(() -> accommodationService.updateAccommodation(1L, updatedRequest))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Name exists");
+                    .isInstanceOf(AccommodationAlreadyExistsByNameException.class)
+                    .hasMessageContaining( "Accommodation with name '" + updatedRequest.name() + "' already exists");
 
             verify(accommodationServiceHelper).getAccommodationEntityById(1L);
             verify(accommodationServiceHelper).validateAccommodationNameDoesNotExist(updatedRequest.name());
