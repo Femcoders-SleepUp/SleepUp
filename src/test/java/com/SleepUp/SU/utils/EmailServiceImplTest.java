@@ -1,4 +1,4 @@
-package utils;
+package com.SleepUp.SU.utils;
 
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
@@ -19,7 +19,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
