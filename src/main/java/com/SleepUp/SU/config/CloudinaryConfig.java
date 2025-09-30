@@ -1,28 +1,25 @@
 package com.SleepUp.SU.config;
 
+import com.SleepUp.SU.config.properties.AppProperties;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class CloudinaryConfig {
-    @Value("${cloudinary.cloud_name:test_cloud}")
-    private String cloudName;
 
-    @Value("${cloudinary.api_key:test_key}")
-    private String apiKey;
-
-    @Value("${cloudinary.api_secret:test_secret}")
-    private String apiSecret;
+    private final AppProperties appProperties;
 
     @Bean
     public Cloudinary cloudinary() {
+        AppProperties.CloudinaryProperties cp = appProperties.getCloudinary();
         return new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", cloudName,
-                "api_key", apiKey,
-                "api_secret", apiSecret
+                "cloud_name", cp.getCloudName(),
+                "api_key", cp.getApiKey(),
+                "api_secret", cp.getApiSecret()
         ));
     }
 }

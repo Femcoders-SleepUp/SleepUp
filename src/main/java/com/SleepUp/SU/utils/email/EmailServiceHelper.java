@@ -2,7 +2,7 @@ package com.SleepUp.SU.utils.email;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.auth.AuthService;
-import com.SleepUp.SU.config.AppProperties;
+import com.SleepUp.SU.config.properties.MailProperties;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.dto.UserRequest;
@@ -17,15 +17,13 @@ import org.springframework.stereotype.Service;
 public class EmailServiceHelper {
 
     private final EmailService emailService;
-    private final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    public Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    private final AppProperties appProperties;
-    private AppProperties.MailProperties mailProperties;
+    public MailProperties mailProperties;
     private boolean emailEnabled;
 
     @PostConstruct
     public void validateEmailConfig() {
-        mailProperties = appProperties.getMail(); // Access nested MailProperties
         emailEnabled = mailProperties != null
                 && mailProperties.getFrom() != null && !mailProperties.getFrom().isBlank()
                 && mailProperties.getUsername() != null && !mailProperties.getUsername().isBlank()
