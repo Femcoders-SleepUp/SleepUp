@@ -81,7 +81,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("NotificationReservationOwner"), any(Context.class)))
                 .thenReturn("<html>Owner Notification</html>");
 
-        emailService.sendOwnerReservedNotification(guest, accommodation, reservation);
+        emailService.sendOwnerReservedNotification(guest, accommodation, reservation, 3);
 
         verify(mailSender).createMimeMessage();
         verify(mailSender).send(mimeMessage);
@@ -100,7 +100,8 @@ class EmailServiceImplTest {
                 "Apartment",
                 "Madrid",
                 "2025-10-01",
-                "2025-10-05"
+                "2025-10-05",
+                3
         );
 
         verify(mailSender).send(mimeMessage);
@@ -113,7 +114,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("ConfirmationGuest"), any(Context.class)))
                 .thenReturn("<html>Confirmation</html>");
 
-        emailService.sendReservationConfirmationEmail(guest, accommodation, reservation);
+        emailService.sendReservationConfirmationEmail(guest, accommodation, reservation,3);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("ConfirmationGuest"), any(Context.class));
@@ -197,7 +198,7 @@ class EmailServiceImplTest {
                 .thenReturn("<html>Email</html>");
 
         emailService.sendWelcomeEmail("test@test.com", "Test");
-        emailService.sendReservationConfirmationEmail(guest, accommodation, reservation);
+        emailService.sendReservationConfirmationEmail(guest, accommodation, reservation,3);
         emailService.sendCancellationConfirmationEmail(guest, accommodation, reservation);
 
         verify(mailSender, times(3)).send(mimeMessage);

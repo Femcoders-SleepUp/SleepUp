@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation.reservationGuest;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
@@ -147,8 +148,20 @@ class ReservationGuestServiceImplTest {
             Long id = 77L;
             ReservationAuthRequest authRequest = new ReservationAuthRequest(BookingStatus.CANCELLED);
 
+            Accommodation accommodation = new Accommodation();
+            accommodation.setPrice(10.0);
+
+            User user = new User();
+            user.setId(1L);
+            accommodation.setManagedBy(user);
+
             Reservation existing = new Reservation();
             existing.setBookingStatus(BookingStatus.PENDING);
+            existing.setCheckInDate(LocalDate.now());
+            existing.setCheckOutDate(LocalDate.now().plusDays(3));
+            existing.setAccommodation(accommodation);
+
+
 
             when(reservationServiceHelper.getReservationEntityById(id)).thenReturn(existing);
             ReservationResponseDetail detailDto = mock(ReservationResponseDetail.class);

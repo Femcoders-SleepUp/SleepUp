@@ -121,4 +121,15 @@ public class ReservationServiceHelper {
             throw new ReservationModificationException("Cannot modify a reservation that has already started");
         }
     }
+
+    public boolean validateReservationAccommodationLessThanOneYear(Long accommodationId, Long userId){
+
+        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
+
+            return reservationRepository.existsReservationLessThanYear(
+                    userId,
+                    accommodationId,
+                    oneYearAgo,
+                    BookingStatus.CANCELLED);
+    }
 }

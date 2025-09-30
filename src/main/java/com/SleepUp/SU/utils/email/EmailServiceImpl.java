@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.Period;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +46,7 @@ public class EmailServiceImpl implements EmailService{
     }
 
     @Override
-    public void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
+    public void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation, double amount) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
@@ -55,6 +57,7 @@ public class EmailServiceImpl implements EmailService{
         context.setVariable("guestName", guest.getName());
         context.setVariable("checkInDate", reservation.getCheckInDate());
         context.setVariable("checkOutDate", reservation.getCheckOutDate());
+        context.setVariable("amount", amount);
         context.setVariable("dashboardUrl", DASHBOARD_URL);
 
         String htmlContent = templateEngine.process("NotificationReservationOwner", context);
@@ -69,7 +72,7 @@ public class EmailServiceImpl implements EmailService{
 
     @Override
     public void sendReservationConfirmationEmail(String toEmail, String userName, String accommodationName,
-                                                 String location, String checkInDate, String checkOutDate) throws MessagingException {
+                                                 String location, String checkInDate, String checkOutDate, double amount) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
@@ -79,6 +82,7 @@ public class EmailServiceImpl implements EmailService{
         context.setVariable("location", location);
         context.setVariable("checkInDate", checkInDate);
         context.setVariable("checkOutDate", checkOutDate);
+        context.setVariable("amount", amount);
         context.setVariable("dashboardUrl", DASHBOARD_URL);
 
         String htmlContent = templateEngine.process("ConfirmationGuest", context);
@@ -211,14 +215,15 @@ public class EmailServiceImpl implements EmailService{
 
 
     @Override
-    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
+    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, double amount) throws MessagingException {
         sendReservationConfirmationEmail(
                 guest.getEmail(),
                 guest.getName(),
                 accommodation.getName(),
                 accommodation.getLocation(),
                 reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
+                reservation.getCheckOutDate().toString(),
+                amount
         );
     }
 

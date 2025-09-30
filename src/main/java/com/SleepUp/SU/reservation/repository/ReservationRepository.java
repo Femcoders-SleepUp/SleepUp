@@ -62,6 +62,20 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
                                                                   @Param("checkOutDate") LocalDate checkOutDate,
                                                                   @Param("cancelledStatus") BookingStatus cancelledStatus);
 
+    /**
+     * Checks if a user has made a reservation for a specific accommodation
+     * in the last year (365 days) from the given date
+     * Cancelled reservations are excluded
+     */
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r WHERE r.user.id = :userId " +
+            "AND r.accommodation.id = :accommodationId " +
+            "AND r.bookingStatus != :cancelledStatus " +
+            "AND r.createdDate >= :oneYearAgo")
+    boolean existsReservationLessThanYear(@Param("userId") Long userId,
+                                          @Param("accommodationId") Long accommodationId,
+                                          @Param("oneYearAgo") LocalDate oneYearAgo,
+                                          @Param("cancelledStatus") BookingStatus cancelledStatus);
+
     List<Reservation> findByUser_Id(Long userId);
 
     List<Reservation> findByUser_IdAndCheckInDateBefore(Long userId, LocalDate date);
@@ -73,4 +87,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     List<Reservation> findByCheckInDate(LocalDate date);
 
     boolean existsByIdAndUser_Id(Long reservationId, Long userId);
+
 }

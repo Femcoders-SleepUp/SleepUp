@@ -45,18 +45,18 @@ public class EmailServiceHelper {
         }
     }
 
-    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation) {
+    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation, double amount) {
         try {
-            emailService.sendOwnerReservedNotification(user, accommodation, reservation);
+            emailService.sendOwnerReservedNotification(user, accommodation, reservation, amount);
             logger.info("New reservation sent successfully to: {}", user.getEmail());
         } catch (Exception e) {
             logger.warn("Failed to send new reservation email to {}: {}", user.getEmail(), e.getMessage());
         }
     }
 
-    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation) {
+    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, double amount) {
         try {
-            emailService.sendReservationConfirmationEmail(guest, accommodation, reservation);
+            emailService.sendReservationConfirmationEmail(guest, accommodation, reservation, amount);
             logger.info("Reservation confirmation email sent successfully to: {}", guest.getEmail());
         } catch (Exception e) {
             logger.warn("Failed to send reservation confirmation email to {}: {}", guest.getEmail(), e.getMessage());
@@ -113,12 +113,12 @@ public class EmailServiceHelper {
         }
     }
 
-    public void handleNewReservationEmails(User guest, Accommodation accommodation, Reservation reservation) {
+    public void handleNewReservationEmails(User guest, Accommodation accommodation, Reservation reservation, double amount) {
         logger.info("Processing emails for new reservation - Guest: {}, Accommodation: {}",
                 guest.getEmail(), accommodation.getName());
 
-        sendReservationConfirmationEmail(guest, accommodation, reservation);
-        sendOwnerReservedNotification(guest, accommodation, reservation);
+        sendReservationConfirmationEmail(guest, accommodation, reservation, amount);
+        sendOwnerReservedNotification(guest, accommodation, reservation, amount);
 
         logger.info("New reservation email processing completed");
     }

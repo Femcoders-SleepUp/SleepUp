@@ -150,7 +150,7 @@ public class ReservationServiceImplTest {
             doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             doNothing().when(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
             doNothing().when(reservationServiceHelper).validateAccommodationReservationOverlap(accommodationId, reservationRequest);
-            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
+            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, 20);
 
             ReservationResponseDetail result = reservationServiceImpl.createReservation(reservationRequest, user, accommodationId);
 
@@ -160,7 +160,7 @@ public class ReservationServiceImplTest {
             assertEquals(BookingStatus.PENDING, result.bookingStatus());
 
             verify(reservationRepository).save(mappedReservation);
-            verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation);
+            verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, 20);
         }
 
         @Test
@@ -341,6 +341,7 @@ public class ReservationServiceImplTest {
         accommodation.setGuestNumber(4);
         accommodation.setAvailableFrom(LocalDate.now());
         accommodation.setAvailableTo(LocalDate.now().plusDays(30));
+        accommodation.setPrice(10.0);
         accommodation.setManagedBy(owner);
         return accommodation;
     }

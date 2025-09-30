@@ -13,6 +13,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
+
 @Service
 @RequiredArgsConstructor
 public class ReservationGuestServiceImpl implements ReservationGuestService {
@@ -35,7 +37,15 @@ public class ReservationGuestServiceImpl implements ReservationGuestService {
         Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
 
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting);}
+        long days = ChronoUnit.DAYS.between(isExisting.getCheckInDate(), isExisting.getCheckOutDate());
+
+        double amount = days * isExisting.getAccommodation().getPrice() ;
+
+        if(reservationServiceHelper.validateReservationAccommodationLessThanOneYear(isExisting.getAccommodation().getId(), isExisting.getAccommodation().getManagedBy().getId())){
+            amount = amount - amount*0.20;
+        }
+
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting, amount);}
         if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailServiceHelper.sendCancellationByOwnerNotificationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting);}
 
         return reservationMapper.toDetail(isExisting);
