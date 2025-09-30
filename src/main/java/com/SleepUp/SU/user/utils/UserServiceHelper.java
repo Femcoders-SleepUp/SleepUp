@@ -1,5 +1,6 @@
 package com.SleepUp.SU.user.utils;
 
+import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequest;
@@ -19,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceHelper {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserMapper userMapper;
 
     public User findById(Long id) {
         return userRepository.findById(id)
@@ -44,6 +45,14 @@ public class UserServiceHelper {
         return passwordEncoder.encode(password);
     }
 
+
+    @Transactional
+    public User createUser(UserRequest request, Role role){
+        validateUserDoesNotExist(request.username(), request.email());
+        String encodedPassword = passwordEncoder.encode(request.password());
+        User user = userMapper.toEntity(request, encodedPassword, role);
+        return userRepository.save(user);
+    }
 
     @Transactional
     public void updateUserData(UserRequest request, User user) {
