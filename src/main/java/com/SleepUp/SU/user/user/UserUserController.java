@@ -3,7 +3,7 @@ package com.SleepUp.SU.user.user;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
-import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

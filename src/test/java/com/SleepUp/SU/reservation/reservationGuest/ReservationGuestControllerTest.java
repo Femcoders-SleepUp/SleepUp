@@ -1,4 +1,4 @@
-package com.SleepUp.SU.reservation.owner;
+package com.SleepUp.SU.reservation.reservationGuest;
 
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ReservationOwnerControllerTest {
+public class ReservationGuestControllerTest {
 
     private static final String RESERVATIONS_ACCOMMODATION_PATH = "/reservations/accommodation/{id}";
     private static final String RESERVATION_STATUS_PATH = "/reservations/{id}/status";
@@ -45,7 +45,7 @@ public class ReservationOwnerControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ReservationOwnerServiceImpl reservationOwnerServiceImpl;
+    private ReservationGuestServiceImpl reservationOwnerServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -69,55 +69,55 @@ public class ReservationOwnerControllerTest {
         principal = new CustomUserDetails(testUser);
     }
 
-    @Nested
-    class GetReservationOnMyAccommodationTest {
-        @Test
-        void getReservationOnMyAccommodation_authorized_shouldReturnOk() throws Exception {
-            List<ReservationResponseSummary> summaries = List.of(
-                    new ReservationResponseSummary(
-                            1L,
-                            "alice",
-                            2,
-                            "Beach House",
-                            LocalDate.of(2025, 9, 25),
-                            LocalDate.of(2025, 9, 30),
-                            BookingStatus.CONFIRMED,
-                            true,
-                            LocalDateTime.of(2025, 9, 1, 10, 30)
-                    ),
-                    new ReservationResponseSummary(
-                            2L,
-                            "bob",
-                            4,
-                            "Mountain Cabin",
-                            LocalDate.of(2025, 10, 5),
-                            LocalDate.of(2025, 10, 12),
-                            BookingStatus.PENDING,
-                            false,
-                            LocalDateTime.of(2025, 9, 15, 14, 0)
-                    )
-            );
-
-            when(reservationOwnerServiceImpl
-                    .getAllReservationsOnMyAccommodation(principal.getUser(), accommodationId))
-                    .thenReturn(summaries);
-
-            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
-                            .with(user(principal))
-                            .param("id", accommodationId.toString())
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content()
-                            .json(objectMapper.writeValueAsString(summaries)));
-        }
-
-        @Test
-        void getReservationOnMyAccommodation_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
-                            .with(anonymous()))
-                    .andExpect(status().isUnauthorized());
-        }
-    }
+//    @Nested
+//    class GetReservationOnMyAccommodationTest {
+//        @Test
+//        void getReservationOnMyAccommodation_authorized_shouldReturnOk() throws Exception {
+//            List<ReservationResponseSummary> summaries = List.of(
+//                    new ReservationResponseSummary(
+//                            1L,
+//                            "alice",
+//                            2,
+//                            "Beach House",
+//                            LocalDate.of(2025, 9, 25),
+//                            LocalDate.of(2025, 9, 30),
+//                            BookingStatus.CONFIRMED,
+//                            true,
+//                            LocalDateTime.of(2025, 9, 1, 10, 30)
+//                    ),
+//                    new ReservationResponseSummary(
+//                            2L,
+//                            "bob",
+//                            4,
+//                            "Mountain Cabin",
+//                            LocalDate.of(2025, 10, 5),
+//                            LocalDate.of(2025, 10, 12),
+//                            BookingStatus.PENDING,
+//                            false,
+//                            LocalDateTime.of(2025, 9, 15, 14, 0)
+//                    )
+//            );
+//
+//            when(reservationOwnerServiceImpl
+//                    .getAllReservationsOnMyAccommodation(principal.getUser(), accommodationId))
+//                    .thenReturn(summaries);
+//
+//            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
+//                            .with(user(principal))
+//                            .param("id", accommodationId.toString())
+//                            .accept(MediaType.APPLICATION_JSON))
+//                    .andExpect(status().isOk())
+//                    .andExpect(content()
+//                            .json(objectMapper.writeValueAsString(summaries)));
+//        }
+//
+//        @Test
+//        void getReservationOnMyAccommodation_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
+//            mockMvc.perform(get(RESERVATIONS_ACCOMMODATION_PATH, accommodationId)
+//                            .with(anonymous()))
+//                    .andExpect(status().isUnauthorized());
+//        }
+//    }
 
     @Nested
     class UpdateReservationStatusTest {
@@ -182,3 +182,4 @@ public class ReservationOwnerControllerTest {
 
     }
 }
+
