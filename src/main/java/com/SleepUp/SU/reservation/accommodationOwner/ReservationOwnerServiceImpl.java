@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationOwnerImpl implements ReservationOwnerService{
+public class ReservationOwnerServiceImpl implements ReservationOwnerService{
 
     private final ReservationRepository reservationRepository;
     private final EntityUtil entityUtil;

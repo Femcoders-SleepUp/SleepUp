@@ -1,8 +1,10 @@
-package com.SleepUp.SU.reservation.reservationGuest;
+package com.SleepUp.SU.reservation.accommodationOwner;
+
 
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.reservationGuest.ReservationGuestServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
@@ -35,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ReservationGuestControllerTest {
+public class ReservationOwnerControllerTest {
 
     private static final String RESERVATIONS_ACCOMMODATION_PATH = "/reservations/accommodation/{id}";
     private static final String RESERVATION_STATUS_PATH = "/reservations/{id}/status";
@@ -45,7 +47,7 @@ public class ReservationGuestControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ReservationGuestServiceImpl reservationOwnerServiceImpl;
+    private ReservationOwnerService reservationOwnerServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -69,35 +71,38 @@ public class ReservationGuestControllerTest {
         principal = new CustomUserDetails(testUser);
     }
 
-    @Nested
-    class GetReservationByIdTest {
 
+    @Nested
+    class UpdateReservationStatusTest {
         @Test
-        void getReservationById_authorized_shouldReturnOk() throws Exception {
-            Long id = 101L;
+        void updateReservationStatus_authorized_shouldReturnOk() throws Exception {
+            Long id = 42L;
+            ReservationAuthRequest authRequest = new ReservationAuthRequest(BookingStatus.CANCELLED);
 
             ReservationResponseDetail detailDto = new ReservationResponseDetail(
-                    101L,
-                    "charlie",
-                    3,
-                    "Lake Cabin",
-                    LocalDate.of(2025, 11, 1),
-                    LocalDate.of(2025, 11, 5),
-                    BookingStatus.CONFIRMED,
+                    42L,
+                    "alice",
+                    2,
+                    "Beach House",
+                    LocalDate.of(2025, 9, 25),
+                    LocalDate.of(2025, 9, 30),
+                    BookingStatus.CANCELLED,
                     true,
-                    LocalDateTime.of(2025, 10, 20, 9, 15)
+                    LocalDateTime.of(2025, 9, 1, 10, 30)
             );
 
-            when(reservationOwnerServiceImpl.getReservationById(id))
+            when(reservationOwnerServiceImpl.updateStatus(id, authRequest))
                     .thenReturn(detailDto);
 
-            mockMvc.perform(post(RESERVATION_BY_ID_PATH, id)
+            mockMvc.perform(patch(RESERVATION_STATUS_PATH, id)
                             .with(user(principal))
-                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(authRequest)))
                     .andExpect(status().isOk())
                     .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
         }
 
     }
+
 }
 
