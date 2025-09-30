@@ -24,6 +24,7 @@ spec:
         - name: sleepup
           # Application container image
           image: sleepup/sleepup:main
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http

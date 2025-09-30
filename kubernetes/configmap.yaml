@@ -12,7 +12,7 @@ data:
   show-sql: "false"
 
   # Spring Boot configuration
-  spring-profiles-active: "kubernetes"
+  spring-profiles-active: "prod"
 
   # JPA/Hibernate configuration
   hibernate-ddl-auto: "validate"

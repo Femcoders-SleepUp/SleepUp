@@ -31,4 +31,4 @@ namespace: default
 # Override replica count for specific deployments
 replicas:
   - name: app
-    count: 5
+    count: 2
