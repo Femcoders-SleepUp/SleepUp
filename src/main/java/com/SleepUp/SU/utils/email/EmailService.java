@@ -17,9 +17,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 public interface EmailService {
     void sendWelcomeEmail(String toEmail, String userName) throws MessagingException;
 
-    void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException;
+    void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation, double amount) throws MessagingException;
 
-    void sendReservationConfirmationEmail(String toEmail, String userName, String accommodationName, String location, String checkInDate, String checkOutDate) throws MessagingException;
+    void sendReservationConfirmationEmail(String toEmail, String userName, String accommodationName, String location, String checkInDate, String checkOutDate, double amount) throws MessagingException;
 
     void sendReservationReminderEmail(String toEmail, String guestName, String accommodationName, String location, String checkInDate, String checkOutDate) throws MessagingException;
 
@@ -31,7 +31,7 @@ public interface EmailService {
 
     void sendCancellationNotificationToOwnerEmail(String toEmail, String userName, String accommodationName, String location, String checkInDate, String checkOutDate) throws MessagingException;
 
-    void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException;
+    void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, double amount) throws MessagingException;
 
     void sendReservationReminderEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException;
 

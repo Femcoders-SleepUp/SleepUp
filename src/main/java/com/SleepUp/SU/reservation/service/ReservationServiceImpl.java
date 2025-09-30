@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -65,7 +66,14 @@ public class ReservationServiceImpl implements ReservationService{
 
         Reservation savedReservation = reservationRepository.save(newReservation);
 
-        emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
+        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
+        double amount = days * accommodation.getPrice() ;
+
+        if(reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId())){
+            amount = amount - amount*0.20;
+        }
+
+        emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation,amount);
         return reservationMapper.toDetail(savedReservation);
     }
 
