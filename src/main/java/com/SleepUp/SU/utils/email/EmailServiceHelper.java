@@ -2,9 +2,11 @@ package com.SleepUp.SU.utils.email;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.auth.AuthService;
+import com.SleepUp.SU.config.AppProperties;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.dto.UserRequest;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,25 @@ public class EmailServiceHelper {
 
     private final EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
+    private final AppProperties appProperties;
+    private AppProperties.MailProperties mailProperties;
+    private boolean emailEnabled;
+
+    @PostConstruct
+    public void validateEmailConfig() {
+        mailProperties = appProperties.getMail(); // Access nested MailProperties
+        emailEnabled = mailProperties != null
+                && mailProperties.getFrom() != null && !mailProperties.getFrom().isBlank()
+                && mailProperties.getUsername() != null && !mailProperties.getUsername().isBlank()
+                && mailProperties.getPassword() != null && !mailProperties.getPassword().isBlank();
+
+        if (!emailEnabled) {
+            logger.warn("Email sending is disabled due to missing or invalid mail configuration.");
+        } else {
+            logger.info("Email configuration validated successfully. Email sending enabled.");
+        }
+    }
 
     public void sendWelcomeEmail(UserRequest userRequest, User user) {
         try {

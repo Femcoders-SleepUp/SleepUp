@@ -29,8 +29,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private static final Set<String> EXCLUDED_PATHS = Set.of(
-            "/api/auth/login",
-            "/api/auth/register"
+            "/auth/login",
+            "/auth/register"
     );
 
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;

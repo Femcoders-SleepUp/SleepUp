@@ -1,32 +1,39 @@
-# SleepUp Application Deployment
-# This deployment manages the main application pods for the SleepUp service
+# sleepup Application Deployment
+# This deployment manages the main application pods for the sleepup service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app
   labels:
-    app: sleepUp
+    app: sleepup
     tier: backend
 spec:
   # Run 3 replicas for high availability
   replicas: 3
   selector:
     matchLabels:
-      app: sleepUp
+      app: sleepup
       tier: backend
   template:
     metadata:
       labels:
-        app: sleepUp
+        app: sleepup
         tier: backend
     spec:
       containers:
-        - name: sleepUp
+        - name: sleepup
           # Application container image
-          image: sleepUp:latest
+          image: sleepup/sleepup:main
           ports:
             - containerPort: 8080
               name: http
+          envFrom:
+            - secretRef:
+                name: mail-config
+            - secretRef:
+                name: jwt-config
+            - secretRef:
+                name: cloudinary-config
           env:
             # Spring Boot profile configuration
             - name: SPRING_PROFILES_ACTIVE

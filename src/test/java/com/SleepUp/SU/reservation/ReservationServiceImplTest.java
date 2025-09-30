@@ -3,11 +3,9 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
-import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationRequest;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
-import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
+import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
@@ -235,6 +233,34 @@ public class ReservationServiceImplTest {
 
             assertEquals("You already have a reservation that overlaps with these dates", exception.getMessage());
         }
+
+        @Test
+        void createReservation_userIsOwner_shouldThrowException() {
+            ReservationRequest reservationRequest = new ReservationRequest(
+                    2,
+                    LocalDate.now().plusDays(1),
+                    LocalDate.now().plusDays(3)
+            );
+
+            User owner = createTestUser();
+            Long accommodationId = 1L;
+
+            Accommodation accommodation = createTestAccommodation();
+            accommodation.setManagedBy(owner);
+
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId))
+                    .thenReturn(accommodation);
+            doNothing().when(reservationServiceHelper)
+                    .validateReservationDates(reservationRequest);
+
+            ReservationAccommodationOwnerException exception = assertThrows(
+                    ReservationAccommodationOwnerException.class,
+                    () -> reservationServiceImpl.createReservation(reservationRequest, owner, accommodationId)
+            );
+
+            assertEquals("This accommodation is yours, you cannot book your own accommodations.",
+                    exception.getMessage());
+        }
     }
 
     @Nested
@@ -246,16 +272,18 @@ public class ReservationServiceImplTest {
             Reservation testReservation = createTestReservation();
             testReservation.setId(reservationId);
 
-            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
+            Accommodation accommodation = new Accommodation();
+            accommodation.setName("Test Accommodation");
+            testReservation.setAccommodation(accommodation);
 
             when(reservationServiceHelper.getReservationEntityById(reservationId)).thenReturn(testReservation);
             when(reservationRepository.save(testReservation)).thenReturn(testReservation);
-            when(reservationMapper.toDetail(testReservation)).thenReturn(expectedResponse);
 
-            ReservationResponseDetail result = reservationServiceImpl.cancelReservation(reservationId);
+            ApiMessage result = reservationServiceImpl.cancelReservation(reservationId);
 
             assertNotNull(result);
-            assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
+            assertTrue(result.getMessage().contains("has been cancelled"));
+            assertTrue(result.getMessage().contains("Test Accommodation"));
         }
 
         @Test
@@ -300,12 +328,20 @@ public class ReservationServiceImplTest {
     }
 
     private Accommodation createTestAccommodation() {
+        User owner = new User();
+        owner.setId(2L);
+        owner.setUsername("owner");
+        owner.setEmail("owner@example.com");
+        owner.setName("Accommodation Owner");
+        owner.setRole(Role.USER);
+
         Accommodation accommodation = new Accommodation();
         accommodation.setId(1L);
         accommodation.setName("Test Hotel");
         accommodation.setGuestNumber(4);
         accommodation.setAvailableFrom(LocalDate.now());
         accommodation.setAvailableTo(LocalDate.now().plusDays(30));
+        accommodation.setManagedBy(owner);
         return accommodation;
     }
 

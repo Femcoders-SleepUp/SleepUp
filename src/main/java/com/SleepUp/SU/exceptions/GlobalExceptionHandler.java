@@ -160,6 +160,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
+    @ExceptionHandler(ReservationAccommodationOwnerException.class)
+    public ResponseEntity<ErrorResponse> handleReservationAccommodationOwnerException(
+            ReservationAccommodationOwnerException exception, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
+        return ResponseEntity.status(status).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllUnhandledExceptions(Exception exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

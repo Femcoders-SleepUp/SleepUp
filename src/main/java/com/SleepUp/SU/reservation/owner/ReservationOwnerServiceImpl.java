@@ -2,6 +2,7 @@ package com.SleepUp.SU.reservation.owner;
 
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
@@ -9,6 +10,7 @@ import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
+import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
     private final EntityUtil entityUtil;
+    private final EmailServiceHelper emailServiceHelper;
+
 
     @Override
     public List<ReservationResponseSummary> getAllReservationsOnMyAccommodation(User user, Long id){
@@ -36,6 +40,10 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
     public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest){
         Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
+
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting);}
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailServiceHelper.sendCancellationByOwnerNotificationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting);}
+
         return reservationMapper.toDetail(isExisting);
     }
 
