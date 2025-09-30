@@ -90,5 +90,8 @@ jobs:
           mysql -h 127.0.0.1 -P 3306 -u root -ppassword sleepuptest < src/test/resources/data.sql || echo "Data already exists or file not found"
 
       # 7. Run tests with test profile
+      - name: Compile Tests
+        run: mvn test-compile
+
       - name: Run Tests
         run: mvn test -Dspring.profiles.active=test
