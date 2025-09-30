@@ -62,27 +62,36 @@ public class AccommodationSpecification {
                 return null;
             }
 
+            assert query != null;
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<Reservation> reservationRoot = subquery.from(Reservation.class);
             subquery.select(cb.count(reservationRoot));
 
-            // Match reservations for the same accommodation
             Predicate sameAccommodation = cb.equal(reservationRoot.get("accommodation").get("id"), root.get("id"));
 
-            // Exclude cancelled reservations
             Predicate notCancelled = cb.notEqual(reservationRoot.get("bookingStatus"), BookingStatus.CANCELLED);
 
-            // Overlapping date ranges
             Predicate overlap = cb.not(cb.or(
                     cb.greaterThan(reservationRoot.get("checkInDate"), newEndDate),
                     cb.lessThan(reservationRoot.get("checkOutDate"), newStartDate)
             ));
 
-            // Compose subquery where clause: same accommodation AND not cancelled AND overlapping
             subquery.where(cb.and(sameAccommodation, notCancelled, overlap));
 
-            // Main predicate: count of overlapping, non-cancelled reservations must be zero
             return cb.equal(subquery, 0L);
+        };
+    }
+
+    public static Specification<Accommodation> petFriendly(Boolean petFriendly) {
+        return (root, query, cb) -> {
+            if (petFriendly == null) {
+                return null;
+            }
+            if (petFriendly) {
+                return cb.isTrue(root.get("petFriendly"));
+            } else {
+                return cb.isFalse(root.get("petFriendly"));
+            }
         };
     }
 
@@ -94,6 +103,7 @@ public class AccommodationSpecification {
                 .and(AccommodationSpecification.guestNumber(filter.guestNumber()))
                 .and(AccommodationSpecification.locatedAt(filter.location()))
                 .and(AccommodationSpecification.availableBetween(filter.fromDate(), filter.toDate()))
-                .and(noBookingOverlap(filter.fromDate(), filter.toDate()));
+                .and(noBookingOverlap(filter.fromDate(), filter.toDate()))
+                .and(AccommodationSpecification.petFriendly(filter.petFriendly()));
     }
 }

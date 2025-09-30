@@ -25,5 +25,7 @@ public record FilterAccommodationDTO(
         String location,
 
         LocalDate fromDate,
-        LocalDate toDate
+        LocalDate toDate,
+
+        Boolean petFriendly
 ) {}
