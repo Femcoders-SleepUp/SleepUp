@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation.reservationGuest;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationAuthRequest;
