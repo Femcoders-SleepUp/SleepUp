@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class EmailServiceHelper {
@@ -45,7 +47,7 @@ public class EmailServiceHelper {
         }
     }
 
-    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation, double amount) {
+    public void sendOwnerReservedNotification(User user, Accommodation accommodation, Reservation reservation, BigDecimal amount) {
         try {
             emailService.sendOwnerReservedNotification(user, accommodation, reservation, amount);
             logger.info("New reservation sent successfully to: {}", user.getEmail());
@@ -54,7 +56,7 @@ public class EmailServiceHelper {
         }
     }
 
-    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, double amount) {
+    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, BigDecimal amount) {
         try {
             emailService.sendReservationConfirmationEmail(guest, accommodation, reservation, amount);
             logger.info("Reservation confirmation email sent successfully to: {}", guest.getEmail());
@@ -113,7 +115,7 @@ public class EmailServiceHelper {
         }
     }
 
-    public void handleNewReservationEmails(User guest, Accommodation accommodation, Reservation reservation, double amount) {
+    public void handleNewReservationEmails(User guest, Accommodation accommodation, Reservation reservation, BigDecimal amount) {
         logger.info("Processing emails for new reservation - Guest: {}, Accommodation: {}",
                 guest.getEmail(), accommodation.getName());
 

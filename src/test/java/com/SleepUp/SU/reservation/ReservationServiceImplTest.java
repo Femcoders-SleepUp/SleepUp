@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -150,7 +151,7 @@ public class ReservationServiceImplTest {
             doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
             doNothing().when(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
             doNothing().when(reservationServiceHelper).validateAccommodationReservationOverlap(accommodationId, reservationRequest);
-            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, 20);
+//            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, (BigDecimal) 20);
 
             ReservationResponseDetail result = reservationServiceImpl.createReservation(reservationRequest, user, accommodationId);
 

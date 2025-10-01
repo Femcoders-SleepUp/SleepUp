@@ -13,6 +13,8 @@ import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -36,15 +38,20 @@ public class ReservationServiceHelper {
         return getReservationEntityById(reservationId).getAccommodation().getId();
     }
 
-    public double calculateReservationPrice(ReservationRequest reservationRequest, Accommodation accommodation, boolean discount){
+    public BigDecimal calculateReservationPrice(ReservationRequest reservationRequest, Accommodation accommodation, boolean discount) {
         long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
-        double amount = days * accommodation.getPrice() ;
 
-        if(discount){
-            amount = amount - amount*0.20;
+        BigDecimal pricePerDay = BigDecimal.valueOf(accommodation.getPrice());
+        BigDecimal totalAmount = pricePerDay.multiply(BigDecimal.valueOf(days));
+
+        if (discount) {
+            BigDecimal discountMultiplier = BigDecimal.valueOf(0.8);
+            totalAmount = totalAmount.multiply(discountMultiplier);
         }
 
-        return amount;
+        totalAmount = totalAmount.setScale(2, RoundingMode.HALF_UP);
+
+        return totalAmount;
     }
 
     public void validateReservationDates(ReservationRequest reservationRequest) {
