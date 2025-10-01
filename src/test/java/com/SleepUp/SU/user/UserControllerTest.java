@@ -24,7 +24,7 @@ public class UserControllerTest {
     private UserAdminServiceImpl userAdminServiceImpl;
 
     @Test
-    void should_returnAllUsers() {
+    void listAllUsers_whenUserExist_shouldReturnAllUsers() {
         List<UserResponse> users = List.of(
                 new UserResponse(1L,"", "userOne", "user1@test.com", null),
                 new UserResponse(2L, "","userTwo", "user2@test.com", null)
@@ -33,7 +33,6 @@ public class UserControllerTest {
         when(userAdminServiceImpl.getAllUsers()).thenReturn(users);
 
         List<UserResponse> response = userAdminController.listAllUsers();
-
 
         assertEquals(2, response.size());
     }

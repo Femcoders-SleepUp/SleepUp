@@ -28,10 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class UserAdminControllerTest {
 
-   @Autowired
+    @Autowired
     private MockMvc mockMvc;
 
-   @Autowired
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -40,25 +40,26 @@ public class UserAdminControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-   @Autowired
+    @Autowired
     private UserAdminServiceImpl userAdminServiceImpl;
 
-   private CustomUserDetails customUserDetails;
+    private CustomUserDetails customUserDetails;
 
-   @BeforeEach
-   void sepUp(){
+    private static final String adminPath = "/api/users/admin";
+
+    @BeforeEach
+    void setUp(){
         User savedUser = userRepository.findByUsername("Admin1")
                 .orElseThrow(() -> new RuntimeException("User2 not found"));
 
        customUserDetails = new CustomUserDetails(savedUser);
     }
 
-
     @Nested
     class CreateUserTest {
 
         @Test
-        void when_adminRole_then_createUser() throws Exception {
+        void createUser_adminRole_shouldCreateUser() throws Exception {
             UserRequestAdmin request = new UserRequestAdmin(
                     "newUser",
                     "New User",
@@ -75,8 +76,7 @@ public class UserAdminControllerTest {
                     Role.USER
             );
 
-
-            mockMvc.perform(post("/api/users/admin")
+            mockMvc.perform(post(adminPath)
                             .with(user(customUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -87,7 +87,7 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void when_notAdminRole_then_forbidden() throws Exception {
+        void createUser_notAdminRole_shouldReturnForbidden() throws Exception {
             UserRequestAdmin request = new UserRequestAdmin(
                     "newUser",
                     "New User",
@@ -96,7 +96,7 @@ public class UserAdminControllerTest {
                     Role.USER
             );
 
-            mockMvc.perform(post("/api/users/admin")
+            mockMvc.perform(post(adminPath)
                             .with(user("user").roles("USER"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -107,7 +107,7 @@ public class UserAdminControllerTest {
     @Nested
     class UpdateUserTest {
         @Test
-        void when_adminRole_then_updateUser() throws  Exception {
+        void updateUser_adminRole_shouldUpdateUser() throws  Exception {
             UserRequestAdmin request = new UserRequestAdmin(
                     "updatedUser",
                     "Updated Name",
@@ -124,8 +124,7 @@ public class UserAdminControllerTest {
                     Role.ADMIN
             );
 
-
-            mockMvc.perform(put("/api/users/admin/1")
+            mockMvc.perform(put(adminPath + "/" + 1)
                             .with(user(customUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -136,7 +135,7 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void when_notAdminRole_then_forbidden() throws Exception {
+        void updateUser_notAdminRole_shouldReturnForbidden() throws Exception {
             UserRequestAdmin request = new UserRequestAdmin(
                     "updatedUser",
                     "Updated Name",
@@ -145,7 +144,7 @@ public class UserAdminControllerTest {
                     Role.ADMIN
             );
 
-            mockMvc.perform(put("/api/users/admin/1")
+            mockMvc.perform(put(adminPath + "/" + 1)
                             .with(user("user").roles("USER"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -157,15 +156,16 @@ public class UserAdminControllerTest {
    class DeleteUserTest {
 
        @Test
-       void when_adminRole_then_deleteUser() throws Exception {
-           mockMvc.perform(delete("/api/users/admin/{id}",99L)
+       void deleteUser_adminRole_shouldDeleteUser() throws Exception {
+           mockMvc.perform(delete(adminPath + "/{id}" , 99L)
                    .with(user(customUserDetails))
                    .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isNoContent());
        }
+
        @Test
-       void when_notAdminRole_then_forbidden() throws Exception {
-           mockMvc.perform(delete("/api/users/admin/1")
+       void deleteUser_notAdminRole_shouldReturnForbidden() throws Exception {
+           mockMvc.perform(delete(adminPath + "/" + 1)
                            .with(user("user").roles("USER"))
                            .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isForbidden());

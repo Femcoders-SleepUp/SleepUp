@@ -52,6 +52,8 @@ public class UserUserControllerTest {
 
     private CustomUserDetails customUserDetails;
 
+    private static final String userPath = "/api/users/me";
+
     @BeforeEach
     void setUp() {
         User savedUser = userRepository.findByUsername("TestUser").get();
@@ -62,13 +64,13 @@ public class UserUserControllerTest {
     class getLoggedUser{
 
         @Test
-        void when_authenticated_then_return_logged_user() throws Exception {
+        void getLoggedUser_whenUserIsAuthenticated_shouldReturnCurrentUserInfo() throws Exception {
 
             UserResponse response = new UserResponse(99L, "testUser", "Test Name", "test@email.com", Role.USER);
 
             when(userUserServiceImpl.getLoggedUser(anyLong())).thenReturn(response);
 
-            mockMvc.perform(get("/api/users/me")
+            mockMvc.perform(get(userPath)
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -78,8 +80,8 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_not_authenticated_then_return_unauthorized() throws Exception {
-            mockMvc.perform(get("/api/users/me")
+        void getLoggedUser_whenNotAuthenticated_shouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(get(userPath)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }
@@ -89,14 +91,15 @@ public class UserUserControllerTest {
     class updateLoggedUser{
 
         @Test
-        void when_authenticated_then_update_logged_user() throws Exception {
+        void
+        updateLoggedUser_whenAuthenticated_shouldUpdateAndReturnUpdatedUser()throws Exception {
             UserRequest request = new UserRequest("updatedUser", "updateName", "updated@email.com", "newPassword");
             UserResponse response = new UserResponse(99L, "updatedUser", "updateName", "updated@email.com", Role.USER);
 
             when(userUserServiceImpl.updateLoggedUser(any(UserRequest.class), anyLong())).thenReturn(response);
 
             mockMvc.perform(
-                            put("/api/users/me")
+                            put(userPath)
                                     .with(user(customUserDetails))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
@@ -109,7 +112,7 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_not_authenticated_then_update_fails_with_unauthorized() throws Exception {
+        void updateLoggedUser_whenNotAuthenticated_shouldReturnUnauthorized() throws Exception {
             String jsonRequest = """
         {
             "username": "updatedUser",
@@ -119,7 +122,7 @@ public class UserUserControllerTest {
         """;
 
             mockMvc.perform(
-                            put("/api/users/me")
+                            put(userPath)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonRequest)
                                     .accept(MediaType.APPLICATION_JSON)
@@ -128,7 +131,7 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_service_throws_exception_then_return_bad_request() throws Exception {
+        void updateLoggedUser_whenServiceThrowsException_shouldReturnBadRequest() throws Exception {
             UserRequest request = new UserRequest("updatedUser", "updateName",  "updated@email.com", "newPassword");
 
             when(userUserServiceImpl.updateLoggedUser(request, 99L))
@@ -143,7 +146,7 @@ public class UserUserControllerTest {
         """;
 
             mockMvc.perform(
-                            put("/api/users/me")
+                            put(userPath)
                                     .with(user(customUserDetails))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonRequest)
@@ -157,8 +160,8 @@ public class UserUserControllerTest {
     class deleteLoggedUser {
 
         @Test
-        void when_authenticated_then_delete_logged_user() throws Exception {
-            mockMvc.perform(delete("/api/users/me")
+        void deleteLoggedUser_whenAuthenticated_shouldDeleteAccountAndReturnSuccess() throws Exception {
+            mockMvc.perform(delete(userPath)
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -166,8 +169,8 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_not_authenticated_then_delete_fails_with_unauthorized() throws Exception {
-            mockMvc.perform(delete("/api/users/me")
+        void deleteLoggedUser_whenNotAuthenticated_shouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(delete(userPath)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }

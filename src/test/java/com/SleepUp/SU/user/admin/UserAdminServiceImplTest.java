@@ -48,12 +48,11 @@ public class UserAdminServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-
     @Nested
     class LoadUserTest {
 
         @Test
-        void should_loadExistingUser_fromRequest() {
+        void loadUserByUsername_existingUser_shouldReturnUserDetails() {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
             User userSaved = new User();
             userSaved.setId(1L);
@@ -70,18 +69,16 @@ public class UserAdminServiceImplTest {
 
             UserDetails userLogExpected = new CustomUserDetails(userSaved);
 
-
             UserDetails userLogResponse = userAdminServiceImpl.loadUserByUsername("userTest");
 
             assertEquals(userLogExpected.getUsername(), userLogResponse.getUsername());
             assertEquals(userLogExpected.getAuthorities(), userLogResponse.getAuthorities());
             assertEquals(userLogExpected.getPassword(), userLogResponse.getPassword());
 
-
         }
 
         @Test
-        void should_loadExistingUser_throw_exception() {
+        void loadUserByUsername_nonExistingUser_shouldThrowException() {
 
             when(userServiceHelper.findByUsername("userTest"))
                     .thenThrow(new UsernameNotFoundException("userTest does not exist."));
@@ -94,7 +91,7 @@ public class UserAdminServiceImplTest {
     @Nested
     class UpdateUserTest {
         @Test
-        void should_updateExistingUser() {
+        void updateUser_existingUser_shouldReturnUpdatedUser() {
             UserRequestAdmin request = new UserRequestAdmin(
                     "updatedUser",
                     "Updated Name",
@@ -137,7 +134,7 @@ public class UserAdminServiceImplTest {
         }
 
         @Test
-        void  should_throwException_when_userNotFound() {
+        void  updateUser_nonExistingUser_shouldThrowException() {
             when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
             UserRequestAdmin request = new UserRequestAdmin(
@@ -150,46 +147,6 @@ public class UserAdminServiceImplTest {
 
             assertThrows(RuntimeException.class, () -> userAdminServiceImpl.updateUser(1L, request));
 
-
-//            existingUser.setPassword("oldPass");
- //           existingUser.setRole(Role.USER);
-//
- //           UserRequestAdmin updateRequest = new UserRequestAdmin(
-//                    "newUsername",
-//                    "New Name",
-//                    "new@test.com",
-//                    "newPass123",
-//                    Role.ADMIN
-//            );
-//
-//            User updatedUser = new User();
-//            updatedUser.setId(1L);
-//            updatedUser.setUsername("newUsername");
-//            updatedUser.setName("Old Name");
-//            updatedUser.setEmail("new@email.com");
-//            updatedUser.setPassword("newPass123");
-//            updatedUser.setRole(Role.USER);
-//
-//            UserResponse updatedUserResponse = new UserResponse(updatedUser.getId(), updatedUser.getUsername(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.getRole());
-//
-//
-//            when(userServiceHelper.findById(1L)).thenReturn(existingUser);
-//            doAnswer(invocation -> {
-//                existingUser.setUsername("newUsername");
-//                existingUser.setEmail("new@email.com");
-//                existingUser.setPassword("encodedPassword");
-//                return null;
-//            }).when(userServiceHelper).updateUserDataAdmin(updateRequest, existingUser);
-//
-//            when(userRepository.save(existingUser)).thenReturn(updatedUser);
-//            when(userMapper.toResponse(updatedUser)).thenReturn(updatedUserResponse);
-//
-//            UserResponse response = userAdminServiceImpl.updateUser(1L, updateRequest);
-//
-//            assertEquals("newUsername", response.username());
-//            assertEquals("new@email.com", response.email());
-//            assertEquals("Old Name", response.name());
-//>>>>>>> dev
         }
     }
 }
