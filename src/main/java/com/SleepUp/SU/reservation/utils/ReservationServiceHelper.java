@@ -26,6 +26,14 @@ public class ReservationServiceHelper {
         return reservationRepository.findById(id).orElseThrow(() -> new ReservationNotFoundByIdException(id));
     }
 
+    public boolean isReservationGuestTheUser(Long reservationId, Long userId){
+        return reservationRepository.existsByIdAndUser_Id(reservationId, userId);
+    }
+
+    public Long getAccommodationIdFromReservationId(Long reservationId){
+        return getReservationEntityById(reservationId).getAccommodation().getId();
+    }
+
     public void validateReservationDates(ReservationRequest reservationRequest) {
         EntityUtil.validateCheckInOutDates(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
     }
