@@ -60,8 +60,8 @@ public class ReservationGuestServiceImpl implements ReservationGuestService {
         reservation.setBookingStatus(BookingStatus.CANCELLED);
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        emailServiceHelper.sendCancellationConfirmationEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
-        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
+        emailServiceHelper.sendCancellationConfirmationEmail(reservation);
+        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation);
 
         String message = String.format(
                 "Your reservation in %s from %s to %s has been cancelled",

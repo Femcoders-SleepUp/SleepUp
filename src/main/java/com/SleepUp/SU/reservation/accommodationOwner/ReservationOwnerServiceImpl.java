@@ -41,8 +41,8 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
 
         BigDecimal amount = isExisting.getTotalPrice();
 
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting, amount);}
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailServiceHelper.sendCancellationByOwnerNotificationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting);}
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting, amount);}
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailServiceHelper.sendCancellationByOwnerNotificationEmail(isExisting);}
 
         return reservationMapper.toDetail(isExisting);
     }

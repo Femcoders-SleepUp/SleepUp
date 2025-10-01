@@ -49,7 +49,7 @@ public class UserAdminServiceImpl implements UserAdminService {
     @Override
     public UserResponse createUser(UserRequest userRequest, Role role) {
         User savedUser = userServiceHelper.createUser(userRequest, role);
-        emailServiceHelper.sendWelcomeEmail(userRequest, savedUser);
+        emailServiceHelper.sendWelcomeEmail(savedUser);
         return userMapper.toResponse(savedUser);
     }
 

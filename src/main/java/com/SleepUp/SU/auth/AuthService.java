@@ -43,7 +43,7 @@ public class AuthService {
     @Transactional
     public UserResponse register(UserRequest request) throws MessagingException {
         User savedUser = userServiceHelper.createUser(request, Role.USER);
-        emailServiceHelper.sendWelcomeEmail(request, savedUser);
+        emailServiceHelper.sendWelcomeEmail(savedUser);
         return userMapper.toResponse(savedUser);
     }
 

@@ -47,18 +47,13 @@ public class ReservationReminderTask {
             for (Reservation reservation : upcomingReservations) {
                 try {
                     if (emailServiceHelper.canSendReservationEmails(
-                            reservation.getAccommodation().getManagedBy(),
-                            reservation.getAccommodation(),
                             reservation)) {
 
                         emailServiceHelper.sendReservationReminders(
-                                reservation.getAccommodation().getManagedBy(),
-                                reservation.getAccommodation(),
                                 reservation
                         );
 
                         emailServiceHelper.sendOwnerReservationReminderEmail(
-                                reservation.getAccommodation(),
                                 reservation);
 
                         successCount++;
