@@ -26,7 +26,7 @@ class TokenBlacklistServiceTest {
     }
 
     @Test
-    void when_addTokenToBlacklist_withValidToken() {
+    void addToBlacklist_validToken_shouldBeInBlacklist() {
         String token = "valid-token";
         Date expiration = new Date(System.currentTimeMillis() + 10000); 
         when(jwtService.extractExpiration(token)).thenReturn(expiration);
@@ -37,7 +37,7 @@ class TokenBlacklistServiceTest {
     }
 
     @Test
-    void when_addTokenToBlacklist_withInvalidToken_throw_exception() {
+    void addToBlacklist_invalidToken_shouldStillBeInBlacklist() {
         String token = "invalid-token";
         when(jwtService.extractExpiration(token)).thenThrow(new RuntimeException("Invalid token"));
 
@@ -47,12 +47,12 @@ class TokenBlacklistServiceTest {
     }
 
     @Test
-    void when_returnFalse_when_tokenNotInBlacklist() {
+    void isTokenInBlacklist_tokenNotInBlacklist_shouldReturnFalse() {
         assertFalse(tokenBlacklistService.isTokenInBlacklist("not-exists-token"));
     }
 
     @Test
-    void when_returnFalseAndRemoveToken_when_tokenExpired() {
+    void isTokenInBlacklist_expiredToken_shouldReturnFalseAndRemoveToken() {
         String token = "expired-token";
         Date expiration = new Date(System.currentTimeMillis() - 1000); 
         when(jwtService.extractExpiration(token)).thenReturn(expiration);
@@ -63,7 +63,7 @@ class TokenBlacklistServiceTest {
     }
 
     @Test
-    void when_removeTokenFromBlacklist() {
+    void removeFromBlacklist_existingToken_shouldRemoveToken() {
         String token = "remove-token";
         Date expiration = new Date(System.currentTimeMillis() + 10000);
         when(jwtService.extractExpiration(token)).thenReturn(expiration);
@@ -77,7 +77,7 @@ class TokenBlacklistServiceTest {
     }
 
     @Test
-    void when_removeExpiredTokens_scheduledTask() {
+    void removeExpiredTokens_taskExecuted_shouldRemoveExpiredAndKeepActiveTokens() {
         String expiredToken = "expired-token";
         String activeToken = "active-token";
 
@@ -97,7 +97,7 @@ class TokenBlacklistServiceTest {
     }
 
     @Test
-    void when_returnCorrectBlacklistedTokensCount() {
+    void getBlacklistedTokensCount_multipleActiveTokens_shouldReturnCorrectCount() {
         String token1 = "token1";
         String token2 = "token2";
         Date expiration = new Date(System.currentTimeMillis() + 10000);

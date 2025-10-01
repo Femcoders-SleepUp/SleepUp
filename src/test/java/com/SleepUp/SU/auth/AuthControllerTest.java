@@ -182,6 +182,7 @@ public class AuthControllerTest {
                             .content(objectMapper.writeValueAsString(loginRequest)))
                     .andExpect(status().isOk())
                     .andReturn()
+
                     .getResponse()
                     .getContentAsString();
 
