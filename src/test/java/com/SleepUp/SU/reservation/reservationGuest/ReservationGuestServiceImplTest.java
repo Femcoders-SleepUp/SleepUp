@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -67,8 +68,7 @@ class ReservationGuestServiceImplTest {
                 LocalDate.of(2025, 9, 25),
                 LocalDate.of(2025, 9, 30),
                 BookingStatus.CONFIRMED,
-                true,
-                LocalDateTime.of(2025, 9, 1, 10, 30)
+                BigDecimal.valueOf(100)
         );
         response2 = new ReservationResponseSummary(
                 2L,
@@ -78,8 +78,7 @@ class ReservationGuestServiceImplTest {
                 LocalDate.of(2025, 10, 5),
                 LocalDate.of(2025, 10, 12),
                 BookingStatus.PENDING,
-                false,
-                LocalDateTime.of(2025, 9, 15, 14, 0)
+                BigDecimal.valueOf(100)
         );
 
     }
@@ -187,7 +186,7 @@ class ReservationGuestServiceImplTest {
         return new ReservationResponseDetail(
                 1L, "Test User", 4, "Test Hotel",
                 LocalDate.now().plusDays(1), LocalDate.now().plusDays(30),
-                BookingStatus.CANCELLED, false, LocalDateTime.now()
+                BookingStatus.CANCELLED, false, LocalDateTime.now(), BigDecimal.valueOf(100)
         );
     }
 }

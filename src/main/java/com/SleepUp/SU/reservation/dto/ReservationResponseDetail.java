@@ -4,6 +4,7 @@ import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -19,6 +20,7 @@ public record ReservationResponseDetail(
         LocalDate checkOutDate,
         BookingStatus bookingStatus,
         Boolean emailSent,
-        LocalDateTime createdDate
+        LocalDateTime createdDate,
+        BigDecimal totalPrice
 ) {
 }
