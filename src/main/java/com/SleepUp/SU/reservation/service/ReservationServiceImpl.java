@@ -67,6 +67,7 @@ public class ReservationServiceImpl implements ReservationService{
         boolean discount = reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId());
         BigDecimal amount = reservationServiceHelper.calculateReservationPrice(reservationRequest, accommodation, discount);
 
+        newReservation.setTotalPrice(amount);
         Reservation savedReservation = reservationRepository.save(newReservation);
 
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation,amount);
