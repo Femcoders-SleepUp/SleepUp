@@ -45,7 +45,7 @@ class AccommodationAccessEvaluatorTest {
         });
 
         assertEquals(
-                "User ID 2 cannot access Accommodation ID 1. Only the owner is authorized to access this resource.",
+                "Cause: You are not the owner of this accommodation.",
                 exception.getMessage()
         );
 

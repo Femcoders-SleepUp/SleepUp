@@ -53,14 +53,11 @@ class ReservationAccessEvaluatorTest {
 
             when(reservationServiceHelper.isReservationGuestTheUser(reservationId, userId)).thenReturn(false);
 
-//            boolean result = reservationAccessEvaluator.isReservationGuest(reservationId, userId);
-//            assertFalse(result);
-
             AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
                 reservationAccessEvaluator.isReservationGuest(reservationId, userId);
             });
 
-            String expectedMessage = "User ID 2 cannot access Reservation ID 1. Only reservation guests can access this information.";
+            String expectedMessage = "Cause: This reservation was not created by you.";
             assertEquals(expectedMessage, exception.getMessage());
 
             verify(reservationServiceHelper, times(1)).isReservationGuestTheUser(reservationId, userId);
@@ -103,8 +100,14 @@ class ReservationAccessEvaluatorTest {
             when(reservationServiceHelper.isReservationGuestTheUser(reservationId, userId)).thenReturn(false);
             when(accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId)).thenReturn(false);
 
-            boolean result = reservationAccessEvaluator.isReservationGuestOrOwner(reservationId, userId);
-            assertFalse(result);
+            AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
+                reservationAccessEvaluator.isReservationGuestOrOwner(reservationId, userId);
+            });
+
+            String expectedMessage = "Cause: This reservation was not created by you or does not belong to any of your accommodations.";
+            assertEquals(expectedMessage, exception.getMessage());
+
+
 
             verify(reservationServiceHelper).isReservationGuestTheUser(reservationId, userId);
             verify(accommodationServiceHelper).isAccommodationOwnedByUser(accommodationId, userId);
@@ -132,8 +135,13 @@ class ReservationAccessEvaluatorTest {
             when(reservationServiceHelper.getAccommodationIdFromReservationId(reservationId)).thenReturn(accommodationId);
             when(accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId)).thenReturn(false);
 
-            boolean result = reservationAccessEvaluator.isReservationAccommodationOwner(reservationId, userId);
-            assertFalse(result);
+            AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
+                reservationAccessEvaluator.isReservationAccommodationOwner(reservationId, userId);
+            });
+
+            String expectedMessage = "Cause: This reservation does not belong to any of your accommodations.";
+            assertEquals(expectedMessage, exception.getMessage());
+
 
             verify(accommodationServiceHelper).isAccommodationOwnedByUser(accommodationId, userId);
             verify(reservationServiceHelper).getAccommodationIdFromReservationId(reservationId);
