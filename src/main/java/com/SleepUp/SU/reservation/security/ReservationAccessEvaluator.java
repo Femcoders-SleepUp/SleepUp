@@ -26,7 +26,7 @@ public class ReservationAccessEvaluator {
     }
 
     public boolean isReservationGuestOrOwner(Long reservationId, Long userId){
-        Long accommodationId = reservationServiceHelper.getReservationEntityById(reservationId).getAccommodation().getId();
+        Long accommodationId =  reservationServiceHelper.getAccommodationIdFromReservationId(reservationId);
         return reservationServiceHelper.isReservationGuestTheUser(reservationId, userId) || accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
     }
 
