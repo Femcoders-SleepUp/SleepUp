@@ -33,7 +33,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.FORBIDDEN,
-                "Access Denied. " + accessDeniedException.getMessage(),
+                "Access Denied. You are not authorized to execute this action." + accessDeniedException.getMessage(),
                 request
         );
 

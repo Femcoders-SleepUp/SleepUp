@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/reservations/admin")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class ReservationAdminController {
 
     private final ReservationAdminServiceImpl reservationAdminService;
@@ -26,7 +27,6 @@ public class ReservationAdminController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteReservationByAdmin(@PathVariable Long id) {
         reservationAdminService.deleteReservationByAdmin(id);

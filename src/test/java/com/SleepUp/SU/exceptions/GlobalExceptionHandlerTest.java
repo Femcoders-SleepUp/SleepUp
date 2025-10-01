@@ -149,7 +149,7 @@ public class GlobalExceptionHandlerTest {
         AccessDeniedException ex = new AccessDeniedException("Access denied");
         ResponseEntity<ErrorResponse> response = handler.handleAccessDeniedException(ex, request);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertTrue(((String)response.getBody().message()).contains("Forbidden"));
+        assertTrue(((String)response.getBody().message()).contains("Access denied"));
     }
 
     @Test

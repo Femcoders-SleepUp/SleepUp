@@ -1,36 +1,36 @@
 package com.SleepUp.SU.accommodation.security;
 
-import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AccommodationAccessEvaluatorTest {
 
-    private AccommodationRepository accommodationRepository;
-    private AccommodationAccessEvaluator accommodationAccessEvaluator;
+    @Mock
+    private AccommodationServiceHelper accommodationServiceHelper;
 
-    @BeforeEach
-    void setUp() {
-        accommodationRepository = Mockito.mock(AccommodationRepository.class);
-        accommodationAccessEvaluator = new AccommodationAccessEvaluator(accommodationRepository);
-    }
+    @InjectMocks
+    private AccommodationAccessEvaluator accommodationAccessEvaluator;
 
     @Test
     void testIsOwner_true() {
         Long accommodationId = 1L;
         Long userId = 2L;
 
-        when(accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId)).thenReturn(true);
+        when(accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId)).thenReturn(true);
 
         boolean result = accommodationAccessEvaluator.isOwner(accommodationId, userId);
 
         assertTrue(result);
-        verify(accommodationRepository, times(1)).existsByIdAndManagedBy_Id(accommodationId, userId);
+        verify(accommodationServiceHelper, times(1)).isAccommodationOwnedByUser(accommodationId, userId);
     }
 
     @Test
@@ -38,17 +38,17 @@ class AccommodationAccessEvaluatorTest {
         Long accommodationId = 1L;
         Long userId = 2L;
 
-        when(accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId)).thenReturn(false);
+        when(accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId)).thenReturn(false);
 
         AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
             accommodationAccessEvaluator.isOwner(accommodationId, userId);
         });
 
         assertEquals(
-                "User ID 2 cannot access Accommodation ID 1. Only the owner is authorized to access this resource.",
+                "Cause: You are not the owner of this accommodation.",
                 exception.getMessage()
         );
 
-        verify(accommodationRepository, times(1)).existsByIdAndManagedBy_Id(accommodationId, userId);
+        verify(accommodationServiceHelper, times(1)).isAccommodationOwnedByUser(accommodationId, userId);
     }
 }

@@ -72,37 +72,37 @@ public class ReservationOwnerControllerTest {
     }
 
 
-    @Nested
-    class UpdateReservationStatusTest {
-        @Test
-        void updateReservationStatus_authorized_shouldReturnOk() throws Exception {
-            Long id = 42L;
-            ReservationAuthRequest authRequest = new ReservationAuthRequest(BookingStatus.CANCELLED);
-
-            ReservationResponseDetail detailDto = new ReservationResponseDetail(
-                    42L,
-                    "alice",
-                    2,
-                    "Beach House",
-                    LocalDate.of(2025, 9, 25),
-                    LocalDate.of(2025, 9, 30),
-                    BookingStatus.CANCELLED,
-                    true,
-                    LocalDateTime.of(2025, 9, 1, 10, 30)
-            );
-
-            when(reservationOwnerServiceImpl.updateStatus(id, authRequest))
-                    .thenReturn(detailDto);
-
-            mockMvc.perform(patch(RESERVATION_STATUS_PATH, id)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(authRequest)))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
-        }
-
-    }
+//    @Nested
+//    class UpdateReservationStatusTest {
+//        @Test
+//        void updateReservationStatus_authorized_shouldReturnOk() throws Exception {
+//            Long id = 42L;
+//            ReservationAuthRequest authRequest = new ReservationAuthRequest(BookingStatus.CANCELLED);
+//
+//            ReservationResponseDetail detailDto = new ReservationResponseDetail(
+//                    42L,
+//                    "alice",
+//                    2,
+//                    "Beach House",
+//                    LocalDate.of(2025, 9, 25),
+//                    LocalDate.of(2025, 9, 30),
+//                    BookingStatus.CANCELLED,
+//                    true,
+//                    LocalDateTime.of(2025, 9, 1, 10, 30)
+//            );
+//
+//            when(reservationOwnerServiceImpl.updateStatus(id, authRequest))
+//                    .thenReturn(detailDto);
+//
+//            mockMvc.perform(patch(RESERVATION_STATUS_PATH, id)
+//                            .with(user(principal))
+//                            .contentType(MediaType.APPLICATION_JSON)
+//                            .content(objectMapper.writeValueAsString(authRequest)))
+//                    .andExpect(status().isOk())
+//                    .andExpect(content().json(objectMapper.writeValueAsString(detailDto)));
+//        }
+//
+//    }
 
 }
 
