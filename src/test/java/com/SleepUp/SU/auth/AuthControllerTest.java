@@ -75,7 +75,7 @@ public class AuthControllerTest {
     class RegisterTests {
 
         @Test
-        void whenRegister_withValidData_shouldReturnCreatedUser() throws Exception {
+        void register_validRequest_shouldReturnCreatedUser() throws Exception {
             JavaMailSenderImpl javaMailSenderImpl = new JavaMailSenderImpl();
             MimeMessage mimeMessage = javaMailSenderImpl.createMimeMessage();
 
@@ -97,7 +97,7 @@ public class AuthControllerTest {
 
 
         @Test
-        void whenRegister_withInvalidData_shouldReturnBadRequest() throws Exception {
+        void register_invalidRequest_shouldReturnBadRequest() throws Exception {
             String invalidJson = """
                 {
                     "username": "",
@@ -116,7 +116,7 @@ public class AuthControllerTest {
     @Nested
     class LoginTests {
         @Test
-        void whenLogin_withValidCredentials_shouldReturnAuthResponse() throws Exception {
+        void login_validCredentials_shouldReturnAuthResponse() throws Exception {
             LoginRequest request = new LoginRequest(principal.getUsername(), "password123");
 
             mockMvc.perform(post(LOGIN_PATH)
@@ -131,7 +131,7 @@ public class AuthControllerTest {
     @Nested
     class RefreshTests {
         @Test
-        void whenRefresh_withAuthentication_shouldReturnNewTokens() throws Exception {
+        void refresh_withAuthentication_shouldReturnNewTokens() throws Exception {
 
             LoginRequest loginRequest = new LoginRequest(principal.getUsername(), "password123");
 
@@ -160,7 +160,7 @@ public class AuthControllerTest {
 
 
         @Test
-        void whenRefresh_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
+        void refresh_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
             RefreshRequest request = new RefreshRequest("someRefreshToken");
 
             mockMvc.perform(post(REFRESH_PATH)
@@ -174,7 +174,7 @@ public class AuthControllerTest {
     class LogoutTests {
 
         @Test
-        void whenLogout_withAuthentication_shouldReturnMessage() throws Exception {
+        void logout_withAuthentication_shouldReturnMessage() throws Exception {
             LoginRequest loginRequest = new LoginRequest(principal.getUsername(), "password123");
 
             String loginResponse = mockMvc.perform(post(LOGIN_PATH)
