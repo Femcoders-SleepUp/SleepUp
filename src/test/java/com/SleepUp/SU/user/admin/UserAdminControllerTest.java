@@ -103,7 +103,7 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void createUser_whenNoAuth_shouldReturnUnauthorized() throws Exception {
+        void createUser_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(post(BASE_PATH)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(userRequest)))
@@ -115,7 +115,7 @@ public class UserAdminControllerTest {
     class UpdateUserTest {
 
         @Test
-        void updateUser_whenAdminRole_shouldReturnOk() throws Exception {
+        void updateUser_whenAdminRole_shouldReturnUpdatedUser() throws Exception {
             mockMvc.perform(put(USER_PATH_ID, 1L)
                             .with(user(adminCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +138,7 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void updateUser_whenNoAuth_shouldReturnUnauthorized() throws Exception {
+        void updateUser_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(put(USER_PATH_ID, 1L)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
@@ -151,7 +151,7 @@ public class UserAdminControllerTest {
     class DeleteUserTest {
 
         @Test
-        void deleteUser_whenAdminRole_shouldReturnNoContent() throws Exception {
+        void deleteUser_whenAdminRole_shouldDeleteUser() throws Exception {
             mockMvc.perform(delete(USER_PATH_ID, 99L)
                             .with(user(adminCustomUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
@@ -167,7 +167,7 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void deleteUser_whenNoAuth_shouldReturnUnauthorized() throws Exception {
+        void deleteUser_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(delete(USER_PATH_ID, 1L)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
