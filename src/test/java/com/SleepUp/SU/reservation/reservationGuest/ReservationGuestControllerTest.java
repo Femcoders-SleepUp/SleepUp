@@ -55,6 +55,7 @@ public class ReservationGuestControllerTest {
     private ReservationRepository reservationRepository;
 
     private CustomUserDetails principal;
+    private CustomUserDetails principal2;
     private Long reservationId;
 
     @BeforeEach
@@ -63,6 +64,11 @@ public class ReservationGuestControllerTest {
                 .orElseThrow(() -> new RuntimeException("User1 not found"));
 
         principal = new CustomUserDetails(testUser);
+
+        User testUser2 = userRepository.findByUsername("User4")
+                .orElseThrow(() -> new RuntimeException("User4 not found"));
+
+        principal2 = new CustomUserDetails(testUser2);
 
         reservationId = reservationRepository.findByUser_Id(testUser.getId()).getFirst().getId();
     }
@@ -131,25 +137,27 @@ public class ReservationGuestControllerTest {
                     .andExpect(jsonPath("$.message", allOf(containsString("reservation"), containsString("cancelled"))));
         }
 
-//
-//        @Test
-//        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
-//
-//            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
-//                            .with(user(principal)))
-//                    .andExpect(status().isConflict())
-//                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
-//        }
-//
-//        @Test
-//        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
-//
-//            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
-//                            .with(user(principal))
-//                            .accept(MediaType.APPLICATION_JSON))
-//                    .andExpect(status().isConflict())
-//                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
-//        }
+
+        @Test
+        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
+            Long reservationId = 1L;
+
+            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
+                            .with(user(principal2)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+        }
+
+        @Test
+        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
+            Long reservationId = 1L;
+
+            mockMvc.perform(patch(RESERVATION_CANCEL_PATH, reservationId)
+                            .with(user(principal2))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+        }
     }
 }
 
