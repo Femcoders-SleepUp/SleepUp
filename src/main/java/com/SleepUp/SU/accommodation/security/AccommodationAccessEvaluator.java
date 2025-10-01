@@ -12,12 +12,12 @@ public class AccommodationAccessEvaluator {
 
     public boolean isOwner(Long accommodationId, Long userId) {
         boolean owner = accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId);
-        if (!owner) {
-            throw new AccessDeniedException(
-                    "User ID " + userId + " cannot access Accommodation ID " + accommodationId +
-                            ". Only the owner is authorized to access this resource."
-            );
-        }
-        return true;
+//        if (!owner) {
+//            throw new AccessDeniedException(
+//                    "User ID " + userId + " cannot access Accommodation ID " + accommodationId +
+//                            ". Only the owner is authorized to access this resource."
+//            );
+//        }
+        return owner;
     }
 }

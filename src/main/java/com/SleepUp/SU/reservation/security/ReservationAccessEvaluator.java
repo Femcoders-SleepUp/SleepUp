@@ -16,14 +16,14 @@ public class ReservationAccessEvaluator {
 
     public boolean isReservationGuest(Long reservationId, Long userId){
         boolean exists = reservationRepository.existsByIdAndUser_Id(reservationId, userId);
-        if (!exists) {
-            throw new AccessDeniedException(
-                    "User ID " + userId + " cannot access Reservation ID " + reservationId +
-                            ". Only reservation guests can access this information."
-            );
-
-        }
-        return true;
+//        if (!exists) {
+//            throw new AccessDeniedException(
+//                    "User ID " + userId + " cannot access Reservation ID " + reservationId +
+//                            ". Only reservation guests can access this information."
+//            );
+//
+//        }
+        return exists;
     }
 
     public boolean isReservationGuestOrOwner(Long reservationId, Long userId){
