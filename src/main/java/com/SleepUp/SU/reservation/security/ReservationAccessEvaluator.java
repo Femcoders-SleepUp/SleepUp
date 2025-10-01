@@ -17,8 +17,7 @@ public class ReservationAccessEvaluator {
         boolean exists = reservationServiceHelper.isReservationGuestTheUser(reservationId, userId);
         if (!exists) {
             throw new AccessDeniedException(
-                    "User ID " + userId + " cannot access Reservation ID " + reservationId +
-                            ". Only reservation guests can access this information."
+                    "Cause: This reservation was not created by you."
             );
 
         }
@@ -27,11 +26,25 @@ public class ReservationAccessEvaluator {
 
     public boolean isReservationGuestOrOwner(Long reservationId, Long userId){
         Long accommodationId =  reservationServiceHelper.getAccommodationIdFromReservationId(reservationId);
-        return reservationServiceHelper.isReservationGuestTheUser(reservationId, userId) || accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
+        boolean exists = reservationServiceHelper.isReservationGuestTheUser(reservationId, userId) || accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
+        if (!exists) {
+            throw new AccessDeniedException(
+                    "Cause: This reservation was not created by you or does not belong to any of your accommodations."
+            );
+
+        }
+        return exists;
     }
 
     public boolean isReservationAccommodationOwner(Long reservationId, Long userId){
         Long accommodationId = reservationServiceHelper.getAccommodationIdFromReservationId(reservationId);
-        return accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
+        boolean exists = accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
+        if (!exists) {
+            throw new AccessDeniedException(
+                    "Cause: This reservation does not belong to any of your accommodations."
+            );
+
+        }
+        return exists;
     }
 }
