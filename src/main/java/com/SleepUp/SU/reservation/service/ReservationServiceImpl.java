@@ -63,14 +63,10 @@ public class ReservationServiceImpl implements ReservationService{
                 user, accommodation,
                 false);
 
+        boolean discount = reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId());
+        double amount = reservationServiceHelper.calculateReservationPrice(reservationRequest, accommodation, discount);
+
         Reservation savedReservation = reservationRepository.save(newReservation);
-
-        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
-        double amount = days * accommodation.getPrice() ;
-
-        if(reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId())){
-            amount = amount - amount*0.20;
-        }
 
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation,amount);
         return reservationMapper.toDetail(savedReservation);

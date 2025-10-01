@@ -8,12 +8,14 @@ import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.reservation.status.BookingStatus;
+import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -32,6 +34,17 @@ public class ReservationServiceHelper {
 
     public Long getAccommodationIdFromReservationId(Long reservationId){
         return getReservationEntityById(reservationId).getAccommodation().getId();
+    }
+
+    public double calculateReservationPrice(ReservationRequest reservationRequest, Accommodation accommodation, boolean discount){
+        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
+        double amount = days * accommodation.getPrice() ;
+
+        if(discount){
+            amount = amount - amount*0.20;
+        }
+
+        return amount;
     }
 
     public void validateReservationDates(ReservationRequest reservationRequest) {
