@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User", description = "Operations related to the authenticated user's account")
 @RestController
-@RequestMapping("/api/users/me")
+@RequestMapping("/users/me")
 @PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 public class UserUserController {

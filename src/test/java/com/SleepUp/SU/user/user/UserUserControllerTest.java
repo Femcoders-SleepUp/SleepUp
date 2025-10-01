@@ -3,31 +3,23 @@ package com.SleepUp.SU.user.user;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequest;
-import com.SleepUp.SU.user.role.Role;
+import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import com.SleepUp.SU.user.entity.CustomUserDetails;
-import com.SleepUp.SU.user.dto.UserResponse;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,13 +27,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserUserControllerTest {
 
+    public static final String BASE = "/users";
+    public static final String LOGGED_USER = BASE + "/me";
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private UserUserController userUserController;
 
-    @MockBean
+    @Autowired
     private UserUserServiceImpl userUserServiceImpl;
 
     @Autowired
@@ -54,49 +49,44 @@ public class UserUserControllerTest {
 
     @BeforeEach
     void setUp() {
-        User savedUser = userRepository.findByUsername("TestUser").get();
+        User savedUser = userRepository.findByUsername("TestUser")
+                .orElseThrow(() -> new RuntimeException("TestUser not found"));
         customUserDetails = new CustomUserDetails(savedUser);
     }
 
     @Nested
-    class getLoggedUser{
+    class getLoggedUser {
 
         @Test
         void when_authenticated_then_return_logged_user() throws Exception {
-
-            UserResponse response = new UserResponse(99L, "testUser", "Test Name", "test@email.com", Role.USER);
-
-            when(userUserServiceImpl.getLoggedUser(anyLong())).thenReturn(response);
-
-            mockMvc.perform(get("/api/users/me")
+            mockMvc.perform(get(LOGGED_USER)
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
+                    .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.username").value("testUser"))
-                    .andExpect(jsonPath("$.name").value("Test Name"))
-                    .andExpect(jsonPath("$.email").value("test@email.com"));
+                    .andExpect(jsonPath("$.username").value("TestUser"))
+                    .andExpect(jsonPath("$.name").value("nameTest"))
+                    .andExpect(jsonPath("$.email").value("usertnest@test.com"))
+                    .andExpect(jsonPath("$.role").value("USER"));
         }
 
         @Test
         void when_not_authenticated_then_return_unauthorized() throws Exception {
-            mockMvc.perform(get("/api/users/me")
+            mockMvc.perform(get(LOGGED_USER)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }
     }
 
     @Nested
-    class updateLoggedUser{
+    class updateLoggedUser {
 
         @Test
         void when_authenticated_then_update_logged_user() throws Exception {
             UserRequest request = new UserRequest("updatedUser", "updateName", "updated@email.com", "newPassword");
-            UserResponse response = new UserResponse(99L, "updatedUser", "updateName", "updated@email.com", Role.USER);
-
-            when(userUserServiceImpl.updateLoggedUser(any(UserRequest.class), anyLong())).thenReturn(response);
 
             mockMvc.perform(
-                            put("/api/users/me")
+                            put(LOGGED_USER)
                                     .with(user(customUserDetails))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
@@ -111,15 +101,15 @@ public class UserUserControllerTest {
         @Test
         void when_not_authenticated_then_update_fails_with_unauthorized() throws Exception {
             String jsonRequest = """
-        {
-            "username": "updatedUser",
-            "email": "updated@email.com",
-            "password": "newPassword"
-        }
-        """;
+            {
+                "username": "updatedUser",
+                "email": "updated@email.com",
+                "password": "newPassword"
+            }
+            """;
 
             mockMvc.perform(
-                            put("/api/users/me")
+                            put(LOGGED_USER)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonRequest)
                                     .accept(MediaType.APPLICATION_JSON)
@@ -129,26 +119,22 @@ public class UserUserControllerTest {
 
         @Test
         void when_service_throws_exception_then_return_bad_request() throws Exception {
-            UserRequest request = new UserRequest("updatedUser", "updateName",  "updated@email.com", "newPassword");
-
-            when(userUserServiceImpl.updateLoggedUser(request, 99L))
-                    .thenThrow(new IllegalArgumentException("Invalid update"));
-
             String jsonRequest = """
-        {
-            "username": "updatedUser",
-            "email": "updated@email.com",
-            "password": "newPassword"
-        }
-        """;
+            {
+                "username": "updatedUser",
+                "email": "updated@email.com",
+                "password": "newPassword"
+            }
+            """;
 
             mockMvc.perform(
-                            put("/api/users/me")
+                            put(LOGGED_USER)
                                     .with(user(customUserDetails))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(jsonRequest)
                                     .accept(MediaType.APPLICATION_JSON)
                     )
+                    .andDo(print())
                     .andExpect(status().isBadRequest());
         }
     }
@@ -158,7 +144,7 @@ public class UserUserControllerTest {
 
         @Test
         void when_authenticated_then_delete_logged_user() throws Exception {
-            mockMvc.perform(delete("/api/users/me")
+            mockMvc.perform(delete(LOGGED_USER)
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -167,7 +153,7 @@ public class UserUserControllerTest {
 
         @Test
         void when_not_authenticated_then_delete_fails_with_unauthorized() throws Exception {
-            mockMvc.perform(delete("/api/users/me")
+            mockMvc.perform(delete(LOGGED_USER)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
         }
