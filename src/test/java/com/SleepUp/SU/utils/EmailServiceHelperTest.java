@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,7 +61,7 @@ class EmailServiceHelperTest {
         reservation.setCheckInDate(LocalDate.of(2025, 10, 1));
         reservation.setCheckOutDate(LocalDate.of(2025, 10, 5));
 
-        userRequest = new UserRequest("test@test.com", "testuser", "password123", "Test User");
+        userRequest = new UserRequest("test@test.com", "testuser", "password12BigDecimal.valueOf(3)", "Test User");
     }
 
     @Nested
@@ -114,11 +115,11 @@ class EmailServiceHelperTest {
     class SendOwnerReservedNotificationGroup {
         @Test
         void sendOwnerReservedNotification_Success() throws MessagingException {
-            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any(), anyDouble());
+            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any(), any(BigDecimal.class));
 
-            emailServiceHelper.sendOwnerReservedNotification(guest, accommodation, reservation,3);
+            emailServiceHelper.sendOwnerReservedNotification(guest, accommodation, reservation,BigDecimal.valueOf(3));
 
-            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation,3);
+            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation,BigDecimal.valueOf(3));
         }
     }
 
@@ -126,11 +127,11 @@ class EmailServiceHelperTest {
     class SendReservationConfirmationEmailGroup {
         @Test
         void sendReservationConfirmationEmail_Success() throws MessagingException {
-            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any(), anyDouble());
+            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any(), any(BigDecimal.class));
 
-            emailServiceHelper.sendReservationConfirmationEmail(guest, accommodation, reservation,3);
+            emailServiceHelper.sendReservationConfirmationEmail(guest, accommodation, reservation,BigDecimal.valueOf(3));
 
-            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation,3);
+            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation,BigDecimal.valueOf(3));
         }
     }
 
@@ -198,13 +199,13 @@ class EmailServiceHelperTest {
     class HandleNewReservationEmailsGroup {
         @Test
         void handleNewReservationEmails_SendsBothEmails() throws MessagingException {
-            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any(), anyDouble());
-            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any(), anyDouble());
+            doNothing().when(emailService).sendReservationConfirmationEmail(any(), any(), any(), any(BigDecimal.class));
+            doNothing().when(emailService).sendOwnerReservedNotification(any(), any(), any(), any(BigDecimal.class));
 
-            emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation,3);
+            emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation,BigDecimal.valueOf(3));
 
-            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation,3);
-            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation,3);
+            verify(emailService).sendReservationConfirmationEmail(guest, accommodation, reservation,BigDecimal.valueOf(3));
+            verify(emailService).sendOwnerReservedNotification(guest, accommodation, reservation,BigDecimal.valueOf(3));
         }
     }
 
@@ -339,12 +340,12 @@ class EmailServiceHelperTest {
         @Test
         void allEmailMethods_HandleExceptionsGracefully() throws MessagingException {
             doThrow(new MessagingException("Error")).when(emailService)
-                    .sendReservationConfirmationEmail(any(), any(), any(), anyDouble());
+                    .sendReservationConfirmationEmail(any(), any(), any(), any(BigDecimal.class));
             doThrow(new MessagingException("Error")).when(emailService)
-                    .sendOwnerReservedNotification(any(), any(), any(), anyDouble());
+                    .sendOwnerReservedNotification(any(), any(), any(), any(BigDecimal.class));
 
             assertDoesNotThrow(() ->
-                    emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation,3)
+                    emailServiceHelper.handleNewReservationEmails(guest, accommodation, reservation,BigDecimal.valueOf(3))
             );
         }
     }
