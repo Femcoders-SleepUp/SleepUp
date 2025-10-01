@@ -14,7 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.temporal.ChronoUnit;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -39,13 +39,7 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
         Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
         isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
 
-        long days = ChronoUnit.DAYS.between(isExisting.getCheckInDate(), isExisting.getCheckOutDate());
-
-        double amount = days * isExisting.getAccommodation().getPrice() ;
-
-        if(reservationServiceHelper.validateReservationAccommodationLessThanOneYear(isExisting.getAccommodation().getId(), isExisting.getAccommodation().getManagedBy().getId())){
-            amount = amount - amount*0.20;
-        }
+        BigDecimal amount = isExisting.getTotalPrice();
 
         if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting, amount);}
         if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailServiceHelper.sendCancellationByOwnerNotificationEmail(isExisting.getUser(), isExisting.getAccommodation(), isExisting);}

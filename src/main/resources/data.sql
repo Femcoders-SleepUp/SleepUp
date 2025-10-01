@@ -41,28 +41,30 @@ SELECT * FROM (
 ) AS tmp
 WHERE @is_initialized = 0;
 
+
 -- Insert reservations (solo si no está inicializado)
-INSERT INTO reservations (user_id, guest_number, accommodation_id, check_in_date, check_out_date, booking_status, email_sent, created_date)
+INSERT INTO reservations (user_id, guest_number, accommodation_id, check_in_date, check_out_date, booking_status, email_sent, created_date, total_price)
 SELECT * FROM (
-    SELECT 3 as user_id, 4 as guest_number, 5 as accommodation_id, '2026-07-15' as check_in_date, '2026-07-22' as check_out_date, 'CONFIRMED' as booking_status, true as email_sent, NOW() as created_date UNION ALL
-    SELECT 3, 2, 11, '2026-09-10', '2026-09-13', 'PENDING', false, NOW() UNION ALL
-    SELECT 4, 6, 1, '2026-08-05', '2026-08-12', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 4, 3, 7, '2026-06-20', '2026-06-25', 'CANCELLED', true, NOW() UNION ALL
-    SELECT 4, 4, 9, '2026-10-15', '2026-10-20', 'PENDING', false, NOW() UNION ALL
-    SELECT 5, 5, 8, '2026-05-10', '2026-05-17', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 5, 2, 11, '2026-11-01', '2026-11-04', 'PENDING', false, NOW() UNION ALL
-    SELECT 6, 7, 3, '2026-07-01', '2026-07-08', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 6, 4, 10, '2026-12-20', '2026-12-27', 'PENDING', false, NOW() UNION ALL
-    SELECT 6, 3, 7, '2026-04-15', '2026-04-18', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 7, 6, 4, '2026-02-15', '2026-02-22', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 7, 4, 5, '2026-09-05', '2026-09-10', 'PENDING', false, NOW() UNION ALL
-    SELECT 7, 8, 12, '2026-03-20', '2026-03-27', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 8, 3, 2, '2026-06-01', '2026-06-05', 'CONFIRMED', true, NOW() UNION ALL
-    SELECT 8, 5, 6, '2026-08-15', '2026-08-20', 'PENDING', false, NOW() UNION ALL
-    SELECT 8, 2, 11, '2026-04-10', '2026-04-13', 'CANCELLED', true, NOW() UNION ALL
-    SELECT 8, 6, 10, '2026-11-10', '2026-11-15', 'CONFIRMED', true, NOW()
+    SELECT 3 as user_id, 4 as guest_number, 5 as accommodation_id, '2026-07-15' as check_in_date, '2026-07-22' as check_out_date, 'CONFIRMED' as booking_status, true as email_sent, NOW() as created_date, 700.00 as total_price UNION ALL
+    SELECT 3, 2, 11, '2026-09-10', '2026-09-13', 'PENDING', false, NOW(), 300.00 UNION ALL
+    SELECT 4, 6, 1, '2026-08-05', '2026-08-12', 'CONFIRMED', true, NOW(), 1200.00 UNION ALL
+    SELECT 4, 3, 7, '2026-06-20', '2026-06-25', 'CANCELLED', true, NOW(), 500.00 UNION ALL
+    SELECT 4, 4, 9, '2026-10-15', '2026-10-20', 'PENDING', false, NOW(), 650.00 UNION ALL
+    SELECT 5, 5, 8, '2026-05-10', '2026-05-17', 'CONFIRMED', true, NOW(), 875.00 UNION ALL
+    SELECT 5, 2, 11, '2026-11-01', '2026-11-04', 'PENDING', false, NOW(), 350.00 UNION ALL
+    SELECT 6, 7, 3, '2026-07-01', '2026-07-08', 'CONFIRMED', true, NOW(), 980.00 UNION ALL
+    SELECT 6, 4, 10, '2026-12-20', '2026-12-27', 'PENDING', false, NOW(), 720.00 UNION ALL
+    SELECT 6, 3, 7, '2026-04-15', '2026-04-18', 'CONFIRMED', true, NOW(), 400.00 UNION ALL
+    SELECT 7, 6, 4, '2026-02-15', '2026-02-22', 'CONFIRMED', true, NOW(), 1140.00 UNION ALL
+    SELECT 7, 4, 5, '2026-09-05', '2026-09-10', 'PENDING', false, NOW(), 600.00 UNION ALL
+    SELECT 7, 8, 12, '2026-03-20', '2026-03-27', 'CONFIRMED', true, NOW(), 1360.00 UNION ALL
+    SELECT 8, 3, 2, '2026-06-01', '2026-06-05', 'CONFIRMED', true, NOW(), 420.00 UNION ALL
+    SELECT 8, 5, 6, '2026-08-15', '2026-08-20', 'PENDING', false, NOW(), 700.00 UNION ALL
+    SELECT 8, 2, 11, '2026-04-10', '2026-04-13', 'CANCELLED', true, NOW(), 300.00 UNION ALL
+    SELECT 8, 6, 10, '2026-11-10', '2026-11-15', 'CONFIRMED', true, NOW(), 1000.00
 ) AS tmp
 WHERE @is_initialized = 0;
+
 
 -- Marcar como inicializado (solo si no estaba antes)
 INSERT INTO db_initialization (id)

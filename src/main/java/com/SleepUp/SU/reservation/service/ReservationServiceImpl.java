@@ -15,6 +15,7 @@ import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -63,14 +64,11 @@ public class ReservationServiceImpl implements ReservationService{
                 user, accommodation,
                 false);
 
+        boolean discount = reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId());
+        BigDecimal amount = reservationServiceHelper.calculateReservationPrice(reservationRequest, accommodation, discount);
+
+        newReservation.setTotalPrice(amount);
         Reservation savedReservation = reservationRepository.save(newReservation);
-
-        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
-        double amount = days * accommodation.getPrice() ;
-
-        if(reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId())){
-            amount = amount - amount*0.20;
-        }
 
         emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation,amount);
         return reservationMapper.toDetail(savedReservation);

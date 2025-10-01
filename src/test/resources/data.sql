@@ -23,13 +23,13 @@ INSERT INTO accommodations (
 
 -- Insert 5 reservations linked to users and accommodations
 INSERT INTO reservations (
-  id, user_id, accommodation_id, check_in_date, check_out_date, booking_status, created_date, email_sent
+  id, user_id, accommodation_id, check_in_date, check_out_date, booking_status, created_date, email_sent, total_price
 ) VALUES
-  (1, 4, 1, '2025-09-21', '2025-09-24', 'CONFIRMED', NOW(), false),
-  (2, 2, 1, '2025-10-02', '2025-10-06', 'CONFIRMED', NOW(), false),
-  (3, 3, 3, '2025-09-16', '2025-09-20', 'CANCELLED', NOW(), false),
-  (4, 2, 4, '2025-10-06', '2025-10-12', 'CONFIRMED', NOW(), false),
-  (5, 1, 5, '2025-11-02', '2025-11-08', 'PENDING', NOW(), false);
+  (1, 4, 1, '2025-09-21', '2025-09-24', 'CONFIRMED', NOW(), false, 450.00),
+  (2, 2, 1, '2025-10-02', '2025-10-06', 'CONFIRMED', NOW(), false, 600.00),
+  (3, 3, 3, '2025-09-16', '2025-09-20', 'CANCELLED', NOW(), false, 0.00),
+  (4, 2, 4, '2025-10-06', '2025-10-12', 'CONFIRMED', NOW(), false, 750.00),
+  (5, 1, 5, '2025-11-02', '2025-11-08', 'PENDING', NOW(), false, 550.00);
 
 -- Reset sequences to avoid conflicts with future IDs
 ALTER TABLE users AUTO_INCREMENT = 5;

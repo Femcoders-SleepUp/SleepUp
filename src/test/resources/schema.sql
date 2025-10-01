@@ -44,6 +44,7 @@ CREATE TABLE reservations (
   guest_number INT DEFAULT NULL,
   accommodation_id BIGINT NOT NULL,
   user_id BIGINT NOT NULL,
+  total_price DECIMAL(19,2) NOT NULL,
   KEY FK_accommodation_id (accommodation_id),
   KEY FK_user_id (user_id),
   CONSTRAINT FK_accommodation FOREIGN KEY (accommodation_id) REFERENCES accommodations(id),

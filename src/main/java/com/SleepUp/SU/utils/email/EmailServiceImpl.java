@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.Period;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class EmailServiceImpl implements EmailService{
     }
 
     @Override
-    public void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation, double amount) throws MessagingException {
+    public void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation, BigDecimal amount) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
@@ -72,7 +72,7 @@ public class EmailServiceImpl implements EmailService{
 
     @Override
     public void sendReservationConfirmationEmail(String toEmail, String userName, String accommodationName,
-                                                 String location, String checkInDate, String checkOutDate, double amount) throws MessagingException {
+                                                 String location, String checkInDate, String checkOutDate, BigDecimal amount) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
@@ -215,7 +215,7 @@ public class EmailServiceImpl implements EmailService{
 
 
     @Override
-    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, double amount) throws MessagingException {
+    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation, BigDecimal amount) throws MessagingException {
         sendReservationConfirmationEmail(
                 guest.getEmail(),
                 guest.getName(),
