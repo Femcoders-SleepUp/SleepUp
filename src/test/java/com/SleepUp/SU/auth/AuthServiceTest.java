@@ -97,7 +97,7 @@ public class AuthServiceTest {
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-            verify(emailService).sendWelcomeEmail(userRequest, userSaved);
+            verify(emailService).sendWelcomeEmail(userSaved);
         }
 
     }
