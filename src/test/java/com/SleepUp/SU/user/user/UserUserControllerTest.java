@@ -58,7 +58,7 @@ public class UserUserControllerTest {
     class getLoggedUser {
 
         @Test
-        void when_authenticated_then_return_logged_user() throws Exception {
+        void getLoggedUser_whenUserIsAuthenticated_shouldReturnCurrentUserInfo() throws Exception {
             mockMvc.perform(get(LOGGED_USER)
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
@@ -71,7 +71,7 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_not_authenticated_then_return_unauthorized() throws Exception {
+        void getLoggedUser_whenNotAuthenticated_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(get(LOGGED_USER)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
@@ -82,7 +82,7 @@ public class UserUserControllerTest {
     class updateLoggedUser {
 
         @Test
-        void when_authenticated_then_update_logged_user() throws Exception {
+        void updateLoggedUser_whenAuthenticated_shouldUpdateAndReturnUpdatedUser() throws Exception {
             UserRequest request = new UserRequest("updatedUser", "updateName", "updated@email.com", "newPassword");
 
             mockMvc.perform(
@@ -99,7 +99,7 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_not_authenticated_then_update_fails_with_unauthorized() throws Exception {
+        void updateLoggedUser_whenNotAuthenticated_shouldReturnUnauthorized() throws Exception {
             String jsonRequest = """
             {
                 "username": "updatedUser",
@@ -118,7 +118,7 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_service_throws_exception_then_return_bad_request() throws Exception {
+        void updateLoggedUser_whenServiceThrowsException_shouldReturnBadRequest() throws Exception {
             String jsonRequest = """
             {
                 "username": "updatedUser",
@@ -143,7 +143,7 @@ public class UserUserControllerTest {
     class deleteLoggedUser {
 
         @Test
-        void when_authenticated_then_delete_logged_user() throws Exception {
+        void deleteLoggedUser_whenAuthenticated_shouldDeleteAccountAndReturnSuccess() throws Exception {
             mockMvc.perform(delete(LOGGED_USER)
                             .with(user(customUserDetails))
                             .accept(MediaType.APPLICATION_JSON))
@@ -152,7 +152,7 @@ public class UserUserControllerTest {
         }
 
         @Test
-        void when_not_authenticated_then_delete_fails_with_unauthorized() throws Exception {
+        void deleteLoggedUser_whenNotAuthenticated_shouldReturnUnauthorized() throws Exception {
             mockMvc.perform(delete(LOGGED_USER)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());

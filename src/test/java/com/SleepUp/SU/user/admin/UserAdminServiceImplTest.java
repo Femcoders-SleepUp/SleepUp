@@ -54,7 +54,7 @@ public class UserAdminServiceImplTest {
     class LoadUserTest {
 
         @Test
-        void should_loadExistingUser_fromRequest() {
+        void loadUserByUsername_existingUser_shouldReturnUserDetails() {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
             User userSaved = new User();
             userSaved.setId(1L);
@@ -82,7 +82,7 @@ public class UserAdminServiceImplTest {
         }
 
         @Test
-        void should_loadExistingUser_throw_exception() {
+        void loadUserByUsername_nonExistingUser_shouldThrowException() {
 
             when(userServiceHelper.getUserEntityByUsername("userTest"))
                     .thenThrow(new UsernameNotFoundException("userTest does not exist."));
@@ -96,7 +96,7 @@ public class UserAdminServiceImplTest {
     class UpdateUserTest {
 
         @Test
-        void updateUser_whenUserExists_shouldReturnUpdatedUserResponse() {
+        void updateUser_existingUser_shouldReturnUpdatedUser() {
 
             UserRequestAdmin request = UserRequestAdmin.builder()
                     .username("updatedUser")

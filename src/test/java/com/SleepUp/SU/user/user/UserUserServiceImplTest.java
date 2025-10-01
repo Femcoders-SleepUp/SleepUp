@@ -52,7 +52,7 @@ public class UserUserServiceImplTest {
     class getLoggedUser{
 
         @Test
-        void when_getLoggesUser_return_loggedUser(){
+        void getLoggedUser_whenUserExists_shouldReturnLoggedUser(){
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             UserResponse userResponse = new UserResponse(99L,"usernameTest", "nameTest", "email@test.com", Role.USER);
 
@@ -67,7 +67,7 @@ public class UserUserServiceImplTest {
         }
 
         @Test
-        void when_getLoggedUser_throw_exception() {
+        void getLoggedUser_whenUserNotFound_shouldThrowException() {
             when(userServiceHelper.getUserEntityById(99L))
                     .thenThrow(new IllegalArgumentException("Username by id does not exist"));
 
@@ -85,7 +85,7 @@ public class UserUserServiceImplTest {
     class updateLoggedUser {
 
         @Test
-        void when_updateLoggedUser_with_new_data_then_return_updated_response() {
+        void updateLoggedUser_whenValidRequest_shouldReturnUpdatedUser() {
             User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER, null, null);
             UserRequest request = new UserRequest("newUsername", "","new@email.com", "newPassword");
 
@@ -109,7 +109,7 @@ public class UserUserServiceImplTest {
         }
 
         @Test
-        void when_updateLoggedUser_with_empty_request_then_return_same_response() {
+        void updateLoggedUser_whenEmptyRequest_shouldReturnSameUser() {
             User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER, null, null);
             UserRequest request = new UserRequest("", "", "", "");
 
@@ -129,7 +129,7 @@ public class UserUserServiceImplTest {
         }
 
         @Test
-        void when_updateLoggedUser_user_not_found_then_throw_exception() {
+        void updateLoggedUser_whenUserNotFound_shouldThrowException() {
             UserRequest request = new UserRequest("any", "any", "any", "any");
 
             when(userServiceHelper.getUserEntityById(99L))
@@ -144,7 +144,7 @@ public class UserUserServiceImplTest {
     @Nested
     class deleteLoggedUser {
         @Test
-        void when_user_exists_then_delete_successfully() {
+        void deleteLoggedUser_whenUserExists_shouldDeleteSuccessfully() {
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             User user1 = new User(1L,"usernameTest1", "nameTest1", "email1@test.com", "testPassword", Role.USER, null, null);
 
