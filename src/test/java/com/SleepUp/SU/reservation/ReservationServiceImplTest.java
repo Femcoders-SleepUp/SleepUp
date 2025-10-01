@@ -63,7 +63,7 @@ public class ReservationServiceImplTest {
 
     @BeforeEach
     void setUp(){
-        mappedDtos = new ReservationResponseSummary(1L, "Maria",1,"María House",null,null,null,null,null);
+        mappedDtos = new ReservationResponseSummary(1L, "Maria",1,"María House",null,null,null,null);
         userId = 1L;
         mockReservations = List.of(new Reservation());
     }
@@ -140,7 +140,8 @@ public class ReservationServiceImplTest {
             ReservationResponseDetail expectedResponse = new ReservationResponseDetail(
                     1L, "Test User", 2, "Test Hotel",
                     reservationRequest.checkInDate(), reservationRequest.checkOutDate(),
-                    BookingStatus.PENDING, false, LocalDateTime.now()
+                    BookingStatus.PENDING, false, LocalDateTime.now(),
+                    BigDecimal.valueOf(100)
             );
 
             when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);

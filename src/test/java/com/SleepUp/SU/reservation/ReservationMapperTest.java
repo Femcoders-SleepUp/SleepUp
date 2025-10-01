@@ -56,8 +56,7 @@ public class ReservationMapperTest {
         assertEquals(reservation.getCheckInDate(), summary.checkInDate());
         assertEquals(reservation.getCheckOutDate(), summary.checkOutDate());
         assertEquals(reservation.getBookingStatus(), summary.bookingStatus());
-        assertEquals(reservation.getEmailSent(), summary.emailSent());
-        assertEquals(reservation.getCreatedDate(), summary.createdDate());
+        assertEquals(reservation.getTotalPrice(), summary.totalPrice());
     }
 
     @Test
