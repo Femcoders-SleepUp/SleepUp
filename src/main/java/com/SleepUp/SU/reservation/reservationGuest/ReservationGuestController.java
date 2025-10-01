@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class ReservationGuestController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @reservationAccessEvaluator.isReservationGuestOrOwner(#id, principal.id)")
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail getReservationById(@PathVariable Long id){
         return reservationGuestService.getReservationById(id);
@@ -45,6 +47,7 @@ public class ReservationGuestController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @reservationAccessEvaluator.isReservationGuest(#id, principal.id)")
     @ResponseStatus(HttpStatus.OK)
     public ApiMessageDto updateReservation(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                            @PathVariable Long id,
@@ -62,6 +65,7 @@ public class ReservationGuestController {
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
     @PatchMapping(value = "/{id}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN') or @reservationAccessEvaluator.isReservationGuest(#id, principal.id)")
     @ResponseStatus(HttpStatus.OK)
     public ApiMessageDto cancelReservation(
             @PathVariable Long id

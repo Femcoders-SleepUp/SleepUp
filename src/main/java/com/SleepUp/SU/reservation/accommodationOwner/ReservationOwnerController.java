@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,8 @@ import java.util.List;
 public class ReservationOwnerController {
     private final ReservationOwnerService reservationOwnerService;
 
-    @PatchMapping("accommodations/{id}/reservations")
+    @PreAuthorize("hasRole('ADMIN') or @accommodationAccessEvaluator.isOwner(#id, principal.id)")
+    @GetMapping("/accommodations/{id}/reservations")
     @ResponseStatus(HttpStatus.OK)
     public List<ReservationResponseSummary> getAllReservationsForMyAccommodation(@PathVariable Long id){
         return reservationOwnerService.getReservationsForMyAccommodation(id);
@@ -34,7 +36,8 @@ public class ReservationOwnerController {
                     @ApiResponse(responseCode = "409", ref = "#/components/responses/Conflict"),
                     @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
             })
-    @PatchMapping("reservations/{id}/status")
+    @PreAuthorize("hasRole('ADMIN') or @reservationAccessEvaluator.isReservationAccommodationOwner(#id, principal.id)")
+    @PatchMapping("/reservations/{id}/status")
     @ResponseStatus(HttpStatus.OK)
     public ReservationResponseDetail updateReservationStatus(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                              @PathVariable Long id,
