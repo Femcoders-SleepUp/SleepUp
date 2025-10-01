@@ -71,7 +71,7 @@ public class AuthServiceTest {
     class RegisterNewUserTest {
 
         @Test
-        void should_registerNewUser_fromRequest() throws MessagingException {
+        void register_validRequest_shouldReturnUserResponse() throws MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
 
             User userSaved = new User();
@@ -100,14 +100,13 @@ public class AuthServiceTest {
             verify(emailService).sendWelcomeEmail(userRequest, userSaved);
         }
 
-
     }
 
     @Nested
     class LoginTest {
 
         @Test
-        void should_loginUser_successfully() {
+        void login_validCredentials_shouldReturnAuthResponse() {
             LoginRequest loginRequest = new LoginRequest("userTest", "password123");
 
             Authentication mockAuthentication = mock(Authentication.class);
@@ -129,7 +128,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_loginUser_throw_authenticationException() {
+        void login_invalidCredentials_shouldThrowAuthenticationException() {
             LoginRequest loginRequest = new LoginRequest("userTest", "wrongPassword");
 
             when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
@@ -147,7 +146,7 @@ public class AuthServiceTest {
     class RefreshTest {
 
         @Test
-        void should_refreshToken_successfully() {
+        void refresh_validToken_shouldReturnAuthResponse() {
             RefreshRequest refreshRequest = new RefreshRequest("old-refresh-token");
             CustomUserDetails mockCustomUserDetails = mock(CustomUserDetails.class);
 
@@ -169,7 +168,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_refreshToken_throw_exception_when_token_is_blacklisted() {
+        void refresh_blacklistedToken_shouldThrowAuthenticationException() {
             RefreshRequest refreshRequest = new RefreshRequest("blacklisted-token");
             CustomUserDetails mockCustomUserDetails = mock(CustomUserDetails.class);
 
@@ -184,7 +183,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_refreshToken_throw_exception_when_token_is_invalid() {
+        void refresh_invalidToken_shouldThrowAuthenticationException() {
             RefreshRequest refreshRequest = new RefreshRequest("invalid-token");
             CustomUserDetails mockCustomUserDetails = mock(CustomUserDetails.class);
 
@@ -204,7 +203,7 @@ public class AuthServiceTest {
     class LogoutTest {
 
         @Test
-        void should_logout_successfully_with_access_token_only() {
+        void logout_withAccessTokenOnly_shouldReturnApiMessage() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer access-token");
@@ -220,7 +219,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_successfully_with_both_tokens() {
+        void logout_withBothTokens_shouldReturnApiMessage() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer access-token");
@@ -237,7 +236,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_throw_exception_when_no_authorization_header() {
+        void  logout_noAuthorizationHeader_shouldThrowAuthenticationException() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
@@ -250,7 +249,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_throw_exception_when_invalid_authorization_header() {
+        void logout_invalidAuthorizationHeaderFormat_shouldThrowAuthenticationException() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Invalid-header");
@@ -263,7 +262,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_successfully_with_invalid_access_token() {
+        void logout_invalidAccessToken_shouldReturnApiMessageWithoutBlacklisting() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer invalid-token");
@@ -277,7 +276,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_successfully_with_valid_access_token_and_invalid_refresh_token() {
+        void logout_validAccessTokenAndInvalidRefreshToken_shouldBlacklistAccessOnly() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer access-token");
