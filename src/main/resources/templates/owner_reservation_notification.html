@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}"
+      th:with="footerMessage=#{welcome.footer}">
+<head>
+    <title>Reservation Confirmation</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div th:replace="fragments/greeting :: greeting(${userName})">Hello Owner</div>
+
+    <div th:replace="fragments/text-message :: textMessage(
+    #{reservation.confirmed.heading},
+    'confirmed',
+    'green')"></div>
+
+    <div th:replace="fragments/reservation-wrapper :: reservationDetailsForOwner"></div>
+
+    <div th:replace="fragments/link :: link(${dashboardUrl}, #{reservation.button})">View Reservation</div>
+
+</div>
+</body>
+</html>

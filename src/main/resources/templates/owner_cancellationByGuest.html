@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}"
+      th:with="footerMessage=#{reservation.cancelled.owner.footer}">
+<head>
+  <title th:text="#{reservation.cancellation.title}">Reservation Cancellation</title>
+</head>
+<body>
+<div th:fragment="content">
+  <div th:replace="fragments/greeting :: greeting(${userName})">Hello, Owner!</div>
+
+  <div th:replace="fragments/text-message :: textMessage(
+      #{reservation.cancelled.owner.heading},
+      'cancelled',
+      'red'
+  )"></div>
+
+  <div th:replace="fragments/reservation-wrapper :: reservationDetailsForOwner"></div>
+
+  <p th:text="#{reservation.cancelled.support}">
+    If you have any questions or need assistance, feel free to contact our support team.
+  </p>
+
+  <div th:replace="fragments/link :: link(${dashboardUrl}, #{accommodation.button})">View Accommodation</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Owner reservation details fragment with default parameters -->
+<div th:fragment="reservationDetailsForOwner"
+     th:with="
+        accommodationName=${accommodationName ?: 'Default Accommodation'},
+        location=${location ?: 'Default Location'},
+        checkInDate=${checkInDate ?: 'N/A'},
+        checkOutDate=${checkOutDate ?: 'N/A'},
+        amount=${amount ?: 'N/A'},
+        discountAmount=${discountAmount ?: null},
+        guestName=${guestName ?: 'Unknown Guest'}
+     ">
+    <div th:replace="fragments/reservation :: details(
+        ${accommodationName},
+        ${location},
+        ${checkInDate},
+        ${checkOutDate},
+        ${amount},
+        ${discountAmount},
+        ${guestName},
+        'owner')"></div>
+</div>
+
+
+<!-- Guest reservation details fragment with default parameters -->
+<div th:fragment="reservationDetailsForGuest"
+     th:with="
+        accommodationName=${accommodationName ?: 'Default Accommodation'},
+        location=${location ?: 'Default Location'},
+        checkInDate=${checkInDate ?: 'N/A'},
+        checkOutDate=${checkOutDate ?: 'N/A'},
+        amount=${amount ?: 'N/A'},
+        discountAmount=${discountAmount ?: null}
+     ">
+    <div th:replace="fragments/reservation :: details(
+        ${accommodationName},
+        ${location},
+        ${checkInDate},
+        ${checkOutDate},
+        ${amount},
+        ${discountAmount},
+        null,
+        'guest')"></div>
+</div>
+
+
+</body>
+</html>

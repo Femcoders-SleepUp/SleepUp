@@ -66,7 +66,7 @@ public class EmailServiceHelper {
 
     public void sendReservationReminderEmail(Reservation reservation) {
         try {
-            emailService.sendReservationReminderEmail(reservation);
+            emailService.sendGuestReservationReminderEmail(reservation);
             logger.info("Reservation reminder email sent successfully to: {}", reservation.getUser().getEmail());
         } catch (Exception e) {
             logger.warn("Failed to send reservation reminder email to {}: {}", reservation.getUser().getEmail(), e.getMessage());
