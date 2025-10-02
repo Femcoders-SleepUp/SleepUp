@@ -10,6 +10,13 @@ on:
 
 jobs:
   test-docker:
+
+    env:
+      # Cloudinary dummy variables for testing
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      
     # Use the latest Ubuntu runner for consistent test environment
     runs-on: ubuntu-latest
 
