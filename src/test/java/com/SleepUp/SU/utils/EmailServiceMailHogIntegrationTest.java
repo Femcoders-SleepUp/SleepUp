@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @SpringBootTest
-@ActiveProfiles("test") // application-test.yml should configure SMTP pointing to MailHog localhost:1025
+@ActiveProfiles("test")
 public class EmailServiceMailHogIntegrationTest {
 
     @Autowired
@@ -97,27 +97,3 @@ public class EmailServiceMailHogIntegrationTest {
         Thread.sleep(1000);
     }
 }
-
-//@Test
-//void createReservation_validData_shouldReturnCreatedReservation() throws Exception {
-//    ReservationRequest request = new ReservationRequest(
-//            1,
-//            LocalDate.of(2025, 10, 1),
-//            LocalDate.of(2025, 10, 8)
-//    );
-//
-//    Long accommodationId = 2L;
-//    Accommodation accommodation = accommodationRepository.findById(accommodationId)
-//            .orElseThrow(() -> new RuntimeException("Accommodation with id 2L not found"));
-//
-//    mockMvc.perform(post(ACCOMMODATIONS_PATH + "/{accommodationId}/reservations", accommodationId)
-//                    .with(user(principal2))
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(objectMapper.writeValueAsString(request)))
-//            .andDo(print())
-//            .andExpect(status().isCreated())
-//            .andExpect(jsonPath("$.accommodationName").value(accommodation.getName()))
-//            .andExpect(jsonPath("$.guestNumber").value(1))
-//            .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
-//            .andExpect(jsonPath("$.userName").value(principal2.getUser().getName()));
-//}
