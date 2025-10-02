@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}"
+      th:with="footerMessage=#{welcome.footer}">
+<head>
+    <title th:text="#{reservation.reminder.title}">Reservation Reminder</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div th:replace="fragments/greeting :: greeting(${guestName})">Hello, Guest!</div>
+
+    <div th:replace="fragments/text-message :: textMessage(
+        #{reservation.reminder.message.guest},
+        'reminder',
+        'orange'
+    )"></div>
+
+    <div th:replace="fragments/reservation-wrapper :: reservationDetailsForGuest"></div>
+
+    <p th:text="#{reservation.reminder.guest.dashboardInfo}">
+        You can view your reservation details and manage your stay by logging into your SleepUp dashboard.
+    </p>
+
+    <div th:replace="fragments/link :: link(${dashboardUrl}, #{reservation.button})">View Reservation</div>
+</div>
+</body>
+</html>
