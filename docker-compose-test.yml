@@ -30,6 +30,10 @@ services:
       - DB_URL_TEST=jdbc:mysql://sleepUp-test-db:3306/sleepUp # Database connection URL using service name
       - DB_USER=sleepUp # Database username
       - DB_PASSWORD=sleepUp123 # Database password
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      
 
     # Restart policy - never restart (single-run test container)
     restart: no
