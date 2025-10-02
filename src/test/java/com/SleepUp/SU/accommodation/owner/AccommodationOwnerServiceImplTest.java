@@ -112,7 +112,7 @@ public class AccommodationOwnerServiceImplTest {
 //
 //        @SuppressWarnings("unchecked")
 //        @Test
-//        void getAllAccommodationsByOwnerId_shouldReturnAccommodationsSummariesList() {
+//        void getAllAccommodationsByOwnerId_ownerHasAccommodations_shouldReturnSummariesList() {
 //            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(accommodations);
 //            when(mapperUtil.mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(expectedSummaries);
 //
@@ -127,7 +127,7 @@ public class AccommodationOwnerServiceImplTest {
 //
 //        @SuppressWarnings("unchecked")
 //        @Test
-//        void getAllAccommodationsByOwnerId_shouldReturnEmptyList() {
+//        void getAllAccommodationsByOwnerId_ownerHasNoAccommodations_shouldReturnEmptyList() {
 //            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(List.of());
 //            when(mapperUtil.mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(List.of());
 //
