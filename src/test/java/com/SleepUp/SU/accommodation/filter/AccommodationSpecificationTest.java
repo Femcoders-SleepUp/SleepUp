@@ -110,7 +110,7 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testHasName() {
+    void hasName_validInput_shouldReturnLikePredicate() {
         stubStringProperty("name");
         Specification<Accommodation> spec = AccommodationSpecification.hasName(filter.name());
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
@@ -119,13 +119,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testHasName_withNull() {
+    void  hasName_nullInput_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.hasName(null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for hasName with null input");
     }
 
     @Test
-    void testHasDescription() {
+    void hasDescription_validInput_shouldReturnLikePredicate() {
         stubStringProperty("description");
         Specification<Accommodation> spec = AccommodationSpecification.hasDescription(filter.description());
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
@@ -134,13 +134,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testHasDescription_withNull() {
+    void hasDescription_nullInput_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.hasDescription(null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for hasDescription with null input");
     }
 
     @Test
-    void testPriceBetween_bothNonNull() {
+    void priceBetween_bothBoundsNonNull_shouldReturnBetweenPredicate() {
         stubDoubleProperty("price");
         when(criteriaBuilder.between(any(Expression.class), any(Double.class), any(Double.class))).thenReturn(predicate);
         Specification<Accommodation> spec = AccommodationSpecification.priceBetween(filter.minPrice(), filter.maxPrice());
@@ -150,7 +150,7 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testPriceBetween_minNull() {
+    void priceBetween_minNull_shouldReturnLessThanOrEqualToPredicate() {
         stubDoubleProperty("price");
         when(criteriaBuilder.lessThanOrEqualTo(any(Expression.class), any(Double.class))).thenReturn(predicate);
         Specification<Accommodation> spec = AccommodationSpecification.priceBetween(null, filter.maxPrice());
@@ -160,7 +160,7 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testPriceBetween_maxNull() {
+    void  priceBetween_maxNull_shouldReturnGreaterThanOrEqualToPredicate() {
         stubDoubleProperty("price");
         when(criteriaBuilder.greaterThanOrEqualTo(any(Expression.class), any(Double.class))).thenReturn(predicate);
         Specification<Accommodation> spec = AccommodationSpecification.priceBetween(filter.minPrice(), null);
@@ -170,13 +170,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testPriceBetween_bothNull() {
+    void priceBetween_bothNull_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.priceBetween(null, null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for priceBetween with both bounds null");
     }
 
     @Test
-    void testGuestNumber() {
+    void guestNumber_validInput_shouldReturnEqualPredicate() {
         Path<Object> path = (Path<Object>) mock(Path.class);
         when(root.get("guestNumber")).thenReturn(path);
         Integer guestNumber = 2;
@@ -187,13 +187,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testGuestNumber_withNull() {
+    void guestNumber_nullInput_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.guestNumber(null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for guestNumber with null input");
     }
 
     @Test
-    void testLocatedAt() {
+    void locatedAt_validInput_shouldReturnLikePredicate() {
         stubStringProperty("location");
         Specification<Accommodation> spec = AccommodationSpecification.locatedAt(filter.location());
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
@@ -202,13 +202,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testLocatedAt_withNull() {
+    void locatedAt_nullInput_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.locatedAt(null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for locatedAt with null input");
     }
 
     @Test
-    void testAvailableBetween_bothNonNull() {
+    void availableBetween_bothDatesNonNull_shouldReturnAndPredicate() {
         stubDateProperty("availableFrom");
         stubDateProperty("availableTo");
         when(criteriaBuilder.lessThanOrEqualTo(any(Expression.class), any(LocalDate.class))).thenReturn(predicate);
@@ -221,7 +221,7 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testAvailableBetween_fromNull() {
+    void availableBetween_fromDateNull_shouldReturnLessThanOrEqualToPredicate() {
         stubDateProperty("availableTo");
         when(criteriaBuilder.lessThanOrEqualTo(any(Expression.class), any(LocalDate.class))).thenReturn(predicate);
         Specification<Accommodation> spec = AccommodationSpecification.availableBetween(null, filter.toDate());
@@ -231,7 +231,7 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testAvailableBetween_toNull() {
+    void availableBetween_toDateNull_shouldReturnGreaterThanOrEqualToPredicate() {
         stubDateProperty("availableFrom");
         when(criteriaBuilder.greaterThanOrEqualTo(any(Expression.class), any(LocalDate.class))).thenReturn(predicate);
         Specification<Accommodation> spec = AccommodationSpecification.availableBetween(filter.fromDate(), null);
@@ -241,13 +241,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testAvailableBetween_bothNull() {
+    void availableBetween_bothDatesNull_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.availableBetween(null, null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for availableBetween with both dates null");
     }
 
     @Test
-    void testNoBookingOverlap_withValidDates_separatedStubs() {
+    void noBookingOverlap_validDates_shouldReturnNonBookingOverlapPredicate() {
         LocalDate newStartDate = filter.fromDate();
         LocalDate newEndDate = filter.toDate();
 
@@ -261,28 +261,28 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testNoBookingOverlap_withNullDates() {
+    void noBookingOverlap_nullDates_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.noBookingOverlap(null, null);
         Predicate result = spec.toPredicate(mock(Root.class), mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
         assertNull(result, "Expected null predicate for noBookingOverlap with null dates");
     }
 
     @Test
-    void testNoBookingOverlap_withNullStartDate() {
+    void noBookingOverlap_nullStartDate_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.noBookingOverlap(null, filter.toDate());
         Predicate result = spec.toPredicate(mock(Root.class), mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
         assertNull(result, "Expected null predicate when newStartDate is null");
     }
 
     @Test
-    void testNoBookingOverlap_withNullEndDate() {
+    void noBookingOverlap_nullEndDate_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.noBookingOverlap(filter.fromDate(), null);
         Predicate result = spec.toPredicate(mock(Root.class), mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
         assertNull(result, "Expected null predicate when newEndDate is null");
     }
 
     @Test
-    void testPetFriendly_true() {
+    void petFriendly_trueInput_shouldReturnIsTruePredicate() {
         stubBooleanProperty("petFriendly");
         Specification<Accommodation> spec = AccommodationSpecification.petFriendly(true);
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
@@ -291,7 +291,7 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testPetFriendly_false() {
+    void petFriendly_falseInput_shouldReturnIsFalsePredicate() {
         stubBooleanProperty("petFriendly");
         Specification<Accommodation> spec = AccommodationSpecification.petFriendly(false);
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
@@ -300,13 +300,13 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
-    void testPetFriendly_null() {
+    void petFriendly_nullInput_shouldReturnNull() {
         Specification<Accommodation> spec = AccommodationSpecification.petFriendly(null);
         assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for petFriendly(null)");
     }
 
     @Test
-    void testBuildSpecification() {
+    void buildSpecification_validFilter_shouldReturnCombinedPredicate() {
         LocalDate newStartDate = filter.fromDate();
         LocalDate newEndDate = filter.toDate();
 
