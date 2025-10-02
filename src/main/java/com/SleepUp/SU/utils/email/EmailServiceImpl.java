@@ -51,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendReservationReminderEmail(Reservation reservation) throws MessagingException {
+    public void sendGuestReservationReminderEmail(Reservation reservation) throws MessagingException {
         User guest = getGuest(reservation);
         Context context = createFullContext(reservation, guest, null);
 

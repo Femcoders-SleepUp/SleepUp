@@ -103,12 +103,12 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendReservationReminderEmail_Success() throws MessagingException {
+    void sendGuestReservationReminderEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("ReminderGuestReservation"), any(Context.class)))
                 .thenReturn("<html>Reminder</html>");
 
-        emailService.sendReservationReminderEmail(reservation);
+        emailService.sendGuestReservationReminderEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("ReminderGuestReservation"), any(Context.class));
