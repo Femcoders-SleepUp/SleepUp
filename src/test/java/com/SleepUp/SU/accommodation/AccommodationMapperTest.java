@@ -24,7 +24,7 @@ class AccommodationMapperTest {
     }
 
     @Test
-    void testToSummaryMapping() {
+    void toSummary_validAccommodation_shouldMapAllFields() {
         Accommodation accommodation = Accommodation.builder()
                 .id(1L)
                 .name("Cozy Apartment")
@@ -49,7 +49,7 @@ class AccommodationMapperTest {
     }
 
     @Test
-    void testToEntityMapping() {
+    void toEntity_validRequestAndUser_shouldMapFieldsAndSetManagedBy() {
         User user = new User();
         user.setId(99L);
         user.setUsername("hostUser");

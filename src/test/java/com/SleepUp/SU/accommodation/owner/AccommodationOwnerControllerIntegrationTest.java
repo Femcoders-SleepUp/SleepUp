@@ -94,7 +94,7 @@ class AccommodationOwnerControllerIntegrationTest {
 
     @Test
     @WithMockUser(username = "testUser", authorities = {"USER"})
-    void shouldReturnAllOwnerAccommodations() throws Exception {
+    void getOwnerAccommodations_authenticatedUser_shouldReturnSummaryList() throws Exception {
 
         mockMvc.perform(get("/accommodations/me")
                         .with(user(customUserDetails))
