@@ -37,16 +37,16 @@ public class UserServiceHelperTest {
     class findById{
 
         @Test
-        void when_checkUserId_return_user() {
+        void findByUserId_validId_shouldReturnUser() {
             User user = new User();
             user.setId(99L);
             user.setUsername("test");
             when(userRepository.findById(99L)).thenReturn(Optional.of(user));
 
-            User result = userServiceHelper.findById(99L);
+            User result = userServiceHelper.getUserEntityById(99L);
 
             assertNotNull(result);
-            assertDoesNotThrow(() ->userServiceHelper.findById(99L));
+            assertDoesNotThrow(() ->userServiceHelper.getUserEntityById(99L));
             assertEquals(99L, result.getId());
             assertEquals("test", result.getUsername());
         }
@@ -57,7 +57,7 @@ public class UserServiceHelperTest {
 
         @Test
         @MockitoSettings(strictness = Strictness.LENIENT)
-        void when_validateUserDoesNotExist_then_noExceptionThrow() {
+        void validateUserDoesNotExist_whenNoConflict_shouldPass() {
             when(userRepository.existsByUsername("testUser")). thenReturn(false);
             when(userRepository.existsByUsername("testUser@email.com")). thenReturn(false);
 
@@ -65,7 +65,7 @@ public class UserServiceHelperTest {
         }
 
         @Test
-        void when_username_exists_then_throw_exception() {
+        void validateUserDoesNotExist_whenUsernameExists_shouldThrowException() {
             when(userRepository.existsByUsername("testUser")).thenReturn(true);
 
             UserUsernameAlreadyExistsException exception = assertThrows(
@@ -77,7 +77,7 @@ public class UserServiceHelperTest {
         }
 
         @Test
-        void when_email_exists_then_throw_exception() {
+        void validateUserDoesNotExist_whenEmailExists_shouldThrowException() {
             when(userRepository.existsByUsername("testUser")).thenReturn(false);
             when(userRepository.existsByEmail("testUser@email.com")).thenReturn(true);
 

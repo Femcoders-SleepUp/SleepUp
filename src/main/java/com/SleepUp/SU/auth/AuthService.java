@@ -10,7 +10,7 @@ import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
-import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
@@ -42,11 +42,9 @@ public class AuthService {
 
     @Transactional
     public UserResponse register(UserRequest request) throws MessagingException {
-        userServiceHelper.validateUserDoesNotExist(request.username(), request.email());
-        String encodedPassword = passwordEncoder.encode(request.password());
-        User user = userMapper.toEntity(request, encodedPassword, Role.USER);
-        emailServiceHelper.sendWelcomeEmail(request, user);
-        return userMapper.toResponse(userRepository.save(user));
+        User savedUser = userServiceHelper.createUser(request, Role.USER);
+        emailServiceHelper.sendWelcomeEmail(savedUser);
+        return userMapper.toResponse(savedUser);
     }
 
     public AuthResponse login(LoginRequest loginRequest) {

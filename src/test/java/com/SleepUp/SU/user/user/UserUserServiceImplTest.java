@@ -52,11 +52,11 @@ public class UserUserServiceImplTest {
     class getLoggedUser{
 
         @Test
-        void when_getLoggesUser_return_loggedUser(){
+        void getLoggedUser_whenUserExists_shouldReturnLoggedUser(){
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             UserResponse userResponse = new UserResponse(99L,"usernameTest", "nameTest", "email@test.com", Role.USER);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             when(userMapper.toResponse(user)).thenReturn(userResponse);
             UserResponse response = userUserServiceImpl.getLoggedUser(99L);
 
@@ -67,8 +67,8 @@ public class UserUserServiceImplTest {
         }
 
         @Test
-        void when_getLoggedUser_throw_exception() {
-            when(userServiceHelper.findById(99L))
+        void getLoggedUser_whenUserNotFound_shouldThrowException() {
+            when(userServiceHelper.getUserEntityById(99L))
                     .thenThrow(new IllegalArgumentException("Username by id does not exist"));
 
             IllegalArgumentException exception = assertThrows(
@@ -85,14 +85,14 @@ public class UserUserServiceImplTest {
     class updateLoggedUser {
 
         @Test
-        void when_updateLoggedUser_with_new_data_then_return_updated_response() {
+        void updateLoggedUser_whenValidRequest_shouldReturnUpdatedUser() {
             User user = new User(99L, "oldUsername", "oldName", "old@email.com", "oldPassword", Role.USER, null, null);
             UserRequest request = new UserRequest("newUsername", "","new@email.com", "newPassword");
 
             User updatedUser = new User(99L, "newUsername", "oldName", "new@email.com", "encodedPassword", Role.USER, null, null);
             UserResponse expectedResponse = new UserResponse(99L, "newUsername", "oldName", "new@email.com", Role.USER);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             doAnswer(invocation -> {
                 user.setUsername("newUsername");
                 user.setEmail("new@email.com");
@@ -109,13 +109,13 @@ public class UserUserServiceImplTest {
         }
 
         @Test
-        void when_updateLoggedUser_with_empty_request_then_return_same_response() {
+        void updateLoggedUser_whenEmptyRequest_shouldReturnSameUser() {
             User user = new User(99L, "sameUsername", "sameName", "same@email.com", "samePassword", Role.USER, null, null);
             UserRequest request = new UserRequest("", "", "", "");
 
             UserResponse expectedResponse = new UserResponse(99L, "sameUsername", "sameName", "same@email.com", Role.USER);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             doAnswer(invocation -> {
                 return null;
             }).when(userServiceHelper).updateUserData(request, user);
@@ -129,10 +129,10 @@ public class UserUserServiceImplTest {
         }
 
         @Test
-        void when_updateLoggedUser_user_not_found_then_throw_exception() {
+        void updateLoggedUser_whenUserNotFound_shouldThrowException() {
             UserRequest request = new UserRequest("any", "any", "any", "any");
 
-            when(userServiceHelper.findById(99L))
+            when(userServiceHelper.getUserEntityById(99L))
                     .thenThrow(new IllegalArgumentException("User not found"));
 
             assertThrows(IllegalArgumentException.class, () -> {
@@ -144,11 +144,11 @@ public class UserUserServiceImplTest {
     @Nested
     class deleteLoggedUser {
         @Test
-        void when_user_exists_then_delete_successfully() {
+        void deleteLoggedUser_whenUserExists_shouldDeleteSuccessfully() {
             User user = new User(99L,"usernameTest", "nameTest", "email@test.com", "testPassword", Role.USER, null, null);
             User user1 = new User(1L,"usernameTest1", "nameTest1", "email1@test.com", "testPassword", Role.USER, null, null);
 
-            when(userServiceHelper.findById(99L)).thenReturn(user);
+            when(userServiceHelper.getUserEntityById(99L)).thenReturn(user);
             when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
 
             when(accommodationRepository.findByManagedBy_Id(99L)).thenReturn(List.of());

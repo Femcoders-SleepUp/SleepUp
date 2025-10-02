@@ -4,7 +4,7 @@ import com.SleepUp.SU.auth.dto.*;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
-import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

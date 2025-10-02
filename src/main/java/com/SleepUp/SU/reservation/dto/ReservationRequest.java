@@ -13,11 +13,11 @@ public record ReservationRequest(
         Integer guestNumber,
 
         @NotNull
-        @JsonFormat(pattern = "yyyy-MM-dd")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         LocalDate checkInDate,
 
         @NotNull
-        @JsonFormat(pattern = "yyyy-MM-dd")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         LocalDate checkOutDate
 ) {
 }

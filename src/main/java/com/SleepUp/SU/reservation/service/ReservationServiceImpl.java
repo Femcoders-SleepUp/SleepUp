@@ -6,17 +6,18 @@ import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.reservation.reservationtime.ReservationTime;
+import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -63,30 +64,14 @@ public class ReservationServiceImpl implements ReservationService{
                 user, accommodation,
                 false);
 
+        boolean discount = reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId());
+        BigDecimal amount = reservationServiceHelper.calculateReservationPrice(reservationRequest, accommodation, discount);
+
+        newReservation.setTotalPrice(amount);
         Reservation savedReservation = reservationRepository.save(newReservation);
 
-        emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation);
+        emailServiceHelper.sendOwnerReservedNotification(savedReservation);
         return reservationMapper.toDetail(savedReservation);
     }
 
-    @Override
-    public ApiMessage cancelReservation(Long reservationId) {
-        Reservation reservation = reservationServiceHelper.getReservationEntityById(reservationId);
-
-        reservationServiceHelper.validateReservationCancellable(reservation);
-        reservation.setBookingStatus(BookingStatus.CANCELLED);
-        Reservation savedReservation = reservationRepository.save(reservation);
-
-        emailServiceHelper.sendCancellationConfirmationEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
-        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation.getUser(), reservation.getAccommodation(), reservation);
-      
-        String message = String.format(
-                "Your reservation in %s from %s to %s has been cancelled",
-                savedReservation.getAccommodation().getName(),
-                savedReservation.getCheckInDate(),
-                savedReservation.getCheckOutDate()
-        );
-
-        return new ApiMessage(message);
-    }
 }

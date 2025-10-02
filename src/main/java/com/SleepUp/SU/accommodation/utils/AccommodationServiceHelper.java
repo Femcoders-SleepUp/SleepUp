@@ -28,6 +28,10 @@ public class AccommodationServiceHelper {
         return accommodationRepository.findById(id).orElseThrow(() -> new AccommodationNotFoundByIdException(id));
     }
 
+    public boolean isAccommodationOwnedByUser(Long accommodationId, Long userId){
+        return accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId);
+    }
+
     public void cloudinaryManagement(AccommodationRequest accommodationRequest, Accommodation accommodationIsExisting) {
         if (accommodationRequest.image() != null && !accommodationRequest.image().isEmpty()) {
             deleteImageCloudinary(accommodationIsExisting.getImageUrl());

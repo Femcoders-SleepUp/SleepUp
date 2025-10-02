@@ -1,6 +1,6 @@
 package com.SleepUp.SU.accommodation.security;
 
-import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
+import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -8,16 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AccommodationAccessEvaluator {
-    private final AccommodationRepository accommodationRepository;
+    private final AccommodationServiceHelper accommodationServiceHelper;
 
     public boolean isOwner(Long accommodationId, Long userId) {
-        boolean owner = accommodationRepository.existsByIdAndManagedBy_Id(accommodationId, userId);
+        boolean owner = accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
         if (!owner) {
             throw new AccessDeniedException(
-                    "User ID " + userId + " cannot access Accommodation ID " + accommodationId +
-                            ". Only the owner is authorized to access this resource."
+                    "Cause: You are not the owner of this accommodation."
             );
         }
-        return true;
+        return owner;
     }
 }

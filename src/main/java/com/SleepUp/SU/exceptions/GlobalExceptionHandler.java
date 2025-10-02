@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.FORBIDDEN;
-        ErrorResponse body = new ErrorResponse(status, "Forbidden: " + exception.getMessage(), request);
+        ErrorResponse body = new ErrorResponse(status, "Access Denied. You are not authorized to execute this action. " + exception.getMessage(), request);
         return ResponseEntity.status(status).body(body);
     }
 

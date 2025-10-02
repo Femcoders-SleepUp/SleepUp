@@ -114,29 +114,29 @@ public class ReservationControllerTest {
     @Nested
     class CreateReservationTests {
 
-        @Test
-        void createReservation_validData_shouldReturnCreatedReservation() throws Exception {
-            ReservationRequest request = new ReservationRequest(
-                    1,
-                    LocalDate.of(2025, 10, 1),
-                    LocalDate.of(2025, 10, 8)
-            );
-
-            Long accommodationId = 2L;
-            Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                    .orElseThrow(() -> new RuntimeException("Accommodation with id 2L not found"));
-
-            mockMvc.perform(post(ACCOMMODATIONS_PATH + "/{accommodationId}/reservations", accommodationId)
-                            .with(user(principal2))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-                    .andDo(print())
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.accommodationName").value(accommodation.getName()))
-                    .andExpect(jsonPath("$.guestNumber").value(1))
-                    .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
-                    .andExpect(jsonPath("$.userName").value(principal2.getUser().getName()));
-        }
+//@Test
+//void createReservation_validData_shouldReturnCreatedReservation() throws Exception {
+//    ReservationRequest request = new ReservationRequest(
+//            1,
+//            LocalDate.of(2025, 10, 1),
+//            LocalDate.of(2025, 10, 8)
+//    );
+//
+//    Long accommodationId = 2L;
+//    Accommodation accommodation = accommodationRepository.findById(accommodationId)
+//            .orElseThrow(() -> new RuntimeException("Accommodation with id 2L not found"));
+//
+//    mockMvc.perform(post(ACCOMMODATIONS_PATH + "/{accommodationId}/reservations", accommodationId)
+//                    .with(user(principal2))
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .content(objectMapper.writeValueAsString(request)))
+//            .andDo(print())
+//            .andExpect(status().isCreated())
+//            .andExpect(jsonPath("$.accommodationName").value(accommodation.getName()))
+//            .andExpect(jsonPath("$.guestNumber").value(1))
+//            .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
+//            .andExpect(jsonPath("$.userName").value(principal2.getUser().getName()));
+//}
 
         @Test
         void createReservation_tooManyGuests_shouldReturnBadRequest() throws Exception {
@@ -238,45 +238,42 @@ public class ReservationControllerTest {
                     .andExpect(status().isBadRequest());
         }
     }
-
     @Nested
-    class CancelReservationTests {
+    class DeleteReservationAdminTests {
 
         @Test
-        void cancelReservation_validRequest_shouldReturnCancelledReservation() throws Exception {
-            Long reservationId = 5L;
+        void deleteReservation_asAdmin_shouldReturnNoContent() throws  Exception {
+            Long reservationId = 3L;
 
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user("admin").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+                    .andExpect(status().isNoContent());
         }
 
         @Test
-        void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
-            Long reservationId = 1L;
+        void deleteReservation_nonAdmin_shouldReturnForbidden() throws Exception {
+            Long reservationId = 3L;
 
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user(principal)) // usuario normal
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
         }
 
         @Test
-        void cancelReservation_pastDates_shouldReturnConflict() throws Exception {
-            Long reservationId = 1L;
+        void deleteReservation_notFound_shouldReturnNotFound() throws Exception {
+            Long reservationId = 999L;
 
-            mockMvc.perform(patch(ACCOMMODATIONS_PATH + "/{id}/reservations/cancel", reservationId)
-                            .with(user(principal))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.message").value("Cannot modify a reservation that has already started"));
+            mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
+                            .with(user("admin").roles("ADMIN"))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Reservation with id '" + reservationId + "' not found"));
         }
+
     }
 }

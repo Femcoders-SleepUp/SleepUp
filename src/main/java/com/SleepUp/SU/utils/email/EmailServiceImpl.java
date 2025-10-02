@@ -13,10 +13,12 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl implements EmailService {
 
     private static final String UTF8_ENCODING = "UTF-8";
     private static final String DASHBOARD_URL = "http://localhost:8080/swagger-ui/index.html#/";
@@ -25,266 +27,128 @@ public class EmailServiceImpl implements EmailService{
     private final SpringTemplateEngine templateEngine;
 
     @Override
-    public void sendWelcomeEmail(String toEmail, String userName) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
+    public void sendWelcomeEmail(User user) throws MessagingException {
+        Context context = createContext();
+        context.setVariable("userName", user.getName());
 
-        Context context = new Context();
-        context.setVariable("userName", userName);
-        context.setVariable("dashboardUrl", DASHBOARD_URL);
-
-        String htmlContent = templateEngine.process("WelcomeUser", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Welcome to SleepUp!");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Welcome email sent successfully to: {}", toEmail);
+        sendEmail(user.getEmail(), "Welcome to SleepUp!", "WelcomeUser", context);
     }
 
     @Override
-    public void sendOwnerReservedNotification(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
+    public void sendOwnerReservedNotification(Reservation reservation) throws MessagingException {
+        User owner = getOwner(reservation);
+        User guest = getGuest(reservation);
+        Context context = createReservationContext(reservation);
+        context.setVariable("ownerName", owner.getName());
+        context.setVariable("guestName", guest.getName());
 
+        sendEmail(owner.getEmail(), "Your property has just been booked!", "NotificationReservationOwner", context);
+    }
+
+    @Override
+    public void sendGuestReservationConfirmationEmail(Reservation reservation, BigDecimal discountAmount) throws MessagingException {
+        User guest = getGuest(reservation);
+        Context context = createReservationContext(reservation);
+        context.setVariable("userName", guest.getName());
+        context.setVariable("discountAmount", discountAmount);
+
+        sendEmail(guest.getEmail(), "Your Booking Confirmation!", "ConfirmationGuest", context);
+    }
+
+    @Override
+    public void sendReservationReminderEmail(Reservation reservation) throws MessagingException {
+        User guest = getGuest(reservation);
+        Context context = createReservationContext(reservation);
+        context.setVariable("guestName", guest.getName());
+
+        sendEmail(guest.getEmail(), "Upcoming Reservation Reminder", "ReminderGuestReservation", context);
+    }
+
+    @Override
+    public void sendOwnerReservationReminderEmail(Reservation reservation) throws MessagingException {
+        User owner = getOwner(reservation);
+        Context context = createReservationContext(reservation);
+        context.setVariable("ownerName", owner.getName());
+
+        sendEmail(owner.getEmail(), "Upcoming Reservation at Your Property", "ReminderOwnerReservation", context);
+    }
+
+    @Override
+    public void sendCancellationConfirmationEmail(Reservation reservation) throws MessagingException {
+        User guest = getGuest(reservation);
+        Accommodation accommodation = reservation.getAccommodation();
+        Context context = createCancellationContext(guest, accommodation, reservation);
+
+        sendEmail(guest.getEmail(), "Your reservation has been successfully cancelled", "CancellationGuest", context);
+    }
+
+    @Override
+    public void sendCancellationByOwnerNotificationEmail(Reservation reservation) throws MessagingException {
+        User guest = getGuest(reservation);
+        Accommodation accommodation = reservation.getAccommodation();
+        Context context = createCancellationContext(guest, accommodation, reservation);
+
+        sendEmail(guest.getEmail(), "Your reservation has been cancelled", "CancellationGuestByOwner", context);
+    }
+
+    @Override
+    public void sendCancellationNotificationToOwnerEmail(Reservation reservation) throws MessagingException {
+        User guest = getGuest(reservation);
+        User owner = getOwner(reservation);
+        Accommodation accommodation = reservation.getAccommodation();
+        Context context = createCancellationContext(guest, accommodation, reservation);
+
+        sendEmail(owner.getEmail(), "Reservation at your property has been cancelled", "CancellationByGuestOwner", context);
+    }
+
+    private Context createContext() {
         Context context = new Context();
-        context.setVariable("ownerName", accommodation.getManagedBy().getName());
+        context.setVariable("dashboardUrl", DASHBOARD_URL);
+        return context;
+    }
+
+    private Context createReservationContext(Reservation reservation) {
+        Context context = createContext();
+        Accommodation accommodation = reservation.getAccommodation();
+
         context.setVariable("accommodationName", accommodation.getName());
         context.setVariable("location", accommodation.getLocation());
-        context.setVariable("guestName", guest.getName());
         context.setVariable("checkInDate", reservation.getCheckInDate());
         context.setVariable("checkOutDate", reservation.getCheckOutDate());
-        context.setVariable("dashboardUrl", DASHBOARD_URL);
+        context.setVariable("amount", reservation.getTotalPrice());
 
-        String htmlContent = templateEngine.process("NotificationReservationOwner", context);
-
-        helper.setTo(accommodation.getManagedBy().getEmail());
-        helper.setSubject("Your property has just been booked!");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Owner notification email sent successfully to: {}", accommodation.getManagedBy().getEmail());
+        return context;
     }
 
-    @Override
-    public void sendReservationConfirmationEmail(String toEmail, String userName, String accommodationName,
-                                                 String location, String checkInDate, String checkOutDate) throws MessagingException {
+    private Context createCancellationContext(User guest, Accommodation accommodation, Reservation reservation) {
+        Context context = createContext();
+        context.setVariable("userName", guest.getName());
+        context.setVariable("accommodationName", accommodation.getName());
+        context.setVariable("location", accommodation.getLocation());
+        context.setVariable("checkInDate", reservation.getCheckInDate().toString());
+        context.setVariable("checkOutDate", reservation.getCheckOutDate().toString());
+        return context;
+    }
+
+    private User getOwner(Reservation reservation) {
+        return reservation.getAccommodation().getManagedBy();
+    }
+
+    private User getGuest(Reservation reservation) {
+        return reservation.getUser();
+    }
+
+    private void sendEmail(String toEmail, String subject, String templateName, Context context) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
-        Context context = new Context();
-        context.setVariable("userName", userName);
-        context.setVariable("accommodationName", accommodationName);
-        context.setVariable("location", location);
-        context.setVariable("checkInDate", checkInDate);
-        context.setVariable("checkOutDate", checkOutDate);
-        context.setVariable("dashboardUrl", DASHBOARD_URL);
-
-        String htmlContent = templateEngine.process("ConfirmationGuest", context);
+        String htmlContent = templateEngine.process(templateName, context);
 
         helper.setTo(toEmail);
-        helper.setSubject("Your Booking Confirmation!");
+        helper.setSubject(subject);
         helper.setText(htmlContent, true);
 
         mailSender.send(message);
-        log.info("Reservation confirmation email sent successfully to: {}", toEmail);
-    }
-
-
-    @Override
-    public void sendReservationReminderEmail(String toEmail, String guestName, String accommodationName,
-                                             String location, String checkInDate, String checkOutDate) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
-
-        Context context = new Context();
-        context.setVariable("guestName", guestName);
-        context.setVariable("accommodationName", accommodationName);
-        context.setVariable("location", location);
-        context.setVariable("checkInDate", checkInDate);
-        context.setVariable("checkOutDate", checkOutDate);
-        context.setVariable("dashboardUrl", DASHBOARD_URL);
-
-        String htmlContent = templateEngine.process("ReminderGuestReservation", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Upcoming Reservation Reminder");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Reservation reminder email sent successfully to: {}", toEmail);
-    }
-
-    @Override
-    public void sendOwnerReservationReminderEmail(String toEmail, String ownerName, String accommodationName,
-                                                  String location, String checkInDate, String checkOutDate) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
-
-        Context context = new Context();
-        context.setVariable("ownerName", ownerName);
-        context.setVariable("accommodationName", accommodationName);
-        context.setVariable("location", location);
-        context.setVariable("checkInDate", checkInDate);
-        context.setVariable("checkOutDate", checkOutDate);
-        context.setVariable("dashboardUrl", DASHBOARD_URL);
-
-        String htmlContent = templateEngine.process("ReminderOwnerReservation", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Upcoming Reservation at Your Property");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Owner reservation reminder email sent successfully to: {}", toEmail);
-    }
-
-    @Override
-    public void sendCancellationConfirmationEmail(String toEmail, String userName, String accommodationName,
-                                                  String location, String checkInDate, String checkOutDate) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
-
-        Context context = new Context();
-        context.setVariable("userName", userName);
-        context.setVariable("accommodationName", accommodationName);
-        context.setVariable("location", location);
-        context.setVariable("checkInDate", checkInDate);
-        context.setVariable("checkOutDate", checkOutDate);
-
-        String htmlContent = templateEngine.process("CancellationGuest", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Your reservation has been successfully cancelled");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Cancellation confirmation email sent successfully to: {}", toEmail);
-    }
-
-    @Override
-    public void sendCancellationByOwnerNotificationEmail(String toEmail, String userName, String accommodationName,
-                                                         String location, String checkInDate, String checkOutDate) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
-
-        Context context = new Context();
-        context.setVariable("userName", userName);
-        context.setVariable("accommodationName", accommodationName);
-        context.setVariable("location", location);
-        context.setVariable("checkInDate", checkInDate);
-        context.setVariable("checkOutDate", checkOutDate);
-
-        String htmlContent = templateEngine.process("CancellationGuestByOwner", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Your reservation has been cancelled");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Cancellation by owner notification email sent successfully to: {}", toEmail);
-    }
-
-    @Override
-    public void sendCancellationNotificationToOwnerEmail(String toEmail, String userName, String accommodationName,
-                                                         String location, String checkInDate, String checkOutDate) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
-
-        Context context = new Context();
-        context.setVariable("userName", userName);
-        context.setVariable("accommodationName", accommodationName);
-        context.setVariable("location", location);
-        context.setVariable("checkInDate", checkInDate);
-        context.setVariable("checkOutDate", checkOutDate);
-
-        String htmlContent = templateEngine.process("CancellationByGuestOwner", context);
-
-        helper.setTo(toEmail);
-        helper.setSubject("Reservation at your property has been cancelled");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(message);
-        log.info("Cancellation notification to owner email sent successfully to: {}", toEmail);
-    }
-
-
-    @Override
-    public void sendReservationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
-        sendReservationConfirmationEmail(
-                guest.getEmail(),
-                guest.getName(),
-                accommodation.getName(),
-                accommodation.getLocation(),
-                reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
-        );
-    }
-
-    @Override
-    public void sendReservationReminderEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
-        sendReservationReminderEmail(
-                guest.getEmail(),
-                guest.getName(),
-                accommodation.getName(),
-                accommodation.getLocation(),
-                reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
-        );
-    }
-
-
-    @Override
-    public void sendOwnerReservationReminderEmail(Accommodation accommodation, Reservation reservation) throws MessagingException {
-        User owner = accommodation.getManagedBy();
-        sendOwnerReservationReminderEmail(
-                owner.getEmail(),
-                owner.getName(),
-                accommodation.getName(),
-                accommodation.getLocation(),
-                reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
-        );
-    }
-
-
-    @Override
-    public void sendCancellationConfirmationEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
-        sendCancellationConfirmationEmail(
-                guest.getEmail(),
-                guest.getName(),
-                accommodation.getName(),
-                accommodation.getLocation(),
-                reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
-        );
-    }
-
-
-    @Override
-    public void sendCancellationByOwnerNotificationEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
-        sendCancellationByOwnerNotificationEmail(
-                guest.getEmail(),
-                guest.getName(),
-                accommodation.getName(),
-                accommodation.getLocation(),
-                reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
-        );
-    }
-
-
-    @Override
-    public void sendCancellationNotificationToOwnerEmail(User guest, Accommodation accommodation, Reservation reservation) throws MessagingException {
-        User owner = accommodation.getManagedBy();
-        sendCancellationNotificationToOwnerEmail(
-                owner.getEmail(),
-                guest.getName(),
-                accommodation.getName(),
-                accommodation.getLocation(),
-                reservation.getCheckInDate().toString(),
-                reservation.getCheckOutDate().toString()
-        );
+        log.info("{} email sent successfully to: {}", subject, toEmail);
     }
 }

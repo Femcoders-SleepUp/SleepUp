@@ -9,6 +9,7 @@ import com.SleepUp.SU.accommodation.dto.AccommodationMapper;
 import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.accommodation.dto.FilterAccommodationDTO;
 import com.SleepUp.SU.exceptions.InvalidDateRangeException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -34,11 +35,48 @@ class AccommodationFilterServiceTest {
     @InjectMocks
     private AccommodationFilterService accommodationFilterService;
 
+    private Pageable pageable;
+
+    @BeforeEach
+    void setUp() {
+        pageable = PageRequest.of(0, 10);
+    }
+
+    private FilterAccommodationDTO createFilter(LocalDate fromDate, LocalDate toDate) {
+        return FilterAccommodationDTO.builder()
+                .name("Hotel")
+                .description("Nice place")
+                .minPrice(50.0)
+                .maxPrice(200.0)
+                .guestNumber(2)
+                .location("New York")
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .build();
+    }
+
+    private void mockSpecificationAndRepository(FilterAccommodationDTO filter,
+                                                List<Accommodation> accommodations) {
+        Specification<Accommodation> spec = mock(Specification.class);
+        Page<Accommodation> accommodationPage = new PageImpl<>(accommodations, pageable, accommodations.size());
+        when(accommodationSpecification.buildSpecification(filter)).thenReturn(spec);
+        when(accommodationRepository.findAll(spec, pageable)).thenReturn(accommodationPage);
+    }
+
     @Test
-    void testGetAllFilteredAccommodationsWithPagination() {
-        FilterAccommodationDTO filter = new FilterAccommodationDTO("Hotel", "Nice place", 50.0, 200.0, 2, "New York", LocalDate.now(), LocalDate.now().plusDays(5));
-        Pageable pageable = PageRequest.of(0, 10);
-        AccommodationResponseSummary expectedDto = new AccommodationResponseSummary( 1L, "Hotel ABC", 10.0, 1, true, "Park Av", "image.url");
+    void getAllFilteredAccommodationsWithPagination_validFilter_shouldReturnPageOfAccommodationSummaries() {
+        FilterAccommodationDTO filter = createFilter(LocalDate.now(), LocalDate.now().plusDays(5));
+
+        AccommodationResponseSummary expectedDto = AccommodationResponseSummary.builder()
+                .id(1L)
+                .name("Hotel ABC")
+                .price(10.0)
+                .guestNumber(1)
+                .petFriendly(true)
+                .location("Park Av")
+                .imageUrl("image.url")
+                .build();
+
         Accommodation accommodation = Accommodation.builder()
                 .id(1L)
                 .name("Hotel ABC")
@@ -47,28 +85,85 @@ class AccommodationFilterServiceTest {
                 .location("Park Av")
                 .imageUrl("image.jpg")
                 .build();
-        Specification<Accommodation> spec = mock(Specification.class);
-        Page<Accommodation> accommodationPage = new PageImpl<>(List.of(accommodation), pageable, 1);
 
-        when(accommodationSpecification.buildSpecification(filter)).thenReturn(spec);
-        when(accommodationRepository.findAll(spec, pageable)).thenReturn(accommodationPage);
+        mockSpecificationAndRepository(filter, List.of(accommodation));
         when(accommodationMapper.toSummary(accommodation)).thenReturn(expectedDto);
 
         Page<AccommodationResponseSummary> result = accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable);
 
         verify(accommodationSpecification).buildSpecification(filter);
-        verify(accommodationRepository).findAll(spec, pageable);
+        verify(accommodationRepository).findAll(
+                (Specification<Accommodation>) any(), eq(pageable));
         verify(accommodationMapper).toSummary(accommodation);
 
         assertEquals(new PageImpl<>(List.of(expectedDto), pageable, 1), result);
-        assertEquals(expectedDto, result.getContent().getFirst());
+        assertEquals(expectedDto, result.getContent().get(0));
         assertEquals(1, result.getTotalElements());
     }
 
     @Test
-    void testGetAllFilteredAccommodationsWithPagination_checkOutBeforeCheckIn() {
-        FilterAccommodationDTO filter = new FilterAccommodationDTO("Hotel", "Nice place", 50.0, 200.0, 2, "New York", LocalDate.now().plusDays(10), LocalDate.now().plusDays(5));
-        Pageable pageable = PageRequest.of(0, 10);
+    void getAllFilteredAccommodationsWithPagination_nullDates_shouldSkipDateValidationAndReturnEmptyPage() {
+        FilterAccommodationDTO filter = createFilter(null, null);
+
+        mockSpecificationAndRepository(filter, List.of());
+
+        Page<AccommodationResponseSummary> result = accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable);
+
+        verify(accommodationSpecification).buildSpecification(filter);
+        verify(accommodationRepository).findAll(
+                (Specification<Accommodation>) any(), eq(pageable));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getAllFilteredAccommodationsWithPagination_nullFromDate_shouldSkipDateValidationAndReturnEmptyPage() {
+        FilterAccommodationDTO filter = createFilter(null, LocalDate.now().plusDays(5));
+
+        mockSpecificationAndRepository(filter, List.of());
+
+        Page<AccommodationResponseSummary> result = accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable);
+
+        verify(accommodationSpecification).buildSpecification(filter);
+        verify(accommodationRepository).findAll(
+                (Specification<Accommodation>) any(), eq(pageable));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getAllFilteredAccommodationsWithPagination_nullToDate_shouldSkipDateValidationAndReturnEmptyPage() {
+        FilterAccommodationDTO filter = createFilter(LocalDate.now(), null);
+
+        mockSpecificationAndRepository(filter, List.of());
+
+        Page<AccommodationResponseSummary> result = accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable);
+
+        verify(accommodationSpecification).buildSpecification(filter);
+        verify(accommodationRepository).findAll(
+                (Specification<Accommodation>) any(), eq(pageable));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getAllFilteredAccommodationsWithPagination_nonNullDates_shouldInvokeDateValidationAndReturnEmptyPage() {
+        FilterAccommodationDTO filter = createFilter(LocalDate.now(), LocalDate.now().plusDays(5));
+
+        mockSpecificationAndRepository(filter, List.of());
+
+        Page<AccommodationResponseSummary> result = accommodationFilterService.getAllFilteredAccommodationsWithPagination(filter, pageable);
+
+        verify(accommodationSpecification).buildSpecification(filter);
+        verify(accommodationRepository).findAll(
+                (Specification<Accommodation>) any(), eq(pageable));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getAllFilteredAccommodationsWithPagination_checkOutBeforeCheckIn_shouldThrowInvalidDateRangeException() {
+        FilterAccommodationDTO filter = createFilter(LocalDate.now().plusDays(10), LocalDate.now().plusDays(5));
 
         InvalidDateRangeException exception = assertThrows(
                 InvalidDateRangeException.class,
@@ -76,13 +171,11 @@ class AccommodationFilterServiceTest {
         );
 
         assertEquals("Check-in date must be before check-out date", exception.getMessage());
-
     }
 
     @Test
-    void testGetAllFilteredAccommodationsWithPagination_checkInBeforeToday() {
-        FilterAccommodationDTO filter = new FilterAccommodationDTO("Hotel", "Nice place", 50.0, 200.0, 2, "New York", LocalDate.now().minusDays(1), LocalDate.now().plusDays(5));
-        Pageable pageable = PageRequest.of(0, 10);
+    void getAllFilteredAccommodationsWithPagination_checkInBeforeToday_shouldThrowInvalidDateRangeException() {
+        FilterAccommodationDTO filter = createFilter(LocalDate.now().minusDays(1), LocalDate.now().plusDays(5));
 
         InvalidDateRangeException exception = assertThrows(
                 InvalidDateRangeException.class,
@@ -90,6 +183,5 @@ class AccommodationFilterServiceTest {
         );
 
         assertEquals("Check-in date cannot be in the past", exception.getMessage());
-
     }
 }

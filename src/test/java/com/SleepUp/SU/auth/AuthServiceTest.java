@@ -12,7 +12,7 @@ import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
-import com.SleepUp.SU.utils.ApiMessageDto;
+import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,16 +71,8 @@ public class AuthServiceTest {
     class RegisterNewUserTest {
 
         @Test
-        void should_registerNewUser_fromRequest() throws MessagingException {
+        void register_validRequest_shouldReturnUserResponse() throws MessagingException {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
-
-            User mappedUser = new User();
-            mappedUser.setUsername(userRequest.username());
-            mappedUser.setEmail(userRequest.email());
-            mappedUser.setName(userRequest.name());
-            mappedUser.setPassword(userRequest.password());
-
-            doNothing().when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
 
             User userSaved = new User();
             userSaved.setId(1L);
@@ -90,7 +82,7 @@ public class AuthServiceTest {
             userSaved.setPassword("password123");
             userSaved.setRole(Role.USER);
 
-            when(userRepository.save(any(User.class))).thenReturn(userSaved);
+            when(userServiceHelper.createUser(userRequest, Role.USER)).thenReturn(userSaved);
 
             UserResponse userResponseMock = new UserResponse(
                     userSaved.getId(),
@@ -100,65 +92,21 @@ public class AuthServiceTest {
                     userSaved.getRole()
             );
             when(userMapper.toResponse(userSaved)).thenReturn(userResponseMock);
-            when(passwordEncoder.encode(userRequest.password())).thenReturn("encondePassword");
-            when(userMapper.toEntity(userRequest, "encondePassword", Role.USER)).thenReturn(mappedUser);
 
             UserResponse userResponse = authService.register(userRequest);
 
             assertEquals("userTest", userResponse.username());
             assertEquals("usertest@test.com", userResponse.email());
-            verify(emailService).sendWelcomeEmail(userRequest, mappedUser);
+            verify(emailService).sendWelcomeEmail(userSaved);
         }
 
-        @Test
-        void should_registerNewUser_throw_exceptionUsername(){
-            UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
-
-            doThrow(new RuntimeException("UsernameAlreadyExistException"))
-                    .when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.register(userRequest));
-            assertEquals("UsernameAlreadyExistException", exception.getMessage());
-        }
-
-        @Test
-        void should_registerNewUser_throw_exceptionEmail(){
-            UserRequest userRequest = new UserRequest("userTest2", "nameTest", "usertest@test.com", "password123");
-
-            doThrow(new RuntimeException("EmailAlreadyExistException"))
-                    .when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-
-            RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.register(userRequest));
-            assertEquals("EmailAlreadyExistException", exception.getMessage());
-        }
-
-        @Test
-        void should_RegisterNewUser_throw_dataIntegrityViolationException() {
-            UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
-
-            User mappedUser = new User();
-            mappedUser.setUsername(userRequest.username());
-            mappedUser.setEmail(userRequest.email());
-            mappedUser.setName(userRequest.name());
-            mappedUser.setPassword("encodedPassword");
-
-            doNothing().when(userServiceHelper).validateUserDoesNotExist(userRequest.username(), userRequest.email());
-            when(passwordEncoder.encode(userRequest.password())).thenReturn("encodedPassword");
-            when(userMapper.toEntity(userRequest, "encodedPassword", Role.USER)).thenReturn(mappedUser);
-            when(userRepository.save(any(User.class)))
-                    .thenThrow(new DataIntegrityViolationException("Username or email already exists"));
-
-            DataIntegrityViolationException exception = assertThrows(DataIntegrityViolationException.class,
-                    () -> authService.register(userRequest));
-            assertEquals("Username or email already exists", exception.getMessage());
-        }
     }
 
     @Nested
     class LoginTest {
 
         @Test
-        void should_loginUser_successfully() {
+        void login_validCredentials_shouldReturnAuthResponse() {
             LoginRequest loginRequest = new LoginRequest("userTest", "password123");
 
             Authentication mockAuthentication = mock(Authentication.class);
@@ -180,7 +128,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_loginUser_throw_authenticationException() {
+        void login_invalidCredentials_shouldThrowAuthenticationException() {
             LoginRequest loginRequest = new LoginRequest("userTest", "wrongPassword");
 
             when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
@@ -198,7 +146,7 @@ public class AuthServiceTest {
     class RefreshTest {
 
         @Test
-        void should_refreshToken_successfully() {
+        void refresh_validToken_shouldReturnAuthResponse() {
             RefreshRequest refreshRequest = new RefreshRequest("old-refresh-token");
             CustomUserDetails mockCustomUserDetails = mock(CustomUserDetails.class);
 
@@ -220,7 +168,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_refreshToken_throw_exception_when_token_is_blacklisted() {
+        void refresh_blacklistedToken_shouldThrowAuthenticationException() {
             RefreshRequest refreshRequest = new RefreshRequest("blacklisted-token");
             CustomUserDetails mockCustomUserDetails = mock(CustomUserDetails.class);
 
@@ -235,7 +183,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_refreshToken_throw_exception_when_token_is_invalid() {
+        void refresh_invalidToken_shouldThrowAuthenticationException() {
             RefreshRequest refreshRequest = new RefreshRequest("invalid-token");
             CustomUserDetails mockCustomUserDetails = mock(CustomUserDetails.class);
 
@@ -255,7 +203,7 @@ public class AuthServiceTest {
     class LogoutTest {
 
         @Test
-        void should_logout_successfully_with_access_token_only() {
+        void logout_withAccessTokenOnly_shouldReturnApiMessage() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer access-token");
@@ -271,7 +219,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_successfully_with_both_tokens() {
+        void logout_withBothTokens_shouldReturnApiMessage() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer access-token");
@@ -288,7 +236,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_throw_exception_when_no_authorization_header() {
+        void  logout_noAuthorizationHeader_shouldThrowAuthenticationException() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
@@ -301,7 +249,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_throw_exception_when_invalid_authorization_header() {
+        void logout_invalidAuthorizationHeaderFormat_shouldThrowAuthenticationException() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Invalid-header");
@@ -314,7 +262,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_successfully_with_invalid_access_token() {
+        void logout_invalidAccessToken_shouldReturnApiMessageWithoutBlacklisting() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer invalid-token");
@@ -328,7 +276,7 @@ public class AuthServiceTest {
         }
 
         @Test
-        void should_logout_successfully_with_valid_access_token_and_invalid_refresh_token() {
+        void logout_validAccessTokenAndInvalidRefreshToken_shouldBlacklistAccessOnly() {
             HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
             when(mockRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer access-token");

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@SuppressWarnings("unchecked")
 public class AccommodationSpecificationTest {
 
     @Mock private Root<Accommodation> root;
@@ -30,6 +31,7 @@ public class AccommodationSpecificationTest {
     @Mock private Predicate predicate;
 
     @Mock private Path<String> stringPath;
+    @Mock private Path<Boolean> booleanPath;
     @Mock private Path<Double> doublePath;
     @Mock private Path<Integer> intPath;
     @Mock private Path<LocalDate> datePath;
@@ -44,16 +46,19 @@ public class AccommodationSpecificationTest {
 
     @BeforeEach
     void setUp() {
-        filter = new FilterAccommodationDTO(
-                "Hotel",
-                "Luxury place",
-                50.0,
-                200.0,
-                4,
-                "Berlin",
-                LocalDate.of(2025, 9, 15),
-                LocalDate.of(2025, 9, 25));
+        filter = FilterAccommodationDTO.builder()
+                .name("Hotel")
+                .description("Luxury place")
+                .minPrice(50.0)
+                .maxPrice(200.0)
+                .guestNumber(4)
+                .location("Berlin")
+                .fromDate(LocalDate.of(2025, 9, 15))
+                .toDate(LocalDate.of(2025, 9, 25))
+                .petFriendly(true)
+                .build();
     }
+
 
     private void stubStringProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) stringPath);
@@ -61,9 +66,18 @@ public class AccommodationSpecificationTest {
         lenient().when(criteriaBuilder.like(any(Expression.class), anyString())).thenReturn(predicate);
     }
 
+
+    private void stubBooleanProperty(String propertyName) {
+        when(root.get(propertyName)).thenReturn((Path) booleanPath);
+        lenient().when(criteriaBuilder.isTrue(booleanPath)).thenReturn(predicate);
+        lenient().when(criteriaBuilder.isFalse( booleanPath)).thenReturn(predicate);
+    }
+
+
     private void stubDateProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) datePath);
     }
+
 
     private void stubDoubleProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) doublePath);
@@ -163,7 +177,6 @@ public class AccommodationSpecificationTest {
 
     @Test
     void testGuestNumber() {
-        @SuppressWarnings("unchecked")
         Path<Object> path = (Path<Object>) mock(Path.class);
         when(root.get("guestNumber")).thenReturn(path);
         Integer guestNumber = 2;
@@ -269,6 +282,30 @@ public class AccommodationSpecificationTest {
     }
 
     @Test
+    void testPetFriendly_true() {
+        stubBooleanProperty("petFriendly");
+        Specification<Accommodation> spec = AccommodationSpecification.petFriendly(true);
+        Predicate result = spec.toPredicate(root, query, criteriaBuilder);
+        assertSame(predicate, result, "Expected same predicate instance returned from petFriendly(true)");
+        verify(criteriaBuilder).isTrue(any(Expression.class));
+    }
+
+    @Test
+    void testPetFriendly_false() {
+        stubBooleanProperty("petFriendly");
+        Specification<Accommodation> spec = AccommodationSpecification.petFriendly(false);
+        Predicate result = spec.toPredicate(root, query, criteriaBuilder);
+        assertSame(predicate, result, "Expected same predicate instance returned from petFriendly(false)");
+        verify(criteriaBuilder).isFalse(any(Expression.class));
+    }
+
+    @Test
+    void testPetFriendly_null() {
+        Specification<Accommodation> spec = AccommodationSpecification.petFriendly(null);
+        assertNull(spec.toPredicate(root, query, criteriaBuilder), "Expected null predicate for petFriendly(null)");
+    }
+
+    @Test
     void testBuildSpecification() {
         LocalDate newStartDate = filter.fromDate();
         LocalDate newEndDate = filter.toDate();
@@ -280,6 +317,7 @@ public class AccommodationSpecificationTest {
         stubStringProperty("location");
         stubDateProperty("availableFrom");
         stubDateProperty("availableTo");
+        stubBooleanProperty("petFriendly");
 
         Subquery<Long> subquery = mock(Subquery.class);
         Root<Reservation> reservationRoot = mock(Root.class);

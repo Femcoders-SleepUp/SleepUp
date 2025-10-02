@@ -1,18 +1,14 @@
 package com.SleepUp.SU.reservation.admin;
 
-import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
-import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.entity.Reservation;
-import com.SleepUp.SU.reservation.owner.ReservationOwnerServiceImpl;
+import com.SleepUp.SU.reservation.exceptions.ReservationNotFoundByIdException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
-import net.bytebuddy.asm.Advice;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,15 +18,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
@@ -70,8 +67,7 @@ public class ReservationAdminServiceImplTest {
                 LocalDate.of(2025, 9, 25),
                 LocalDate.of(2025, 9, 30),
                 BookingStatus.CONFIRMED,
-                true,
-                LocalDateTime.of(2025, 9, 1, 10, 30)
+                BigDecimal.valueOf(100)
         );
         response2 = new ReservationResponseSummary(
                 2L,
@@ -81,9 +77,18 @@ public class ReservationAdminServiceImplTest {
                 LocalDate.of(2025, 10, 5),
                 LocalDate.of(2025, 10, 12),
                 BookingStatus.PENDING,
-                false,
-                LocalDateTime.of(2025, 9, 15, 14, 0)
+                BigDecimal.valueOf(100)
         );
+    }
+
+    private Reservation createTestReservation() {
+        Reservation reservation = new Reservation();
+        reservation.setCheckInDate(LocalDate.now().plusDays(1));
+        reservation.setCheckOutDate(LocalDate.now().plusDays(3));
+        reservation.setGuestNumber(2);
+        reservation.setBookingStatus(BookingStatus.PENDING);
+        reservation.setEmailSent(false);
+        return reservation;
     }
 
     @Nested
@@ -102,6 +107,37 @@ public class ReservationAdminServiceImplTest {
             assertThat(result).hasSize(2);
             verify(reservationRepository).findAll();
             verify(reservationMapper, times(2)).toSummary(any(Reservation.class));
+        }
+    }
+
+    @Nested
+    class DeleteReservationByAdmin {
+
+        @Test
+        void deleteReservationByAdmin_validReservation_shouldDeleteSuccessfully() {
+            Long reservationId = 1L;
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+
+            when(reservationRepository.existsById(reservationId)).thenReturn(true);
+            doNothing().when(reservationRepository).deleteById(reservationId);
+
+            assertDoesNotThrow(() -> reservationAdminServiceImpl.deleteReservationByAdmin(reservationId));
+            verify(reservationRepository).deleteById(reservationId);
+            verify(reservationRepository).existsById(reservationId);
+        }
+
+        @Test
+        void deleteReservationByAdmin_reservationNotFound_shouldThrowException() {
+            Long reservationId = 999L;
+
+            when(reservationRepository.existsById(reservationId)).thenReturn(false);
+
+            ReservationNotFoundByIdException exception = assertThrows(ReservationNotFoundByIdException.class,
+                    () -> reservationAdminServiceImpl.deleteReservationByAdmin(reservationId));
+
+            assertEquals("Reservation with id '" +reservationId + "' not found", exception.getMessage());
+            verify(reservationRepository).existsById(reservationId);
         }
     }
 }

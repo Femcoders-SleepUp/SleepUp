@@ -9,6 +9,7 @@ import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.user.utils.UserServiceHelper;
+import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +54,7 @@ public class UserAdminServiceImplTest {
     class LoadUserTest {
 
         @Test
-        void should_loadExistingUser_fromRequest() {
+        void loadUserByUsername_existingUser_shouldReturnUserDetails() {
             UserRequest userRequest = new UserRequest("userTest", "nameTest", "usertest@test.com", "password123");
             User userSaved = new User();
             userSaved.setId(1L);
@@ -62,7 +63,7 @@ public class UserAdminServiceImplTest {
             userSaved.setEmail("usertest@email.com");
             userSaved.setPassword("password123");
 
-            when(userServiceHelper.findByUsername("userTest")).thenReturn(userSaved);
+            when(userServiceHelper.getUserEntityByUsername("userTest")).thenReturn(userSaved);
 
             List<GrantedAuthority> authorities = List.of(
                     new SimpleGrantedAuthority("ROLE_USER")
@@ -81,9 +82,9 @@ public class UserAdminServiceImplTest {
         }
 
         @Test
-        void should_loadExistingUser_throw_exception() {
+        void loadUserByUsername_nonExistingUser_shouldThrowException() {
 
-            when(userServiceHelper.findByUsername("userTest"))
+            when(userServiceHelper.getUserEntityByUsername("userTest"))
                     .thenThrow(new UsernameNotFoundException("userTest does not exist."));
 
             assertThrows(UsernameNotFoundException.class, () -> userAdminServiceImpl.loadUserByUsername("userTest"));
@@ -93,37 +94,41 @@ public class UserAdminServiceImplTest {
 
     @Nested
     class UpdateUserTest {
+
         @Test
-        void should_updateExistingUser() {
-            UserRequestAdmin request = new UserRequestAdmin(
-                    "updatedUser",
-                    "Updated Name",
-                    "updated@test.com",
-                    "newPassword",
-                    Role.ADMIN
-            );
+        void updateUser_existingUser_shouldReturnUpdatedUser() {
 
-            User existingUser = new User();
-            existingUser.setId(1L);
-            existingUser.setUsername("oldUser");
-            existingUser.setName("Old Name");
-            existingUser.setEmail("old@test.com");
-            existingUser.setPassword("oldPassword");
-            existingUser.setRole(Role.USER);
+            UserRequestAdmin request = UserRequestAdmin.builder()
+                    .username("updatedUser")
+                    .name("Updated Name")
+                    .email("updated@test.com")
+                    .password("newPassword")
+                    .role(Role.ADMIN)
+                    .build();
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+            User existingUser = User.builder()
+                    .id(1L)
+                    .username("oldUser")
+                    .name("Old Name")
+                    .email("old@test.com")
+                    .password("oldPassword")
+                    .role(Role.USER)
+                    .build();
 
-            User savedUser = new User();
-            savedUser.setId(1L);
-            savedUser.setUsername("updateUser");
-            savedUser.setName("update Name");
-            savedUser.setEmail("updated@test.com");
-            savedUser.setPassword("encodedPass");
-            savedUser.setRole(Role.ADMIN);
+            User updatedUser = User.builder()
+                    .id(1L)
+                    .username("updatedUser")
+                    .name("Updated Name")
+                    .email("updated@test.com")
+                    .password("encodedPass")
+                    .role(Role.ADMIN)
+                    .build();
 
-            when(userRepository.save(any(User.class))).thenReturn(savedUser);
-            when(userMapper.toResponse(any(User.class)))
-                    .thenReturn(new UserResponse(1L, "updatedUser", "Updated Name", "updated@test.com", Role.ADMIN));
+            UserResponse userResponse = new UserResponse(1L, "updatedUser", "Updated Name", "updated@test.com", Role.ADMIN);
+
+            when(userServiceHelper.getUserEntityById(1L)).thenReturn(existingUser);
+            when(userServiceHelper.updateUserDataAdmin(eq(request), any(User.class))).thenReturn(updatedUser);
+            when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
             UserResponse response = userAdminServiceImpl.updateUser(1L, request);
 
@@ -132,64 +137,7 @@ public class UserAdminServiceImplTest {
             assertEquals("updated@test.com", response.email());
             assertEquals(Role.ADMIN, response.role());
 
-            verify(userRepository, times(1)).save(any(User.class));
-
         }
 
-        @Test
-        void  should_throwException_when_userNotFound() {
-            when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-            UserRequestAdmin request = new UserRequestAdmin(
-                    "updatedUser",
-                    "Updated Name",
-                    "updated@test.com",
-                    "password",
-                    Role.ADMIN
-            );
-
-            assertThrows(RuntimeException.class, () -> userAdminServiceImpl.updateUser(1L, request));
-
-
-//            existingUser.setPassword("oldPass");
- //           existingUser.setRole(Role.USER);
-//
- //           UserRequestAdmin updateRequest = new UserRequestAdmin(
-//                    "newUsername",
-//                    "New Name",
-//                    "new@test.com",
-//                    "newPass123",
-//                    Role.ADMIN
-//            );
-//
-//            User updatedUser = new User();
-//            updatedUser.setId(1L);
-//            updatedUser.setUsername("newUsername");
-//            updatedUser.setName("Old Name");
-//            updatedUser.setEmail("new@email.com");
-//            updatedUser.setPassword("newPass123");
-//            updatedUser.setRole(Role.USER);
-//
-//            UserResponse updatedUserResponse = new UserResponse(updatedUser.getId(), updatedUser.getUsername(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.getRole());
-//
-//
-//            when(userServiceHelper.findById(1L)).thenReturn(existingUser);
-//            doAnswer(invocation -> {
-//                existingUser.setUsername("newUsername");
-//                existingUser.setEmail("new@email.com");
-//                existingUser.setPassword("encodedPassword");
-//                return null;
-//            }).when(userServiceHelper).updateUserDataAdmin(updateRequest, existingUser);
-//
-//            when(userRepository.save(existingUser)).thenReturn(updatedUser);
-//            when(userMapper.toResponse(updatedUser)).thenReturn(updatedUserResponse);
-//
-//            UserResponse response = userAdminServiceImpl.updateUser(1L, updateRequest);
-//
-//            assertEquals("newUsername", response.username());
-//            assertEquals("new@email.com", response.email());
-//            assertEquals("Old Name", response.name());
-//>>>>>>> dev
-        }
     }
 }

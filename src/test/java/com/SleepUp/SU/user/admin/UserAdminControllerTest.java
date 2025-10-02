@@ -1,10 +1,10 @@
 package com.SleepUp.SU.user.admin;
 
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
-import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,72 +14,78 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 public class UserAdminControllerTest {
 
-   @Autowired
-    private MockMvc mockMvc;
-
-   @Autowired
-    private ObjectMapper objectMapper;
+    private static final String BASE_PATH = "/users/admin";
+    private static final String USER_PATH_ID = "/users/admin/{id}";
 
     @Autowired
-    private UserAdminController userAdminController;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private UserRepository userRepository;
 
-   @Autowired
-    private UserAdminServiceImpl userAdminServiceImpl;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
-   private CustomUserDetails customUserDetails;
+    private CustomUserDetails adminCustomUserDetails;
+    private CustomUserDetails userCustomUserDetails;
 
-   @BeforeEach
-   void sepUp(){
-        User savedUser = userRepository.findByUsername("Admin1")
-                .orElseThrow(() -> new RuntimeException("User2 not found"));
+    private UserRequest userRequest;
+    private UserRequestAdmin updateUserRequestAdmin;
 
-       customUserDetails = new CustomUserDetails(savedUser);
+    @BeforeEach
+    void setUp() {
+        User savedAdmin = userRepository.findByUsername("Admin1")
+                .orElseThrow(() -> new RuntimeException("Admin1 not found"));
+        adminCustomUserDetails = new CustomUserDetails(savedAdmin);
+
+        User savedUser = userRepository.findByUsername("User1")
+                .orElseThrow(() -> new RuntimeException("User1 not found"));
+        userCustomUserDetails = new CustomUserDetails(savedUser);
+
+        userRequest = UserRequest.builder()
+                .username("newUser")
+                .name("New User")
+                .email("newuser@test.com")
+                .password(passwordEncoder.encode("password123"))
+                .build();
+
+        updateUserRequestAdmin = UserRequestAdmin.builder()
+                .username("updatedUser")
+                .name("Updated Name")
+                .email("updated@test.com")
+                .password(passwordEncoder.encode("newPassword"))
+                .role(Role.ADMIN)
+                .build();
     }
-
 
     @Nested
     class CreateUserTest {
 
         @Test
-        void when_adminRole_then_createUser() throws Exception {
-            UserRequestAdmin request = new UserRequestAdmin(
-                    "newUser",
-                    "New User",
-                    "newuser@test.com",
-                    "password123",
-                    Role.USER
-            );
-
-            UserResponse response = new UserResponse(
-                    10L,
-                    "newUser",
-                    "New User",
-                    "newuser@test.com",
-                    Role.USER
-            );
-
-
-            mockMvc.perform(post("/api/users/admin")
-                            .with(user(customUserDetails))
+        void createUser_whenAdminRole_shouldReturnCreated() throws Exception {
+            mockMvc.perform(post(BASE_PATH)
+                            .with(user(adminCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
+                            .content(objectMapper.writeValueAsString(userRequest))
+                            .param("role", Role.USER.name()))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.username").value("newUser"))
                     .andExpect(jsonPath("$.email").value("newuser@test.com"))
@@ -87,48 +93,34 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void when_notAdminRole_then_forbidden() throws Exception {
-            UserRequestAdmin request = new UserRequestAdmin(
-                    "newUser",
-                    "New User",
-                    "newuser@test.com",
-                    "password123",
-                    Role.USER
-            );
-
-            mockMvc.perform(post("/api/users/admin")
-                            .with(user("user").roles("USER"))
+        void createUser_whenNotAdminRole_shouldReturnForbidden() throws Exception {
+            mockMvc.perform(post(BASE_PATH)
+                            .with(user(userCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
+                            .content(objectMapper.writeValueAsString(userRequest))
+                            .param("role", Role.USER.name()))
                     .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void createUser_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(post(BASE_PATH)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(userRequest)))
+                    .andExpect(status().isUnauthorized());
         }
     }
 
     @Nested
     class UpdateUserTest {
+
         @Test
-        void when_adminRole_then_updateUser() throws  Exception {
-            UserRequestAdmin request = new UserRequestAdmin(
-                    "updatedUser",
-                    "Updated Name",
-                    "updated@test.com",
-                    "newPassword",
-                    Role.ADMIN
-            );
-
-            UserResponse response = new UserResponse(
-                    1L,
-                    "updatedUser",
-                    "Updated Name",
-                    "updated@test.com",
-                    Role.ADMIN
-            );
-
-
-            mockMvc.perform(put("/api/users/admin/1")
-                            .with(user(customUserDetails))
+        void updateUser_whenAdminRole_shouldReturnUpdatedUser() throws Exception {
+            mockMvc.perform(put(USER_PATH_ID, 1L)
+                            .with(user(adminCustomUserDetails))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
+                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
+                            .param("role", Role.ADMIN.name()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.username").value("updatedUser"))
                     .andExpect(jsonPath("$.email").value("updated@test.com"))
@@ -136,39 +128,49 @@ public class UserAdminControllerTest {
         }
 
         @Test
-        void when_notAdminRole_then_forbidden() throws Exception {
-            UserRequestAdmin request = new UserRequestAdmin(
-                    "updatedUser",
-                    "Updated Name",
-                    "updated@test.com",
-                    "newPassword",
-                    Role.ADMIN
-            );
-
-            mockMvc.perform(put("/api/users/admin/1")
-                            .with(user("user").roles("USER"))
+        void updateUser_whenNotAdminRole_shouldReturnForbidden() throws Exception {
+            mockMvc.perform(put(USER_PATH_ID, 1L)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
+                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
+                            .with(user(userCustomUserDetails))
+                            .param("role", Role.ADMIN.name()))
                     .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void updateUser_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(put(USER_PATH_ID, 1L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateUserRequestAdmin))
+                            .param("role", Role.ADMIN.name()))
+                    .andExpect(status().isUnauthorized());
         }
     }
 
-   @Nested
-   class DeleteUserTest {
+    @Nested
+    class DeleteUserTest {
 
-       @Test
-       void when_adminRole_then_deleteUser() throws Exception {
-           mockMvc.perform(delete("/api/users/admin/{id}",99L)
-                   .with(user(customUserDetails))
-                   .accept(MediaType.APPLICATION_JSON))
-                   .andExpect(status().isNoContent());
-       }
-       @Test
-       void when_notAdminRole_then_forbidden() throws Exception {
-           mockMvc.perform(delete("/api/users/admin/1")
-                           .with(user("user").roles("USER"))
-                           .accept(MediaType.APPLICATION_JSON))
-                   .andExpect(status().isForbidden());
-       }
-   }
+        @Test
+        void deleteUser_whenAdminRole_shouldDeleteUser() throws Exception {
+            mockMvc.perform(delete(USER_PATH_ID, 99L)
+                            .with(user(adminCustomUserDetails))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void deleteUser_whenNotAdminRole_shouldReturnForbidden() throws Exception {
+            mockMvc.perform(delete(USER_PATH_ID, 1L)
+                            .with(user(userCustomUserDetails))
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void deleteUser_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(delete(USER_PATH_ID, 1L)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isUnauthorized());
+        }
+    }
 }

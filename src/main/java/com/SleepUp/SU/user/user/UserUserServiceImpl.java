@@ -4,6 +4,7 @@ import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
 import com.SleepUp.SU.user.dto.UserMapper;
@@ -30,12 +31,12 @@ public class UserUserServiceImpl implements UserUserService{
 
     @Override
     public UserResponse getLoggedUser(Long id){
-        return userMapper.toResponse(userServiceHelper.findById(id));
+        return userMapper.toResponse(userServiceHelper.getUserEntityById(id));
     }
 
     @Override
     public UserResponse updateLoggedUser(UserRequest userRequest, Long id){
-        User user = userServiceHelper.findById(id);
+        User user = userServiceHelper.getUserEntityById(id);
         userServiceHelper.updateUserData(userRequest, user);
         return (userMapper.toResponse(user));
     }
@@ -56,9 +57,10 @@ public class UserUserServiceImpl implements UserUserService{
         List<Reservation> reservationList = reservationRepository.findByUser_Id(id);
         if (!reservationList.isEmpty()) {
             reservationList.forEach(reservation -> reservation.setUser(replacementUser));
+            reservationList.forEach(reservation -> reservation.setBookingStatus(BookingStatus.CANCELLED));
             reservationRepository.saveAll(reservationList);
         }
 
-        userRepository.deleteById(userServiceHelper.findById(id).getId());
+        userRepository.deleteById(userServiceHelper.getUserEntityById(id).getId());
     }
 }

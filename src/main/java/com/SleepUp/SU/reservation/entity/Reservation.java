@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -56,5 +57,8 @@ public class Reservation {
     @CreationTimestamp
     @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate;
+
+    @Column(name = "total_price", nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalPrice;
 }
 

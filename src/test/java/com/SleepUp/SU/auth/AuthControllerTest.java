@@ -1,12 +1,13 @@
 package com.SleepUp.SU.auth;
 
 import com.SleepUp.SU.auth.dto.*;
+import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
-import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import static org.hamcrest.Matchers.hasLength;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,38 +59,45 @@ public class AuthControllerTest {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @MockitoBean
+    private JavaMailSender mailSender;
+
     private CustomUserDetails principal;
 
     @BeforeEach
     void setUp() {
-        User newUser = User.builder()
-                .name("New name")
-                .email("email@gmail.com")
-                .role(Role.USER)
-                .username("newUsername")
-                .password(passwordEncoder.encode("password123"))
-                .build();
-        User savedUser = userRepository.save(newUser);
+        User savedUser = userRepository.findByUsername("User2")
+                .orElseThrow(() -> new RuntimeException("User2 not found"));
         principal = new CustomUserDetails(savedUser);
     }
 
     @Nested
     class RegisterTests {
-//        @Test
-//        void whenRegister_withValidData_shouldReturnCreatedUser() throws Exception {
-//            UserRequest request = new UserRequest("newUser", "New Name", "new@email.com", "password123");
-//
-//            mockMvc.perform(post(REGISTER_PATH)
-//                            .contentType(MediaType.APPLICATION_JSON)
-//                            .content(objectMapper.writeValueAsString(request)))
-//                    .andExpect(status().isCreated())
-//                    .andExpect(jsonPath("$.username").value("newUser"))
-//                    .andExpect(jsonPath("$.email").value("new@email.com"))
-//                    .andExpect(jsonPath("$.name").value("New Name"));
-//        }
 
         @Test
-        void whenRegister_withInvalidData_shouldReturnBadRequest() throws Exception {
+        void register_validRequest_shouldReturnCreatedUser() throws Exception {
+            JavaMailSenderImpl javaMailSenderImpl = new JavaMailSenderImpl();
+            MimeMessage mimeMessage = javaMailSenderImpl.createMimeMessage();
+
+            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+            doNothing().when(mailSender).send(any(MimeMessage.class));
+
+            UserRequest request = new UserRequest("newUser", "New Name", "new@email.com", "password123");
+
+            mockMvc.perform(post(REGISTER_PATH)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.username").value("newUser"))
+                    .andExpect(jsonPath("$.email").value("new@email.com"))
+                    .andExpect(jsonPath("$.name").value("New Name"));
+
+            verify(mailSender, times(1)).send(any(MimeMessage.class));
+        }
+
+
+        @Test
+        void register_invalidRequest_shouldReturnBadRequest() throws Exception {
             String invalidJson = """
                 {
                     "username": "",
@@ -103,22 +116,22 @@ public class AuthControllerTest {
     @Nested
     class LoginTests {
         @Test
-        void whenLogin_withValidCredentials_shouldReturnAuthResponse() throws Exception {
+        void login_validCredentials_shouldReturnAuthResponse() throws Exception {
             LoginRequest request = new LoginRequest(principal.getUsername(), "password123");
 
             mockMvc.perform(post(LOGIN_PATH)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.token", hasLength(168)))
-                    .andExpect(jsonPath("$.refreshToken", hasLength(168)));
+                    .andExpect(jsonPath("$.token", hasLength(220)))
+                    .andExpect(jsonPath("$.refreshToken", hasLength(220)));
         }
     }
 
     @Nested
     class RefreshTests {
         @Test
-        void whenRefresh_withAuthentication_shouldReturnNewTokens() throws Exception {
+        void refresh_withAuthentication_shouldReturnNewTokens() throws Exception {
 
             LoginRequest loginRequest = new LoginRequest(principal.getUsername(), "password123");
 
@@ -138,17 +151,16 @@ public class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(refreshRequest)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.token", hasLength(168)))
-                    .andExpect(jsonPath("$.refreshToken", hasLength(168)));
-//                    .andExpect(jsonPath("$.token.length()").value(168))
-//                    .andExpect(jsonPath("$.token").value(not(oldToken)))
-//                    .andExpect(jsonPath("$.refreshToken.length()").value(168))
-//                    .andExpect(jsonPath("$.refreshToken").value(not(oldRefreshToken)));
+                    .andExpect(jsonPath("$.token", hasLength(220)))
+                    .andExpect(jsonPath("$.refreshToken", hasLength(220)))
+                    .andExpect(jsonPath("$.token", org.hamcrest.Matchers.not(oldToken)))
+                    .andExpect(jsonPath("$.refreshToken", org.hamcrest.Matchers.not(oldRefreshToken)));
+
         }
 
 
         @Test
-        void whenRefresh_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
+        void refresh_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
             RefreshRequest request = new RefreshRequest("someRefreshToken");
 
             mockMvc.perform(post(REFRESH_PATH)
@@ -162,8 +174,7 @@ public class AuthControllerTest {
     class LogoutTests {
 
         @Test
-        void whenLogout_withAuthentication_shouldReturnMessage() throws Exception {
-            // First, get a valid token by logging in (or reuse one from your test context)
+        void logout_withAuthentication_shouldReturnMessage() throws Exception {
             LoginRequest loginRequest = new LoginRequest(principal.getUsername(), "password123");
 
             String loginResponse = mockMvc.perform(post(LOGIN_PATH)
@@ -171,12 +182,12 @@ public class AuthControllerTest {
                             .content(objectMapper.writeValueAsString(loginRequest)))
                     .andExpect(status().isOk())
                     .andReturn()
+
                     .getResponse()
                     .getContentAsString();
 
             String token = JsonPath.read(loginResponse, "$.token");
 
-            // Use the token in the Authorization header for the logout request
             mockMvc.perform(post(LOGOUT_PATH)
                             .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON))
