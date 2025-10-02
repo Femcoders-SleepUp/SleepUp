@@ -70,7 +70,7 @@ public class ReservationServiceImpl implements ReservationService{
         newReservation.setTotalPrice(amount);
         Reservation savedReservation = reservationRepository.save(newReservation);
 
-        emailServiceHelper.sendOwnerReservedNotification(user, accommodation, savedReservation,amount);
+        emailServiceHelper.sendOwnerReservedNotification(savedReservation);
         return reservationMapper.toDetail(savedReservation);
     }
 

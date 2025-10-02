@@ -77,6 +77,10 @@
 
         <li><b>Amount:</b> <span th:text="${amount}">Amount</span></li>
 
+        <li th:if="${discountAmount != null}">
+            <b>Discount:</b> <span th:text="${discountAmount}">Discount Amount</span>
+        </li>
+
     </ul>
     <p>
         You can manage your booking or view more details by logging into your

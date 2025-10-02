@@ -1,6 +1,5 @@
 package com.SleepUp.SU.utils;
 
-
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
@@ -61,6 +60,8 @@ class EmailServiceImplTest {
         reservation = new Reservation();
         reservation.setCheckInDate(LocalDate.of(2025, 10, 1));
         reservation.setCheckOutDate(LocalDate.of(2025, 10, 5));
+        reservation.setUser(guest);
+        reservation.setAccommodation(accommodation);
     }
 
     @Test
@@ -69,7 +70,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("WelcomeUser"), any(Context.class)))
                 .thenReturn("<html>Welcome Email</html>");
 
-        emailService.sendWelcomeEmail("test@test.com", "TestUser");
+        emailService.sendWelcomeEmail(guest);
 
         verify(mailSender).createMimeMessage();
         verify(mailSender).send(mimeMessage);
@@ -82,7 +83,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("NotificationReservationOwner"), any(Context.class)))
                 .thenReturn("<html>Owner Notification</html>");
 
-        emailService.sendOwnerReservedNotification(guest, accommodation, reservation, BigDecimal.valueOf(3));
+        emailService.sendOwnerReservedNotification(reservation);
 
         verify(mailSender).createMimeMessage();
         verify(mailSender).send(mimeMessage);
@@ -90,32 +91,12 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendReservationConfirmationEmail_WithStringParams_Success() throws MessagingException {
+    void sendReservationConfirmationEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("ConfirmationGuest"), any(Context.class)))
                 .thenReturn("<html>Confirmation</html>");
 
-        emailService.sendReservationConfirmationEmail(
-                "guest@test.com",
-                "John",
-                "Apartment",
-                "Madrid",
-                "2025-10-01",
-                "2025-10-05",
-                BigDecimal.valueOf(3)
-        );
-
-        verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("ConfirmationGuest"), any(Context.class));
-    }
-
-    @Test
-    void sendReservationConfirmationEmail_WithEntities_Success() throws MessagingException {
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("ConfirmationGuest"), any(Context.class)))
-                .thenReturn("<html>Confirmation</html>");
-
-        emailService.sendReservationConfirmationEmail(guest, accommodation, reservation,BigDecimal.valueOf(3));
+        emailService.sendGuestReservationConfirmationEmail(reservation, BigDecimal.valueOf(3));
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("ConfirmationGuest"), any(Context.class));
@@ -127,7 +108,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("ReminderGuestReservation"), any(Context.class)))
                 .thenReturn("<html>Reminder</html>");
 
-        emailService.sendReservationReminderEmail(guest, accommodation, reservation);
+        emailService.sendReservationReminderEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("ReminderGuestReservation"), any(Context.class));
@@ -139,7 +120,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("ReminderOwnerReservation"), any(Context.class)))
                 .thenReturn("<html>Owner Reminder</html>");
 
-        emailService.sendOwnerReservationReminderEmail(accommodation, reservation);
+        emailService.sendOwnerReservationReminderEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("ReminderOwnerReservation"), any(Context.class));
@@ -151,7 +132,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("CancellationGuest"), any(Context.class)))
                 .thenReturn("<html>Cancellation</html>");
 
-        emailService.sendCancellationConfirmationEmail(guest, accommodation, reservation);
+        emailService.sendCancellationConfirmationEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("CancellationGuest"), any(Context.class));
@@ -163,7 +144,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("CancellationGuestByOwner"), any(Context.class)))
                 .thenReturn("<html>Cancellation by Owner</html>");
 
-        emailService.sendCancellationByOwnerNotificationEmail(guest, accommodation, reservation);
+        emailService.sendCancellationByOwnerNotificationEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("CancellationGuestByOwner"), any(Context.class));
@@ -175,7 +156,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(eq("CancellationByGuestOwner"), any(Context.class)))
                 .thenReturn("<html>Cancellation to Owner</html>");
 
-        emailService.sendCancellationNotificationToOwnerEmail(guest, accommodation, reservation);
+        emailService.sendCancellationNotificationToOwnerEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
         verify(templateEngine).process(eq("CancellationByGuestOwner"), any(Context.class));
@@ -187,7 +168,7 @@ class EmailServiceImplTest {
         when(templateEngine.process(anyString(), any(Context.class)))
                 .thenReturn("<html>Email</html>");
 
-        emailService.sendWelcomeEmail("test@test.com", "Test");
+        emailService.sendWelcomeEmail(guest);
 
         verify(mailSender).createMimeMessage();
     }
@@ -198,9 +179,9 @@ class EmailServiceImplTest {
         when(templateEngine.process(anyString(), any(Context.class)))
                 .thenReturn("<html>Email</html>");
 
-        emailService.sendWelcomeEmail("test@test.com", "Test");
-        emailService.sendReservationConfirmationEmail(guest, accommodation, reservation,BigDecimal.valueOf(3));
-        emailService.sendCancellationConfirmationEmail(guest, accommodation, reservation);
+        emailService.sendWelcomeEmail(guest);
+        emailService.sendGuestReservationConfirmationEmail(reservation, BigDecimal.valueOf(3));
+        emailService.sendCancellationConfirmationEmail(reservation);
 
         verify(mailSender, times(3)).send(mimeMessage);
     }
