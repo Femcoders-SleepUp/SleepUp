@@ -28,105 +28,98 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendWelcomeEmail(User user) throws MessagingException {
-        Context context = createContext();
-        context.setVariable("userName", user.getName());
-
-        sendEmail(user.getEmail(), "Welcome to SleepUp!", "WelcomeUser", context);
+        Context context = createFullContext(null, user, null);
+        sendEmail(user.getEmail(), "Welcome to SleepUp!", "welcome", context);
     }
 
     @Override
     public void sendOwnerReservedNotification(Reservation reservation) throws MessagingException {
         User owner = getOwner(reservation);
         User guest = getGuest(reservation);
-        Context context = createReservationContext(reservation);
-        context.setVariable("ownerName", owner.getName());
+        Context context = createFullContext(reservation, owner, null);
         context.setVariable("guestName", guest.getName());
 
-        sendEmail(owner.getEmail(), "Your property has just been booked!", "NotificationReservationOwner", context);
+        sendEmail(owner.getEmail(), "Your property has just been booked!", "owner_reservation_notification", context);
     }
 
     @Override
     public void sendGuestReservationConfirmationEmail(Reservation reservation, BigDecimal discountAmount) throws MessagingException {
         User guest = getGuest(reservation);
-        Context context = createReservationContext(reservation);
-        context.setVariable("userName", guest.getName());
-        context.setVariable("discountAmount", discountAmount);
+        Context context = createFullContext(reservation, guest, discountAmount);
 
-        sendEmail(guest.getEmail(), "Your Booking Confirmation!", "ConfirmationGuest", context);
+        sendEmail(guest.getEmail(), "Your reservation Confirmation!", "guest_reservation_confirmation", context);
     }
 
     @Override
     public void sendReservationReminderEmail(Reservation reservation) throws MessagingException {
         User guest = getGuest(reservation);
-        Context context = createReservationContext(reservation);
-        context.setVariable("guestName", guest.getName());
+        Context context = createFullContext(reservation, guest, null);
 
-        sendEmail(guest.getEmail(), "Upcoming Reservation Reminder", "ReminderGuestReservation", context);
+        sendEmail(guest.getEmail(), "Upcoming Reservation Reminder", "guest_reminder", context);
     }
 
     @Override
     public void sendOwnerReservationReminderEmail(Reservation reservation) throws MessagingException {
         User owner = getOwner(reservation);
-        Context context = createReservationContext(reservation);
-        context.setVariable("ownerName", owner.getName());
+        Context context = createFullContext(reservation, owner, null);
 
-        sendEmail(owner.getEmail(), "Upcoming Reservation at Your Property", "ReminderOwnerReservation", context);
+        sendEmail(owner.getEmail(), "Upcoming Reservation at Your Property", "owner_reminder", context);
     }
 
     @Override
     public void sendCancellationConfirmationEmail(Reservation reservation) throws MessagingException {
         User guest = getGuest(reservation);
-        Accommodation accommodation = reservation.getAccommodation();
-        Context context = createCancellationContext(guest, accommodation, reservation);
+        Context context = createFullContext(reservation, guest, null);
 
-        sendEmail(guest.getEmail(), "Your reservation has been successfully cancelled", "CancellationGuest", context);
+        sendEmail(guest.getEmail(), "Your reservation has been successfully cancelled", "guest_cancellationByGuest", context);
     }
 
     @Override
     public void sendCancellationByOwnerNotificationEmail(Reservation reservation) throws MessagingException {
         User guest = getGuest(reservation);
-        Accommodation accommodation = reservation.getAccommodation();
-        Context context = createCancellationContext(guest, accommodation, reservation);
+        Context context = createFullContext(reservation, guest, null);
 
-        sendEmail(guest.getEmail(), "Your reservation has been cancelled", "CancellationGuestByOwner", context);
+        sendEmail(guest.getEmail(), "Your reservation has been cancelled", "guest_cancellationByOwner", context);
     }
 
     @Override
     public void sendCancellationNotificationToOwnerEmail(Reservation reservation) throws MessagingException {
-        User guest = getGuest(reservation);
         User owner = getOwner(reservation);
-        Accommodation accommodation = reservation.getAccommodation();
-        Context context = createCancellationContext(guest, accommodation, reservation);
+        Context context = createFullContext(reservation, owner, null);
 
-        sendEmail(owner.getEmail(), "Reservation at your property has been cancelled", "CancellationByGuestOwner", context);
+        sendEmail(owner.getEmail(), "Reservation at your property has been cancelled", "owner_cancellationByGuest", context);
     }
 
-    private Context createContext() {
+    private Context createFullContext(Reservation reservation, User user, BigDecimal discountAmount) {
         Context context = new Context();
+
         context.setVariable("dashboardUrl", DASHBOARD_URL);
-        return context;
-    }
 
-    private Context createReservationContext(Reservation reservation) {
-        Context context = createContext();
-        Accommodation accommodation = reservation.getAccommodation();
+        if (reservation != null) {
+            Accommodation accommodation = reservation.getAccommodation();
+            context.setVariable("accommodationName", accommodation.getName());
+            context.setVariable("location", accommodation.getLocation());
+            context.setVariable("checkInDate", reservation.getCheckInDate() != null ? reservation.getCheckInDate().toString() : "N/A");
+            context.setVariable("checkOutDate", reservation.getCheckOutDate() != null ? reservation.getCheckOutDate().toString() : "N/A");
+            context.setVariable("amount", reservation.getTotalPrice());
+        } else {
+            context.setVariable("accommodationName", "Default Accommodation");
+            context.setVariable("location", "Default Location");
+            context.setVariable("checkInDate", "N/A");
+            context.setVariable("checkOutDate", "N/A");
+            context.setVariable("amount", "N/A");
+        }
 
-        context.setVariable("accommodationName", accommodation.getName());
-        context.setVariable("location", accommodation.getLocation());
-        context.setVariable("checkInDate", reservation.getCheckInDate());
-        context.setVariable("checkOutDate", reservation.getCheckOutDate());
-        context.setVariable("amount", reservation.getTotalPrice());
+        if (user != null) {
+            context.setVariable("userName", user.getName());
+            context.setVariable("guestName", user.getName());
+        } else {
+            context.setVariable("userName", "Default User");
+            context.setVariable("guestName", "Unknown Guest");
+        }
 
-        return context;
-    }
+        context.setVariable("discountAmount", discountAmount != null ? discountAmount : null);
 
-    private Context createCancellationContext(User guest, Accommodation accommodation, Reservation reservation) {
-        Context context = createContext();
-        context.setVariable("userName", guest.getName());
-        context.setVariable("accommodationName", accommodation.getName());
-        context.setVariable("location", accommodation.getLocation());
-        context.setVariable("checkInDate", reservation.getCheckInDate().toString());
-        context.setVariable("checkOutDate", reservation.getCheckOutDate().toString());
         return context;
     }
 
@@ -138,7 +131,7 @@ public class EmailServiceImpl implements EmailService {
         return reservation.getUser();
     }
 
-    private void sendEmail(String toEmail, String subject, String templateName, Context context) throws MessagingException {
+    public void sendEmail(String toEmail, String subject, String templateName, Context context) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
