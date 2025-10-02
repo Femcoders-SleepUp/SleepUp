@@ -25,9 +25,6 @@ labels:
       app: sleepUp
       version: v1
 
-# Target namespace for deployment
-namespace: default
-
 # Override replica count for specific deployments
 replicas:
   - name: app
