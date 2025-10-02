@@ -118,7 +118,7 @@ public class ReservationControllerTest {
         void createReservation_validData_shouldReturnCreatedReservation() throws Exception {
             ReservationRequest request = new ReservationRequest(
                     1,
-                    LocalDate.of(2025, 10, 1),
+                    LocalDate.of(2025, 10, 7),
                     LocalDate.of(2025, 10, 8)
             );
 

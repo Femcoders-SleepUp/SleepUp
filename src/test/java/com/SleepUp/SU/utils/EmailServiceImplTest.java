@@ -67,99 +67,99 @@ class EmailServiceImplTest {
     @Test
     void sendWelcomeEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("WelcomeUser"), any(Context.class)))
+        when(templateEngine.process(eq("welcome"), any(Context.class)))
                 .thenReturn("<html>Welcome Email</html>");
 
         emailService.sendWelcomeEmail(guest);
 
         verify(mailSender).createMimeMessage();
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("WelcomeUser"), any(Context.class));
+        verify(templateEngine).process(eq("welcome"), any(Context.class));
     }
 
     @Test
     void sendOwnerReservedNotification_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("NotificationReservationOwner"), any(Context.class)))
+        when(templateEngine.process(eq("owner_reservation_notification"), any(Context.class)))
                 .thenReturn("<html>Owner Notification</html>");
 
         emailService.sendOwnerReservedNotification(reservation);
 
         verify(mailSender).createMimeMessage();
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("NotificationReservationOwner"), any(Context.class));
+        verify(templateEngine).process(eq("owner_reservation_notification"), any(Context.class));
     }
 
     @Test
-    void sendReservationConfirmationEmail_Success() throws MessagingException {
+    void sendGuestReservationConfirmationEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("ConfirmationGuest"), any(Context.class)))
+        when(templateEngine.process(eq("guest_reservation_confirmation"), any(Context.class)))
                 .thenReturn("<html>Confirmation</html>");
 
         emailService.sendGuestReservationConfirmationEmail(reservation, BigDecimal.valueOf(3));
 
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("ConfirmationGuest"), any(Context.class));
+        verify(templateEngine).process(eq("guest_reservation_confirmation"), any(Context.class));
     }
 
     @Test
     void sendGuestReservationReminderEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("ReminderGuestReservation"), any(Context.class)))
+        when(templateEngine.process(eq("guest_reminder"), any(Context.class)))
                 .thenReturn("<html>Reminder</html>");
 
         emailService.sendGuestReservationReminderEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("ReminderGuestReservation"), any(Context.class));
+        verify(templateEngine).process(eq("guest_reminder"), any(Context.class));
     }
 
     @Test
     void sendOwnerReservationReminderEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("ReminderOwnerReservation"), any(Context.class)))
+        when(templateEngine.process(eq("owner_reminder"), any(Context.class)))
                 .thenReturn("<html>Owner Reminder</html>");
 
         emailService.sendOwnerReservationReminderEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("ReminderOwnerReservation"), any(Context.class));
+        verify(templateEngine).process(eq("owner_reminder"), any(Context.class));
     }
 
     @Test
     void sendCancellationConfirmationEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("CancellationGuest"), any(Context.class)))
+        when(templateEngine.process(eq("guest_cancellationByGuest"), any(Context.class)))
                 .thenReturn("<html>Cancellation</html>");
 
         emailService.sendCancellationConfirmationEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("CancellationGuest"), any(Context.class));
+        verify(templateEngine).process(eq("guest_cancellationByGuest"), any(Context.class));
     }
 
     @Test
     void sendCancellationByOwnerNotificationEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("CancellationGuestByOwner"), any(Context.class)))
+        when(templateEngine.process(eq("guest_cancellationByOwner"), any(Context.class)))
                 .thenReturn("<html>Cancellation by Owner</html>");
 
         emailService.sendCancellationByOwnerNotificationEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("CancellationGuestByOwner"), any(Context.class));
+        verify(templateEngine).process(eq("guest_cancellationByOwner"), any(Context.class));
     }
 
     @Test
     void sendCancellationNotificationToOwnerEmail_Success() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("CancellationByGuestOwner"), any(Context.class)))
+        when(templateEngine.process(eq("owner_cancellationByGuest"), any(Context.class)))
                 .thenReturn("<html>Cancellation to Owner</html>");
 
         emailService.sendCancellationNotificationToOwnerEmail(reservation);
 
         verify(mailSender).send(mimeMessage);
-        verify(templateEngine).process(eq("CancellationByGuestOwner"), any(Context.class));
+        verify(templateEngine).process(eq("owner_cancellationByGuest"), any(Context.class));
     }
 
     @Test
