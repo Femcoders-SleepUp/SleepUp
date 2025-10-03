@@ -25,53 +25,35 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidDateRangeException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidDateRangeException(InvalidDateRangeException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
+    @ExceptionHandler({
+            UserNotFoundByIdException.class,
+            UserNotFoundByUsernameException.class,
+            AccommodationNotFoundByIdException.class,
+            ReservationNotFoundByIdException.class
+    })
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex, HttpServletRequest req) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), req);
     }
 
-    @ExceptionHandler(UserNotFoundByIdException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundByIdeException(UserNotFoundByIdException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
+    @ExceptionHandler({
+            UserEmailAlreadyExistsException.class,
+            UserUsernameAlreadyExistsException.class,
+            AccommodationAlreadyExistsByNameException.class,
+            ReservationOverlapException.class,
+            ReservationModificationException.class,
+            ReservationAccommodationOwnerException.class
+    })
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest req) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), req);
     }
 
-    @ExceptionHandler(UserNotFoundByUsernameException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundByUsernameException(UserNotFoundByUsernameException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(UserEmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserEmailAlreadyExists(UserEmailAlreadyExistsException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(UserUsernameAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserUsernameAlreadyExists(UserUsernameAlreadyExistsException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(AccommodationNotFoundByIdException.class)
-    public ResponseEntity<ErrorResponse> handleAccommodationNotFoundByIdException(AccommodationNotFoundByIdException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(AccommodationAlreadyExistsByNameException.class)
-    public ResponseEntity<ErrorResponse> handleAccommodationAlreadyExistsByName(AccommodationAlreadyExistsByNameException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
+    @ExceptionHandler({
+            InvalidDateRangeException.class,
+            AccommodationConstraintsException.class,
+            AccommodationUnavailableException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException ex, HttpServletRequest req) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -82,9 +64,8 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ErrorResponse body = new ErrorResponse(status, "VALIDATION_ERROR", errors, request);
-        return ResponseEntity.status(status).body(body);
+
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -95,87 +76,43 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getMessage();
             errors.put(fieldName, errorMessage);
         });
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ErrorResponse body = new ErrorResponse(status, "CONSTRAINT_VIOLATION", errors, request);
-        return ResponseEntity.status(status).body(body);
+
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleEmptyOrMalformedBodyRequest(HttpMessageNotReadableException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+
         String message = "Request body is required and cannot be empty or malformed.";
-        ErrorResponse body = new ErrorResponse(status, message, request);
-        return ResponseEntity.status(status).body(body);
+
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.FORBIDDEN;
-        ErrorResponse body = new ErrorResponse(status, "Access Denied. You are not authorized to execute this action. " + exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
+
+        String message = "Access denied. You are not authorized to execute this action." + exception.getMessage();
+
+        return buildResponse(HttpStatus.FORBIDDEN, message, request);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
-        ErrorResponse body = new ErrorResponse(status, "Unauthorized: Bad credentials", request);
-        return ResponseEntity.status(status).body(body);
-    }
 
-    @ExceptionHandler(ReservationNotFoundByIdException.class)
-    public ResponseEntity<ErrorResponse> handleReservationNotFoundByIdeException(ReservationNotFoundByIdException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(AccommodationConstraintsException.class)
-    public ResponseEntity<ErrorResponse> handleAccommodationConstraintsException(
-            AccommodationConstraintsException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(AccommodationUnavailableException.class)
-    public ResponseEntity<ErrorResponse> handleAccommodationUnavailableException(
-            AccommodationUnavailableException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-    @ExceptionHandler(ReservationOverlapException.class)
-    public ResponseEntity<ErrorResponse> handleReservationOverlapException(
-            ReservationOverlapException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(ReservationModificationException.class)
-    public ResponseEntity<ErrorResponse> handleReservationModificationException(
-            ReservationModificationException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(ReservationAccommodationOwnerException.class)
-    public ResponseEntity<ErrorResponse> handleReservationAccommodationOwnerException(
-            ReservationAccommodationOwnerException exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        ErrorResponse body = new ErrorResponse(status, exception.getMessage(), request);
-        return ResponseEntity.status(status).body(body);
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized: Bad credentials", request);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllUnhandledExceptions(Exception exception, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
         Map<String, String> errors = new HashMap<>();
         errors.put("error", exception.getMessage() != null ? exception.getMessage() : "Unexpected error");
 
-        ErrorResponse body = new ErrorResponse(status, errors, request);
-        return ResponseEntity.status(status).body(body);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, errors, request);
     }
+
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, Object message, HttpServletRequest request) {
+        return ResponseEntity.status(status).body(new ErrorResponse(status, message, request));
+    }
+
 }
