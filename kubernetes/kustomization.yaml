@@ -14,7 +14,7 @@ resources:
 # Image customization - override image tags
 images:
   - name: sleepup/sleepup
-    newTag: main
+    newTag: v1.0.4
 
 # Add prefix to all resource names to avoid conflicts
 namePrefix: sleepup-
