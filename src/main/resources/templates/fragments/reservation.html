@@ -1,0 +1,25 @@
+<div xmlns:th="http://www.thymeleaf.org"
+     th:fragment="details(accommodationName, location, checkInDate, checkOutDate, amount, discountAmount, guestName, userRole)">
+
+    <h2>Reservation Details</h2>
+    <ul>
+        <li><b>Accommodation:</b> <span th:text="${accommodationName}">Accommodation Name</span></li>
+        <li><b>Location:</b> <span th:text="${location}">Location</span></li>
+        <li><b>Check-in Date:</b> <span th:text="${checkInDate}">Check-in</span></li>
+        <li><b>Check-out Date:</b> <span th:text="${checkOutDate}">Check-out</span></li>
+    </ul>
+
+    <section th:if="${amount != null or discountAmount != null}">
+        <h2>Payment Summary</h2>
+        <ul>
+            <li th:if="${amount != null}"><b>Amount:</b> <span th:text="${amount} + ' €'">Amount</span></li>
+            <li th:if="${discountAmount != null}"><b>Discount:</b> <span th:text="${discountAmount}">Discount</span></li>
+        </ul>
+    </section>
+
+    <section th:if="${userRole == 'owner'}">
+        <h2>Guest Information</h2>
+        <p><b>Guest Name:</b> <span th:text="${guestName}">Guest Name</span></p>
+    </section>
+
+</div>

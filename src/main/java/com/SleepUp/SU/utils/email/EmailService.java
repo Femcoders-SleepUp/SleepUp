@@ -15,7 +15,7 @@ public interface EmailService {
 
     void sendGuestReservationConfirmationEmail(Reservation reservation, BigDecimal discountAmount) throws MessagingException;
 
-    void sendReservationReminderEmail(Reservation reservation) throws MessagingException;
+    void sendGuestReservationReminderEmail(Reservation reservation) throws MessagingException;
 
     void sendOwnerReservationReminderEmail(Reservation reservation) throws MessagingException;
 

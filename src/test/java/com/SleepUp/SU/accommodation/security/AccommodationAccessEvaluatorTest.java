@@ -21,7 +21,7 @@ class AccommodationAccessEvaluatorTest {
     private AccommodationAccessEvaluator accommodationAccessEvaluator;
 
     @Test
-    void testIsOwner_true() {
+    void isOwner_isOwner_shouldReturnTrue() {
         Long accommodationId = 1L;
         Long userId = 2L;
 
@@ -34,7 +34,7 @@ class AccommodationAccessEvaluatorTest {
     }
 
     @Test
-    void testIsOwner_false() {
+    void isOwner_isNotOwner_shouldThrowAccessDeniedException() {
         Long accommodationId = 1L;
         Long userId = 2L;
 

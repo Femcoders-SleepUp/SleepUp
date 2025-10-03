@@ -135,11 +135,11 @@ class EmailServiceHelperTest {
     class SendReservationReminderEmailGroup {
         @Test
         void sendReservationReminderEmail_Success() throws MessagingException {
-            doNothing().when(emailService).sendReservationReminderEmail(any(Reservation.class));
+            doNothing().when(emailService).sendGuestReservationReminderEmail(any(Reservation.class));
 
             emailServiceHelper.sendReservationReminderEmail(reservation);
 
-            verify(emailService).sendReservationReminderEmail(reservation);
+            verify(emailService).sendGuestReservationReminderEmail(reservation);
         }
     }
 
@@ -235,12 +235,12 @@ class EmailServiceHelperTest {
     class SendReservationRemindersGroup {
         @Test
         void sendReservationReminders_SendsBothReminders() throws MessagingException {
-            doNothing().when(emailService).sendReservationReminderEmail(any(Reservation.class));
+            doNothing().when(emailService).sendGuestReservationReminderEmail(any(Reservation.class));
             doNothing().when(emailService).sendOwnerReservationReminderEmail(any(Reservation.class));
 
             emailServiceHelper.sendReservationReminders(reservation);
 
-            verify(emailService).sendReservationReminderEmail(reservation);
+            verify(emailService).sendGuestReservationReminderEmail(reservation);
             verify(emailService).sendOwnerReservationReminderEmail(reservation);
         }
     }

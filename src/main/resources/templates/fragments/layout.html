@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">SleepUp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0; padding: 0;
+            font-size: 1rem;
+          }
+          .email-container {
+            max-width: 800px; margin: 40px auto;
+            background-color: #F4F5F4; border-radius: 10px;
+            padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          }
+          h1 { color: #76599d;   font-size: 1.8rem; margin-bottom: 20px; }
+          h2 { color: #36234f;}
+          p { color: #555555; line-height: 1.6; font-size: 1rem;}
+          ul { color: #555555; padding-left: 20px; font-size: 1rem;}
+          .button {
+            display: inline-block;
+            background-color: rgb(118, 89, 157);
+            color: white;
+            padding: 0.33em 0.55em;
+            font-size: 1.125rem;
+            font-weight: 700;
+            font-family: "Google Sans", Roboto, Helvetica, Arial, sans-serif;
+            border: 2px outset black;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            height: 50.5px;
+            box-sizing: border-box;
+            text-align: center;
+            width: auto;
+          }
+          .button:hover {
+            background-color: rgb(135, 105, 175);
+            border-style: inset;
+          }
+
+          .button:active {
+            background-color: rgb(100, 70, 140);
+          }
+          .footer {
+            margin-top: 30px;
+            font-size: 0.9rem;;
+            color: #888888;
+            text-align: center;
+          }
+          .no-bullets {
+            list-style-type: none;
+            padding-left: 0;
+            margin-left: 0;
+          }
+    </style>
+</head>
+<body>
+<div class="email-container" layout:fragment="content">
+    <div th:replace="fragments/logo :: logo"></div>
+    <div>
+        <div th:replace="~{::content}"></div>
+    </div>
+    <div th:replace="fragments/footer :: footer(${footerMessage})"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}"
+      th:with="footerMessage=#{welcome.footer}">
+<head>
+    <title th:text="#{welcome.title}">Welcome to SleepUp</title>
+</head>
+<body>
+<div th:fragment="content">
+
+    <h1 th:text="'Welcome, ' + ${userName} + '!'">Welcome, User!</h1>
+
+    <p th:text="#{welcome.message}">We're thrilled to have you join SleepUp!</p>
+    <p th:text="#{welcome.instructions}">With your new account, you can:</p>
+    <ul class="no-bullets">
+        <li> 🌍  Explore and book unique accommodations worldwide</li>
+        <li> 🗂  Manage your reservations and profile easily</li>
+        <li> ⏰  Receive reminders of your reservations</li>
+    </ul>
+
+    <p th:text="#{welcome.callToAction}">Start your journey by logging into your dashboard and discovering your next stay.</p>
+
+    <div th:replace="fragments/link :: link(${dashboardUrl}, #{welcome.button})">View SleepUp</div>
+
+</div>
+
+</body>
+</html>

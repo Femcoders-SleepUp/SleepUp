@@ -1,0 +1,9 @@
+<div xmlns:th="http://www.thymeleaf.org"
+     th:fragment="textMessage(message, highlightWord, highlightColor)">
+  <p>
+    <span th:text="${#strings.substringBefore(message, highlightWord)}"></span>
+    <span th:text="${highlightWord}"
+          th:style="${'background-color:' + highlightColor + '; color: white; padding: 2px 5px; border-radius: 3px;'}"></span>
+    <span th:text="${#strings.substringAfter(message, highlightWord)}"></span>
+  </p>
+</div>

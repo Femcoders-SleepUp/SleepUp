@@ -1,0 +1,5 @@
+<div xmlns:th="http://www.thymeleaf.org"
+     th:fragment="link(url, label)"
+     class="link-wrapper">
+    <a th:href="${url}" class="button" th:text="${label}" style="color: white !important;">Link</a>
+</div>
