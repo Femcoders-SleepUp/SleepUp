@@ -42,6 +42,7 @@ public class EmailServiceMailHogIntegrationTest {
         accommodation.setManagedBy(owner);
 
         reservation = new Reservation();
+        reservation.setId(1L);
         reservation.setUser(guest);
         reservation.setAccommodation(accommodation);
         reservation.setCheckInDate(LocalDate.now().plusDays(10));
@@ -52,7 +53,7 @@ public class EmailServiceMailHogIntegrationTest {
     @Test
     public void testSendWelcomeEmail() throws MessagingException, InterruptedException {
         emailService.sendWelcomeEmail(guest);
-        Thread.sleep(1000); // wait for MailHog to receive email
+        Thread.sleep(1000);
     }
 
     @Test
