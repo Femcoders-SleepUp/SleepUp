@@ -17,7 +17,7 @@
 
     <div th:replace="fragments/reservation-wrapper :: reservationDetailsForOwner"></div>
 
-    <div th:replace="fragments/link :: link(${dashboardUrl}, #{reservation.button})">View Reservation</div>
+    <div th:replace="fragments/link :: link(${reservationUrl}, 'View Reservation')"></div>
 
 </div>
 </body>
