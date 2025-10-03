@@ -3,7 +3,6 @@ package com.SleepUp.SU.utils.email;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
-import com.SleepUp.SU.utils.email.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,9 @@ import java.math.BigDecimal;
 public class EmailServiceImpl implements EmailService {
 
     private static final String UTF8_ENCODING = "UTF-8";
-    private static final String DASHBOARD_URL = "http://localhost:8080/swagger-ui/index.html#/";
+    private static final String DASHBOARD_URL = "http://localhost:8080/swagger-ui/index.html#";
+    private static final String RESERVATIONS_URL = DASHBOARD_URL + "/api/v1/reservations";
+    private static final String ACCOMMODATIONS_URL = DASHBOARD_URL + "/api/v1/accommodations";
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
@@ -98,6 +99,8 @@ public class EmailServiceImpl implements EmailService {
 
         if (reservation != null) {
             Accommodation accommodation = reservation.getAccommodation();
+            context.setVariable("reservationUrl", setReservationUrl(reservation));
+            context.setVariable("accommodationUrl", setAccommodationUrl(accommodation));
             context.setVariable("accommodationName", accommodation.getName());
             context.setVariable("location", accommodation.getLocation());
             context.setVariable("checkInDate", reservation.getCheckInDate() != null ? reservation.getCheckInDate().toString() : "N/A");
@@ -122,6 +125,14 @@ public class EmailServiceImpl implements EmailService {
         context.setVariable("discountAmount", discountAmount != null ? discountAmount : null);
 
         return context;
+    }
+
+    private String setReservationUrl(Reservation reservation) {
+        return RESERVATIONS_URL + "/" + reservation.getId();
+    }
+
+    private String setAccommodationUrl(Accommodation accommodation) {
+        return ACCOMMODATIONS_URL + "/" + accommodation.getId();
     }
 
     private User getOwner(Reservation reservation) {
