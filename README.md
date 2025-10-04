@@ -1,4 +1,7 @@
 ![CI](https://github.com//Femcoders-SleepUp/SleepUp/actions/workflows/ci.yml/badge.svg)
+
+![sleepup_logo.png](src/main/resources/static/images/sleepup_logo.png)
+
 # 💤 SleepUp — Backend API
 
 **SleepUp** is a backend application designed to manage accommodations and reservations in a secure, scalable environment.  
@@ -186,17 +189,13 @@ mvn spring-boot:run
 
 ---
 
-## 📦 Diagrams
-- **EER Diagram** — Entity-relationship overview of database schema
-- **Class Diagram** — Core domain classes and relationships
-- **Flow Diagrams** — Illustrating background tasks and workflows
+## 📦 ER Diagram
+
+Entity-relationship overview of database schema
+![sleepup_erdiagram.png](src/main/resources/static/images/sleepup_erdiagram.png)
 
 ---
 
 ## 👥 Contributors
-- **Paula Calvo** — [GitHub](https://github.com/PCalvoGarcia)
-- **Iris Sánchez** — [GitHub](https://github.com/isanort/)
-- **Bruna Sonda** — [GitHub](https://github.com/brunasonda)
-- **Paola Pinilla** — [GitHub](https://github.com/PaolaAPL17)
-- **Thais Rocha** — [GitHub](https://github.com/thaisrqueiroz)
 
+<table> <tr> <td align="center"> <a href="https://github.com/brunasonda"> <img src="https://github.com/brunasonda.png" width="100px;" alt="Bruna Sonda"/> <br /> <sub><b>Bruna Sonda</b></sub> </a> </td> <td align="center"> <a href="https://github.com/isanort"> <img src="https://github.com/isanort.png" width="100px;" alt="Iris Sánchez"/> <br /> <sub><b>Iris Sánchez</b></sub> </a> </td> <td align="center"> <a href="https://github.com/PCalvoGarcia"> <img src="https://github.com/PCalvoGarcia.png" width="100px;" alt="Paula Calvo"/> <br /> <sub><b>Paula Calvo</b></sub> </a> </td> <td align="center"> <a href="https://github.com/PaolaAPL17"> <img src="https://github.com/PaolaAPL17.png" width="100px;" alt="Paola Pinilla"/> <br /> <sub><b>Paola Pinilla</b></sub> </a> </td> <td align="center"> <a href="https://github.com/thaisrqueiroz"> <img src="https://github.com/thaisrqueiroz.png" width="100px;" alt="Thais Rocha"/> <br /> <sub><b>Thais Rocha</b></sub> </a> </td> </tr> </table>
