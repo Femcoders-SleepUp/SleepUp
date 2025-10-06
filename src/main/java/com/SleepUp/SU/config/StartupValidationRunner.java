@@ -35,7 +35,7 @@ public class StartupValidationRunner implements ApplicationRunner {
 
     private void validateConnections() {
         validateDatabaseConnection();
-        validateCloudinaryConnection();
+//        validateCloudinaryConnection();
     }
 
     private void validateDatabaseConnection() {

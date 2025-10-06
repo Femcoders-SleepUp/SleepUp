@@ -1,5 +1,6 @@
 package com.SleepUp.SU.cloudinary;
 
+import com.SleepUp.SU.config.properties.AppProperties;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,12 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    public CloudinaryService(Cloudinary cloudinary) {
-        this.cloudinary = cloudinary;
+    public CloudinaryService(AppProperties appProperties) {
+        AppProperties.CloudinaryProperties cloudinaryProps = appProperties.getCloudinary();
+        this.cloudinary = new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", cloudinaryProps.getCloudName(),
+                "api_key", cloudinaryProps.getApiKey(),
+                "api_secret", cloudinaryProps.getApiSecret()));
     }
 
     public Map uploadFile(MultipartFile file, String folder) throws IOException {
