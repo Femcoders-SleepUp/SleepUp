@@ -3,11 +3,11 @@ package com.SleepUp.SU.reservation;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
+import com.SleepUp.SU.exceptions.InvalidDateRangeError;
+import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
-import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
@@ -15,6 +15,7 @@ import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,7 +32,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class ReservationServiceImplTest {
 
@@ -60,12 +59,76 @@ public class ReservationServiceImplTest {
     private ReservationResponseSummary mappedDtos;
     private Long userId;
     private List<Reservation> mockReservations;
+    private User user;
+    private Accommodation accommodation;
+    private Reservation reservation;
+    private Reservation mappedReservation;
+    private Reservation savedReservation;
 
     @BeforeEach
-    void setUp(){
-        mappedDtos = new ReservationResponseSummary(1L, "Maria",1,"María House",null,null,null,null);
+    void setUp() {
+        mappedDtos = new ReservationResponseSummary(1L, "Maria", 1, "María House", null, null, null, null);
         userId = 1L;
         mockReservations = List.of(new Reservation());
+
+        user = User.builder()
+                .id(1L)
+                .username("testuser")
+                .email("test@example.com")
+                .name("Test User")
+                .role(Role.USER)
+                .build();
+
+        User owner = User.builder()
+                .id(2L)
+                .username("owner")
+                .email("owner@example.com")
+                .name("Accommodation Owner")
+                .role(Role.USER)
+                .build();
+
+        accommodation = Accommodation.builder()
+                .id(1L)
+                .name("Test Hotel")
+                .guestNumber(4)
+                .availableFrom(LocalDate.now())
+                .availableTo(LocalDate.now().plusDays(30))
+                .price(10.0)
+                .managedBy(owner)
+                .build();
+
+        reservation = Reservation.builder()
+                .checkInDate(LocalDate.now().plusDays(1))
+                .checkOutDate(LocalDate.now().plusDays(3))
+                .guestNumber(2)
+                .bookingStatus(BookingStatus.PENDING)
+                .accommodation(accommodation)
+                .user(user)
+                .emailSent(false)
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        mappedReservation = Reservation.builder()
+                .checkInDate(reservation.getCheckInDate())
+                .checkOutDate(reservation.getCheckOutDate())
+                .guestNumber(reservation.getGuestNumber())
+                .bookingStatus(BookingStatus.PENDING)
+                .accommodation(accommodation)
+                .user(user)
+                .emailSent(false)
+                .build();
+
+        savedReservation = Reservation.builder()
+                .id(1L)
+                .checkInDate(reservation.getCheckInDate())
+                .checkOutDate(reservation.getCheckOutDate())
+                .guestNumber(reservation.getGuestNumber())
+                .bookingStatus(BookingStatus.PENDING)
+                .accommodation(accommodation)
+                .user(user)
+                .emailSent(false)
+                .createdDate(LocalDateTime.now())
+                .build();
     }
 
     @Nested
@@ -76,7 +139,7 @@ public class ReservationServiceImplTest {
             when(reservationRepository.findByUser_Id(userId)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, ReservationTime.ALL);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, com.SleepUp.SU.reservation.reservationTime.ReservationTime.ALL);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_Id(userId);
@@ -89,7 +152,7 @@ public class ReservationServiceImplTest {
             when(reservationRepository.findByUser_IdAndCheckInDateBefore(userId, today)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, ReservationTime.PAST);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, com.SleepUp.SU.reservation.reservationTime.ReservationTime.PAST);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_IdAndCheckInDateBefore(userId, today);
@@ -102,7 +165,7 @@ public class ReservationServiceImplTest {
             when(reservationRepository.findByUser_IdAndCheckInDateAfter(userId, today)).thenReturn(mockReservations);
             when(entityUtil.mapEntitiesToDTOs(eq(mockReservations), any())).thenReturn(List.of(mappedDtos));
 
-            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, ReservationTime.FUTURE);
+            List<ReservationResponseSummary> result = reservationServiceImpl.getMyReservations(userId, com.SleepUp.SU.reservation.reservationTime.ReservationTime.FUTURE);
 
             assertEquals(List.of(mappedDtos), result);
             verify(reservationRepository).findByUser_IdAndCheckInDateAfter(userId, today);
@@ -126,183 +189,78 @@ public class ReservationServiceImplTest {
         @Test
         void createReservation_validRequest_shouldReturnDetailResponse() {
             ReservationRequest reservationRequest = new ReservationRequest(2, LocalDate.now().plusDays(1), LocalDate.now().plusDays(3));
-            User user = createTestUser();
             Long accommodationId = 1L;
-            Accommodation accommodation = createTestAccommodation();
-
-            Reservation mappedReservation = createTestReservation();
-            Reservation savedReservation = createTestReservation();
-            savedReservation.setId(1L);
-            savedReservation.setUser(user);
-            savedReservation.setAccommodation(accommodation);
-            savedReservation.setCreatedDate(LocalDateTime.now());
 
             ReservationResponseDetail expectedResponse = new ReservationResponseDetail(
-                    1L, "Test User", 2, "Test Hotel",
-                    reservationRequest.checkInDate(), reservationRequest.checkOutDate(),
-                    BookingStatus.PENDING, false, LocalDateTime.now(),
+                    1L,
+                    "Test User",
+                    2,
+                    "Test Hotel",
+                    reservationRequest.checkInDate(),
+                    reservationRequest.checkOutDate(),
+                    BookingStatus.PENDING,
+                    false,
+                    savedReservation.getCreatedDate(),
                     BigDecimal.valueOf(100)
             );
 
             when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
+            doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
+            doNothing().when(reservationServiceHelper).validateCreateReservation(accommodation, user, reservationRequest);
             when(reservationMapper.toEntity(reservationRequest, BookingStatus.PENDING, user, accommodation, false)).thenReturn(mappedReservation);
+            doNothing().when(reservationServiceHelper).updatePriceWithDiscountIfDeserved(mappedReservation, accommodation, user);
             when(reservationRepository.save(mappedReservation)).thenReturn(savedReservation);
             when(reservationMapper.toDetail(savedReservation)).thenReturn(expectedResponse);
-            doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
-            doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
-            doNothing().when(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
-            doNothing().when(reservationServiceHelper).validateAccommodationReservationOverlap(accommodationId, reservationRequest);
-//            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, (BigDecimal) 20);
+            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(savedReservation);
 
             ReservationResponseDetail result = reservationServiceImpl.createReservation(reservationRequest, user, accommodationId);
 
             assertNotNull(result);
-            assertEquals("Test Hotel", result.accommodationName());
-            assertEquals("Test User", result.userName());
-            assertEquals(BookingStatus.PENDING, result.bookingStatus());
+            assertEquals(expectedResponse.accommodationName(), result.accommodationName());
+            assertEquals(expectedResponse.userName(), result.userName());
+            assertEquals(expectedResponse.bookingStatus(), result.bookingStatus());
 
+            verify(reservationServiceHelper).validateReservationDates(reservationRequest);
+            verify(reservationServiceHelper).validateCreateReservation(accommodation, user, reservationRequest);
+            verify(reservationServiceHelper).updatePriceWithDiscountIfDeserved(mappedReservation, accommodation, user);
             verify(reservationRepository).save(mappedReservation);
-//            verify(emailServiceHelper).sendOwnerReservedNotification(user, accommodation, savedReservation, 20);
+            verify(emailServiceHelper).sendOwnerReservedNotification(savedReservation);
         }
 
         @Test
-        void createReservation_accommodationNotFound_shouldThrowException() {
+        void createReservation_accommodationNotFound_shouldThrow() {
             ReservationRequest reservationRequest = new ReservationRequest(2, LocalDate.now().plusDays(1), LocalDate.now().plusDays(3));
-            User user = createTestUser();
             Long accommodationId = 999L;
 
             doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
-            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenThrow(new AccommodationNotFoundByIdException(accommodationId));
+            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId))
+                    .thenThrow(new AccommodationNotFoundByIdException(accommodationId));
 
             AccommodationNotFoundByIdException exception = assertThrows(AccommodationNotFoundByIdException.class,
                     () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
 
             assertEquals("Accommodation with id '999' not found", exception.getMessage());
+
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
             verify(accommodationServiceHelper).getAccommodationEntityById(accommodationId);
         }
 
         @Test
-        void createReservation_invalidDates_shouldThrowException() {
+        void createReservation_invalidDates_shouldThrow() {
             ReservationRequest reservationRequest = new ReservationRequest(2, LocalDate.now().plusDays(3), LocalDate.now().plusDays(1));
-            User user = createTestUser();
             Long accommodationId = 1L;
 
-            doThrow(new IllegalArgumentException("Check-in date must be before check-out date"))
+            doThrow(new InvalidDateRangeException(InvalidDateRangeError.ORDER))
                     .when(reservationServiceHelper).validateReservationDates(reservationRequest);
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            InvalidDateRangeException exception = assertThrows(InvalidDateRangeException.class,
                     () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
 
-            assertEquals("Check-in date must be before check-out date", exception.getMessage());
+            assertEquals(InvalidDateRangeError.ORDER.getMessage(), exception.getMessage());
+
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
             verifyNoInteractions(accommodationServiceHelper);
         }
 
-        @Test
-        void createReservation_accommodationUnavailable_shouldThrowException() {
-            ReservationRequest reservationRequest = new ReservationRequest(5, LocalDate.now().plusDays(1), LocalDate.now().plusDays(3));
-            User user = createTestUser();
-            Long accommodationId = 1L;
-            Accommodation accommodation = createTestAccommodation();
-
-            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
-            doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
-            doThrow(new IllegalArgumentException("Accommodation supports maximum 4 guests, but 5 guests requested"))
-                    .when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
-
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
-
-            assertEquals("Accommodation supports maximum 4 guests, but 5 guests requested", exception.getMessage());
-        }
-
-        @Test
-        void createReservation_userHasOverlappingReservation_shouldThrowException() {
-            ReservationRequest reservationRequest = new ReservationRequest(2, LocalDate.now().plusDays(1), LocalDate.now().plusDays(3));
-            User user = createTestUser();
-            Long accommodationId = 1L;
-            Accommodation accommodation = createTestAccommodation();
-
-            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId)).thenReturn(accommodation);
-            doNothing().when(reservationServiceHelper).validateReservationDates(reservationRequest);
-            doNothing().when(reservationServiceHelper).validateAccommodationAvailability(accommodation, reservationRequest);
-            doThrow(new IllegalArgumentException("You already have a reservation that overlaps with these dates"))
-                    .when(reservationServiceHelper).validateUserReservationOverlap(user.getId(), reservationRequest);
-
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> reservationServiceImpl.createReservation(reservationRequest, user, accommodationId));
-
-            assertEquals("You already have a reservation that overlaps with these dates", exception.getMessage());
-        }
-
-        @Test
-        void createReservation_userIsOwner_shouldThrowException() {
-            ReservationRequest reservationRequest = new ReservationRequest(
-                    2,
-                    LocalDate.now().plusDays(1),
-                    LocalDate.now().plusDays(3)
-            );
-
-            User owner = createTestUser();
-            Long accommodationId = 1L;
-
-            Accommodation accommodation = createTestAccommodation();
-            accommodation.setManagedBy(owner);
-
-            when(accommodationServiceHelper.getAccommodationEntityById(accommodationId))
-                    .thenReturn(accommodation);
-            doNothing().when(reservationServiceHelper)
-                    .validateReservationDates(reservationRequest);
-
-            ReservationAccommodationOwnerException exception = assertThrows(
-                    ReservationAccommodationOwnerException.class,
-                    () -> reservationServiceImpl.createReservation(reservationRequest, owner, accommodationId)
-            );
-
-            assertEquals("This accommodation is yours, you cannot book your own accommodations.",
-                    exception.getMessage());
-        }
     }
-
-    private User createTestUser() {
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("testuser");
-        user.setEmail("test@example.com");
-        user.setName("Test User");
-        user.setRole(Role.USER);
-        return user;
-    }
-
-    private Accommodation createTestAccommodation() {
-        User owner = new User();
-        owner.setId(2L);
-        owner.setUsername("owner");
-        owner.setEmail("owner@example.com");
-        owner.setName("Accommodation Owner");
-        owner.setRole(Role.USER);
-
-        Accommodation accommodation = new Accommodation();
-        accommodation.setId(1L);
-        accommodation.setName("Test Hotel");
-        accommodation.setGuestNumber(4);
-        accommodation.setAvailableFrom(LocalDate.now());
-        accommodation.setAvailableTo(LocalDate.now().plusDays(30));
-        accommodation.setPrice(10.0);
-        accommodation.setManagedBy(owner);
-        return accommodation;
-    }
-
-    private Reservation createTestReservation() {
-        Reservation reservation = new Reservation();
-        reservation.setCheckInDate(LocalDate.now().plusDays(1));
-        reservation.setCheckOutDate(LocalDate.now().plusDays(3));
-        reservation.setGuestNumber(2);
-        reservation.setBookingStatus(BookingStatus.PENDING);
-        reservation.setEmailSent(false);
-        return reservation;
-    }
-
-
 }
