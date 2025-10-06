@@ -1,5 +1,6 @@
 package com.SleepUp.SU.security.jwt;
 
+import com.SleepUp.SU.config.properties.AppProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,12 +21,15 @@ class JwtServiceTest {
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.openMocks(this);
+        AppProperties.JwtProperties jwtProperties = new AppProperties.JwtProperties();
+        jwtProperties.setSecret("YourBase64EncodedSecretHereYourBase64EncodedSecretHere");
+        jwtProperties.setExpirationMs(60000L);
+        jwtProperties.setRefreshExpirationMs(120000L);
 
-        String secret = "YourBase64EncodedSecretHereYourBase64EncodedSecretHere";
-        long expirationMs = 60000L;
+        AppProperties appProperties = new AppProperties();
+        appProperties.setJwt(jwtProperties);
 
-        jwtService = new JwtService(secret, expirationMs);
+        jwtService = new JwtService(appProperties);
     }
 
     @Test
