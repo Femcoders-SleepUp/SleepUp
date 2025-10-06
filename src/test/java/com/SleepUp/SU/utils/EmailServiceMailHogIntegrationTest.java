@@ -51,49 +51,49 @@ public class EmailServiceMailHogIntegrationTest {
     }
 
     @Test
-    public void testSendWelcomeEmail() throws MessagingException, InterruptedException {
+    public void integration_sendWelcomeEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendWelcomeEmail(guest);
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendOwnerReservedNotification() throws MessagingException, InterruptedException {
+    public void integration_sendOwnerReservedNotification_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendOwnerReservedNotification(reservation);
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendGuestReservationConfirmationEmail() throws MessagingException, InterruptedException {
+    public void integration_sendGuestReservationConfirmationEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendGuestReservationConfirmationEmail(reservation, new BigDecimal("100.00"));
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendGuestReservationReminderEmail() throws MessagingException, InterruptedException {
+    public void integration_sendGuestReservationReminderEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendGuestReservationReminderEmail(reservation);
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendOwnerReservationReminderEmail() throws MessagingException, InterruptedException {
+    public void integration_sendOwnerReservationReminderEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendOwnerReservationReminderEmail(reservation);
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendCancellationConfirmationEmail() throws MessagingException, InterruptedException {
+    public void  integration_sendCancellationConfirmationEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendCancellationConfirmationEmail(reservation);
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendCancellationByOwnerNotificationEmail() throws MessagingException, InterruptedException {
+    public void  integration_sendCancellationByOwnerNotificationEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendCancellationByOwnerNotificationEmail(reservation);
         Thread.sleep(1000);
     }
 
     @Test
-    public void testSendCancellationNotificationToOwnerEmail() throws MessagingException, InterruptedException {
+    public void integration_sendCancellationNotificationToOwnerEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendCancellationNotificationToOwnerEmail(reservation);
         Thread.sleep(1000);
     }

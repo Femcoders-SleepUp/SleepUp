@@ -69,49 +69,49 @@ public class EmailServiceImplTestEmail {
     }
 
     @Test
-    public void testSendWelcomeEmail() throws MessagingException {
+    public void sendWelcomeEmail_validUser_shouldSendMimeMessage() throws MessagingException {
         emailService.sendWelcomeEmail(guest);
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendOwnerReservedNotification() throws MessagingException {
+    public void sendOwnerReservedNotification_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendOwnerReservedNotification(reservation);
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendGuestReservationConfirmationEmail() throws MessagingException {
+    public void sendGuestReservationConfirmationEmail_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendGuestReservationConfirmationEmail(reservation, new BigDecimal("100.00"));
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendGuestReservationReminderEmail() throws MessagingException {
+    public void sendGuestReservationReminderEmail_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendGuestReservationReminderEmail(reservation);
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendOwnerReservationReminderEmail() throws MessagingException {
+    public void sendOwnerReservationReminderEmail_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendOwnerReservationReminderEmail(reservation);
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendCancellationConfirmationEmail() throws MessagingException {
+    public void sendCancellationConfirmationEmail_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendCancellationConfirmationEmail(reservation);
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendCancellationByOwnerNotificationEmail() throws MessagingException {
+    public void sendCancellationByOwnerNotificationEmail_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendCancellationByOwnerNotificationEmail(reservation);
         verify(mailSender).send(any(MimeMessage.class));
     }
 
     @Test
-    public void testSendCancellationNotificationToOwnerEmail() throws MessagingException {
+    public void sendCancellationNotificationToOwnerEmail_validReservation_shouldSendMimeMessage() throws MessagingException {
         emailService.sendCancellationNotificationToOwnerEmail(reservation);
         verify(mailSender).send(any(MimeMessage.class));
     }
