@@ -53,10 +53,7 @@ public class ReservationServiceImpl implements ReservationService{
         reservationServiceHelper.validateReservationDates(reservationRequest);
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
 
-        if (accommodation.getManagedBy().getId().equals(user.getId())){throw new ReservationAccommodationOwnerException();}
-        reservationServiceHelper.validateAccommodationAvailability(accommodation, reservationRequest);
-        reservationServiceHelper.validateUserReservationOverlap(user.getId(), reservationRequest);
-        reservationServiceHelper.validateAccommodationReservationOverlap(accommodationId, reservationRequest);
+        reservationServiceHelper.validateCreateReservation(accommodation, user, reservationRequest);
 
         Reservation newReservation =  reservationMapper.toEntity(
                 reservationRequest,
@@ -64,10 +61,8 @@ public class ReservationServiceImpl implements ReservationService{
                 user, accommodation,
                 false);
 
-        boolean discount = reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId());
-        BigDecimal amount = reservationServiceHelper.calculateReservationPrice(reservationRequest, accommodation, discount);
+        reservationServiceHelper.updatePriceWithDiscountIfDeserved(newReservation, accommodation, user);
 
-        newReservation.setTotalPrice(amount);
         Reservation savedReservation = reservationRepository.save(newReservation);
 
         emailServiceHelper.sendOwnerReservedNotification(savedReservation);

@@ -38,8 +38,15 @@ public class ReservationServiceHelper {
         return getReservationEntityById(reservationId).getAccommodation().getId();
     }
 
-    public BigDecimal calculateReservationPrice(ReservationRequest reservationRequest, Accommodation accommodation, boolean discount) {
-        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
+    public void updatePriceWithDiscountIfDeserved(Reservation reservation, Accommodation accommodation, User user){
+        boolean discount = validateReservationAccommodationLessThanOneYear(accommodation.getId(), user.getId());
+        BigDecimal amount = calculateReservationPrice(reservation, accommodation, discount);
+
+        reservation.setTotalPrice(amount);
+    }
+
+    public BigDecimal calculateReservationPrice(Reservation reservation, Accommodation accommodation, boolean discount) {
+        long days = ChronoUnit.DAYS.between(reservation.getCheckInDate(), reservation.getCheckOutDate());
 
         BigDecimal pricePerDay = BigDecimal.valueOf(accommodation.getPrice());
         BigDecimal totalAmount = pricePerDay.multiply(BigDecimal.valueOf(days));
@@ -52,6 +59,19 @@ public class ReservationServiceHelper {
         totalAmount = totalAmount.setScale(2, RoundingMode.HALF_UP);
 
         return totalAmount;
+    }
+
+    public void validateCreateReservation(Accommodation accommodation, User user, ReservationRequest reservationRequest){
+        validateGuestIsNotOwner(accommodation, user);
+        validateAccommodationAvailability(accommodation, reservationRequest);
+        validateUserReservationOverlap(user.getId(), reservationRequest);
+        validateAccommodationReservationOverlap(accommodation.getId(), reservationRequest);
+
+    }
+
+    public void validateGuestIsNotOwner(Accommodation accommodation, User user) {
+        if (accommodation.getManagedBy().getId().equals(user.getId())){
+            throw new ReservationAccommodationOwnerException();}
     }
 
     public void validateReservationDates(ReservationRequest reservationRequest) {
