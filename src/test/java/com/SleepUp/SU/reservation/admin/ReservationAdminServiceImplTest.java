@@ -94,7 +94,7 @@ public class ReservationAdminServiceImplTest {
     @Nested
     class getAllReservationsToAdminReservationTest{
         @Test
-        void getAllReservationsToAdmin_shouldReturnAllReservations() {
+        void getAllReservations_reservationsExist_shouldReturnSummaryList() {
            Reservation reservation1 = new Reservation();
            Reservation reservation2 = new Reservation();
 

@@ -43,7 +43,7 @@ public class ReservationTest {
     private UserRepository userRepository;
 
     @Test
-    public void testFindByUserId() {
+    public void repository_findByUserId_shouldReturnNonEmptyReservationList() {
         Long userId = 2L; // User2 as per your sample data
 
         List<Reservation> reservations = reservationRepository.findByUser_Id(userId);
@@ -55,7 +55,7 @@ public class ReservationTest {
     }
 
     @Test
-    public void testFindByUserId_Service() {
+    public void service_getMyReservationsAllTime_shouldReturnNonEmptySummaryList() {
         Long userId = 2L; // User2 as per your sample data
 
         List<ReservationResponseSummary> reservations = reservationServiceImpl.getMyReservations(userId, ReservationTime.ALL);
@@ -67,7 +67,7 @@ public class ReservationTest {
     }
 
     @Test
-    public void testController(){
+    public void controller_getMyReservationsAllTime_shouldReturnNonEmptySummaryList(){
         User savedUser = userRepository.findByUsername("User2")
                 .orElseThrow(() -> new RuntimeException("TestUser not found"));
         CustomUserDetails principal = new CustomUserDetails(savedUser);
