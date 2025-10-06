@@ -2,6 +2,7 @@ package com.SleepUp.SU.utils.Schedule;
 
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
+import com.SleepUp.SU.utils.email.EmailService;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class ReservationReminderTask {
     private static final int REMINDER_DAYS_BEFORE = 3;
 
     private final ReservationRepository reservationRepository;
+    private final EmailService emailService;
     private final EmailServiceHelper emailServiceHelper;
 
     @Scheduled(cron = "0 0 8 * * *")
@@ -49,11 +51,11 @@ public class ReservationReminderTask {
                     if (emailServiceHelper.canSendReservationEmails(
                             reservation)) {
 
-                        emailServiceHelper.sendReservationReminders(
+                        emailService.sendGuestReservationReminderEmail(
                                 reservation
                         );
 
-                        emailServiceHelper.sendOwnerReservationReminderEmail(
+                        emailService.sendOwnerReservationReminderEmail(
                                 reservation);
 
                         successCount++;

@@ -11,6 +11,7 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
 import com.SleepUp.SU.utils.dto.ApiMessageDto;
+import com.SleepUp.SU.utils.email.EmailService;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
@@ -37,13 +38,13 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserServiceHelper userServiceHelper;
-    private final EmailServiceHelper emailServiceHelper;
+    private final EmailService emailService;
 
 
     @Transactional
     public UserResponse register(UserRequest request) throws MessagingException {
         User savedUser = userServiceHelper.createUser(request, Role.USER);
-        emailServiceHelper.sendWelcomeEmail(savedUser);
+        emailService.sendWelcomeEmail(savedUser);
         return userMapper.toResponse(savedUser);
     }
 

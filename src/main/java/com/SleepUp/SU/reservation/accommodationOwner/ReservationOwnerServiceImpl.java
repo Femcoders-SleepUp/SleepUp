@@ -9,7 +9,7 @@ import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
     private final EntityUtil entityUtil;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
-    private final EmailServiceHelper emailServiceHelper;
+    private final EmailService emailService;
 
     @Override
     public List<ReservationResponseSummary> getReservationsForMyAccommodation(Long accommodationId) {
@@ -41,8 +41,8 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
 
         BigDecimal amount = isExisting.getTotalPrice();
 
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailServiceHelper.sendReservationConfirmationEmail(isExisting, amount);}
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailServiceHelper.sendCancellationByOwnerNotificationEmail(isExisting);}
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailService.sendGuestReservationConfirmationEmail(isExisting, amount);}
+        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailService.sendCancellationByOwnerNotificationEmail(isExisting);}
 
         return reservationMapper.toDetail(isExisting);
     }
