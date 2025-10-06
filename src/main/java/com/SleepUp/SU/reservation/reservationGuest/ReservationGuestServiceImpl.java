@@ -11,6 +11,7 @@ import com.SleepUp.SU.utils.dto.ApiMessageDto;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +29,7 @@ public class ReservationGuestServiceImpl implements ReservationGuestService {
         return reservationMapper.toDetail(isExisting);
     }
 
-
-
+    @Transactional
     @Override
     public ApiMessageDto updateReservation(Long id, ReservationRequest reservationRequest, User user) {
         Reservation oldReservation = reservationServiceHelper.getReservationEntityById(id);
