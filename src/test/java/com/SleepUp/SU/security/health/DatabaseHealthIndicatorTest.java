@@ -24,7 +24,7 @@ public class DatabaseHealthIndicatorTest {
     }
 
     @Test
-    public void testHealthUp() throws Exception {
+    public void health_connectionIsValid_shouldReturnStatusUp() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.isValid(5)).thenReturn(true);
 
@@ -36,7 +36,7 @@ public class DatabaseHealthIndicatorTest {
     }
 
     @Test
-    public void testHealthDownInvalid() throws Exception {
+    public void health_connectionIsInvalid_shouldReturnStatusDown() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.isValid(5)).thenReturn(false);
 
@@ -48,7 +48,7 @@ public class DatabaseHealthIndicatorTest {
     }
 
     @Test
-    public void testHealthDownException() throws Exception {
+    public void health_getConnectionThrowsException_shouldReturnStatusDown() throws Exception {
         when(dataSource.getConnection()).thenThrow(new SQLException("DB error"));
 
         Health health = healthIndicator.health();
