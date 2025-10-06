@@ -65,7 +65,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendWelcomeEmail_Success() throws MessagingException {
+    void sendWelcomeEmail_validUser_shouldUseWelcomeTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("welcome"), any(Context.class)))
                 .thenReturn("<html>Welcome Email</html>");
@@ -78,7 +78,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendOwnerReservedNotification_Success() throws MessagingException {
+    void sendOwnerReservedNotification_validReservation_shouldUseNotificationTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("owner_reservation_notification"), any(Context.class)))
                 .thenReturn("<html>Owner Notification</html>");
@@ -91,7 +91,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendGuestReservationConfirmationEmail_Success() throws MessagingException {
+    void sendGuestReservationConfirmationEmail_validReservation_shouldUseConfirmationTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("guest_reservation_confirmation"), any(Context.class)))
                 .thenReturn("<html>Confirmation</html>");
@@ -103,7 +103,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendGuestReservationReminderEmail_Success() throws MessagingException {
+    void sendGuestReservationReminderEmail_validReservation_shouldUseReminderTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("guest_reminder"), any(Context.class)))
                 .thenReturn("<html>Reminder</html>");
@@ -115,7 +115,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendOwnerReservationReminderEmail_Success() throws MessagingException {
+    void sendOwnerReservationReminderEmail_validReservation_shouldUseOwnerReminderTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("owner_reminder"), any(Context.class)))
                 .thenReturn("<html>Owner Reminder</html>");
@@ -127,7 +127,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendCancellationConfirmationEmail_Success() throws MessagingException {
+    void sendCancellationConfirmationEmail_validReservation_shouldUseGuestCancellationTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("guest_cancellationByGuest"), any(Context.class)))
                 .thenReturn("<html>Cancellation</html>");
@@ -139,7 +139,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendCancellationByOwnerNotificationEmail_Success() throws MessagingException {
+    void sendCancellationByOwnerNotificationEmail_validReservation_shouldUseOwnerCancellationTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("guest_cancellationByOwner"), any(Context.class)))
                 .thenReturn("<html>Cancellation by Owner</html>");
@@ -151,7 +151,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void sendCancellationNotificationToOwnerEmail_Success() throws MessagingException {
+    void sendCancellationNotificationToOwnerEmail_validReservation_shouldUseOwnerNotificationTemplateAndSend() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("owner_cancellationByGuest"), any(Context.class)))
                 .thenReturn("<html>Cancellation to Owner</html>");
@@ -163,7 +163,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void allEmailMethods_UseCorrectEncoding() throws MessagingException {
+    void sendEmailMethods_defaultBehavior_shouldCreateMimeMessageOnce() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(anyString(), any(Context.class)))
                 .thenReturn("<html>Email</html>");
@@ -174,7 +174,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void allEmailMethods_SetCorrectSubjects() throws MessagingException {
+    void sendEmailMethods_multipleCalls_shouldVerifyInteractions() throws MessagingException {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(anyString(), any(Context.class)))
                 .thenReturn("<html>Email</html>");

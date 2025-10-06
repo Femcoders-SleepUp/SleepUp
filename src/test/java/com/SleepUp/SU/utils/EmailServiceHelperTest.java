@@ -88,7 +88,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendWelcomeEmailGroup {
         @Test
-        void sendWelcomeEmail_Success() throws MessagingException {
+        void sendWelcomeEmail_serviceCallSuccess_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendWelcomeEmail(any(User.class));
 
             emailServiceHelper.sendWelcomeEmail(guest);
@@ -97,7 +97,7 @@ class EmailServiceHelperTest {
         }
 
         @Test
-        void sendWelcomeEmail_HandlesException() throws MessagingException {
+        void sendWelcomeEmail_serviceThrowsException_shouldHandleGracefullyAndNotThrow() throws MessagingException {
             doThrow(new MessagingException("Error")).when(emailService).sendWelcomeEmail(any(User.class));
 
             assertDoesNotThrow(() -> emailServiceHelper.sendWelcomeEmail(guest));
@@ -110,7 +110,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendOwnerReservedNotificationGroup {
         @Test
-        void sendOwnerReservedNotification_Success() throws MessagingException {
+        void sendOwnerReservedNotification_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendOwnerReservedNotification(any(Reservation.class));
 
             emailServiceHelper.sendOwnerReservedNotification(reservation);
@@ -122,7 +122,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendReservationConfirmationEmailGroup {
         @Test
-        void sendReservationConfirmationEmail_Success() throws MessagingException {
+        void sendReservationConfirmationEmail_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendGuestReservationConfirmationEmail(any(Reservation.class), any(BigDecimal.class));
 
             emailServiceHelper.sendReservationConfirmationEmail(reservation, BigDecimal.TEN);
@@ -134,7 +134,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendReservationReminderEmailGroup {
         @Test
-        void sendReservationReminderEmail_Success() throws MessagingException {
+        void sendReservationReminderEmail_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendGuestReservationReminderEmail(any(Reservation.class));
 
             emailServiceHelper.sendReservationReminderEmail(reservation);
@@ -146,7 +146,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendOwnerReservationReminderEmailGroup {
         @Test
-        void sendOwnerReservationReminderEmail_Success() throws MessagingException {
+        void sendOwnerReservationReminderEmail_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendOwnerReservationReminderEmail(any(Reservation.class));
 
             emailServiceHelper.sendOwnerReservationReminderEmail(reservation);
@@ -158,7 +158,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendCancellationConfirmationEmailGroup {
         @Test
-        void sendCancellationConfirmationEmail_Success() throws MessagingException {
+        void sendCancellationConfirmationEmail_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendCancellationConfirmationEmail(any(Reservation.class));
 
             emailServiceHelper.sendCancellationConfirmationEmail(reservation);
@@ -170,7 +170,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendCancellationByOwnerNotificationEmailGroup {
         @Test
-        void sendCancellationByOwnerNotificationEmail_Success() throws MessagingException {
+        void sendCancellationByOwnerNotificationEmail_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendCancellationByOwnerNotificationEmail(any(Reservation.class));
 
             emailServiceHelper.sendCancellationByOwnerNotificationEmail(reservation);
@@ -182,7 +182,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendCancellationNotificationToOwnerEmailGroup {
         @Test
-        void sendCancellationNotificationToOwnerEmail_Success() throws MessagingException {
+        void sendCancellationNotificationToOwnerEmail_Success_shouldCallEmailService() throws MessagingException {
             doNothing().when(emailService).sendCancellationNotificationToOwnerEmail(any(Reservation.class));
 
             emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation);
@@ -194,7 +194,7 @@ class EmailServiceHelperTest {
     @Nested
     class HandleNewReservationEmailsGroup {
         @Test
-        void handleNewReservationEmails_SendsBothEmails() throws MessagingException {
+        void handleNewReservationEmails_Success_shouldSendBothEmails() throws MessagingException {
             doNothing().when(emailService).sendGuestReservationConfirmationEmail(any(Reservation.class), any(BigDecimal.class));
             doNothing().when(emailService).sendOwnerReservedNotification(any(Reservation.class));
 
@@ -208,7 +208,7 @@ class EmailServiceHelperTest {
     @Nested
     class HandleGuestCancellationEmailsGroup {
         @Test
-        void handleGuestCancellationEmails_SendsBothEmails() throws MessagingException {
+        void handleGuestCancellationEmails_Success_shouldSendBothEmails() throws MessagingException {
             doNothing().when(emailService).sendCancellationConfirmationEmail(any(Reservation.class));
             doNothing().when(emailService).sendCancellationNotificationToOwnerEmail(any(Reservation.class));
 
@@ -222,7 +222,7 @@ class EmailServiceHelperTest {
     @Nested
     class HandleOwnerCancellationEmailsGroup {
         @Test
-        void handleOwnerCancellationEmails_SendsNotification() throws MessagingException {
+        void handleOwnerCancellationEmails_Success_shouldSendNotification() throws MessagingException {
             doNothing().when(emailService).sendCancellationByOwnerNotificationEmail(any(Reservation.class));
 
             emailServiceHelper.handleOwnerCancellationEmails(reservation);
@@ -234,7 +234,7 @@ class EmailServiceHelperTest {
     @Nested
     class SendReservationRemindersGroup {
         @Test
-        void sendReservationReminders_SendsBothReminders() throws MessagingException {
+        void sendReservationReminders_Success_shouldSendBothReminders() throws MessagingException {
             doNothing().when(emailService).sendGuestReservationReminderEmail(any(Reservation.class));
             doNothing().when(emailService).sendOwnerReservationReminderEmail(any(Reservation.class));
 
