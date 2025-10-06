@@ -77,6 +77,36 @@ public class UserAdminControllerTest {
     }
 
     @Nested
+    class GetUserByIdTest {
+        @Test
+        void getUserById_whenAdminRole_shouldReturnUserResponse() throws Exception {
+            mockMvc.perform(get(USER_PATH_ID, 1L)
+                            .with(user(adminCustomUserDetails))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.username").value("User1"))
+                    .andExpect(jsonPath("$.name").value("Name1"))
+                    .andExpect(jsonPath("$.email").value("user1@example.com"))
+                    .andExpect(jsonPath("$.role").value("USER"));
+        }
+
+        @Test
+        void getUserById_whenNotAdminRole_shouldReturnForbidden() throws Exception {
+            mockMvc.perform(get(USER_PATH_ID, 1L)
+                            .with(user(userCustomUserDetails))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void getUserById_whenNoAuthentication_shouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(get(USER_PATH_ID, 1L)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @Nested
     class CreateUserTest {
 
         @Test
