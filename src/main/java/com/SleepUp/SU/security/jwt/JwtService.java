@@ -34,7 +34,7 @@ public class JwtService {
         AppProperties.JwtProperties jwt = appProperties.getJwt();
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwt.getSecret()));
         this.jwtExpirationMs = jwt.getExpirationMs();
-        this.jwtRefreshExpirationMs = jwt.getRefreshExpirationMs() != null ? jwt.getRefreshExpirationMs() : DEFAULT_REFRESH_EXPIRATION_MS;
+        this.jwtRefreshExpirationMs = jwt.getRefreshExpirationMs();
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
