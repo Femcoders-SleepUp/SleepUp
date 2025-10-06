@@ -1,7 +1,9 @@
 package com.SleepUp.SU.exceptions;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
+import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.utils.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -82,9 +85,13 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     public void testHandleBadRequest_AccommodationUnavailable() {
-        AccommodationUnavailableException ex = new AccommodationUnavailableException("Unavailable");
+        Accommodation accommodation = mock(Accommodation.class);
+        ReservationRequest reservationRequest = mock(ReservationRequest.class);
+        AccommodationUnavailableException ex = new AccommodationUnavailableException(accommodation, reservationRequest);
         ResponseEntity<ErrorResponse> response = handler.handleBadRequest(ex, request);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        String expectedMessage = String.format("Accommodation is only available from %s to %s", accommodation.getAvailableFrom(), accommodation.getAvailableTo());
+        assertEquals(expectedMessage, response.getBody().message().toString());
     }
 
     // === Validation Handlers ===
