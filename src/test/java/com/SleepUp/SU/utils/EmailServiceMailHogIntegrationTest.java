@@ -3,23 +3,32 @@ package com.SleepUp.SU.utils;
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
-import com.SleepUp.SU.utils.email.EmailServiceImpl;
+import com.SleepUp.SU.utils.email.EmailService;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@EnableAsync
 public class EmailServiceMailHogIntegrationTest {
 
     @Autowired
-    private EmailServiceImpl emailService;
+    private EmailService emailService;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     private User owner;
     private User guest;
@@ -53,48 +62,48 @@ public class EmailServiceMailHogIntegrationTest {
     @Test
     public void integration_sendWelcomeEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendWelcomeEmail(guest);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void integration_sendOwnerReservedNotification_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendOwnerReservedNotification(reservation);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void integration_sendGuestReservationConfirmationEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendGuestReservationConfirmationEmail(reservation, new BigDecimal("100.00"));
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void integration_sendGuestReservationReminderEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendGuestReservationReminderEmail(reservation);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void integration_sendOwnerReservationReminderEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendOwnerReservationReminderEmail(reservation);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void  integration_sendCancellationConfirmationEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendCancellationConfirmationEmail(reservation);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void  integration_sendCancellationByOwnerNotificationEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendCancellationByOwnerNotificationEmail(reservation);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 
     @Test
     public void integration_sendCancellationNotificationToOwnerEmail_shouldNotThrowException() throws MessagingException, InterruptedException {
         emailService.sendCancellationNotificationToOwnerEmail(reservation);
-        Thread.sleep(1000);
+        await().atMost(5, TimeUnit.SECONDS).pollDelay(100, TimeUnit.MILLISECONDS).until(() -> true);
     }
 }
