@@ -9,7 +9,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,7 +37,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendWelcomeEmail(User user) {
         try {
             emailService.sendWelcomeEmail(user);
@@ -48,7 +46,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendOwnerReservedNotification(Reservation reservation) {
         try {
             emailService.sendOwnerReservedNotification(reservation);
@@ -58,7 +55,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendReservationConfirmationEmail(Reservation reservation, BigDecimal discountAmount) {
         try {
             emailService.sendGuestReservationConfirmationEmail(reservation, discountAmount);
@@ -68,7 +64,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendReservationReminderEmail(Reservation reservation) {
         try {
             emailService.sendGuestReservationReminderEmail(reservation);
@@ -78,7 +73,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendOwnerReservationReminderEmail(Reservation reservation) {
         try {
             emailService.sendOwnerReservationReminderEmail(reservation);
@@ -88,7 +82,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendCancellationConfirmationEmail(Reservation reservation) {
         try {
             emailService.sendCancellationConfirmationEmail(reservation);
@@ -98,7 +91,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendCancellationByOwnerNotificationEmail(Reservation reservation) {
         try {
             emailService.sendCancellationByOwnerNotificationEmail(reservation);
@@ -108,7 +100,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void sendCancellationNotificationToOwnerEmail(Reservation reservation) {
         try {
             emailService.sendCancellationNotificationToOwnerEmail(reservation);
@@ -118,7 +109,6 @@ public class EmailServiceHelper {
         }
     }
 
-    @Async
     public void handleNewReservationEmails(Reservation reservation, BigDecimal discountAmount) {
         logger.info("Processing emails for new reservation - Guest: {}, Accommodation: {}",
                 reservation.getUser().getEmail(), reservation.getAccommodation().getName());
@@ -129,7 +119,6 @@ public class EmailServiceHelper {
         logger.info("New reservation email processing completed");
     }
 
-    @Async
     public void handleGuestCancellationEmails(Reservation reservation) {
         logger.info("Processing emails for guest cancellation - Guest: {}, Accommodation: {}",
                 reservation.getUser().getEmail(), reservation.getAccommodation().getName());
@@ -140,7 +129,6 @@ public class EmailServiceHelper {
         logger.info("Guest cancellation email processing completed");
     }
 
-    @Async
     public void handleOwnerCancellationEmails(Reservation reservation) {
         logger.info("Processing emails for owner cancellation - Guest: {}, Accommodation: {}",
                 reservation.getUser().getEmail(), reservation.getAccommodation().getName());
@@ -150,7 +138,6 @@ public class EmailServiceHelper {
         logger.info("Owner cancellation email processing completed");
     }
 
-    @Async
     public void sendReservationReminders(Reservation reservation) {
         logger.info("Sending reservation reminders - Guest: {}, Owner: {}, Accommodation: {}",
                 reservation.getUser().getEmail(), reservation.getAccommodation().getManagedBy().getEmail(), reservation.getAccommodation().getName());
