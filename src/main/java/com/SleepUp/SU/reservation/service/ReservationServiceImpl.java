@@ -53,10 +53,7 @@ public class ReservationServiceImpl implements ReservationService{
         reservationServiceHelper.validateReservationDates(reservationRequest);
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
 
-        if (accommodation.getManagedBy().getId().equals(user.getId())){throw new ReservationAccommodationOwnerException();}
-        reservationServiceHelper.validateAccommodationAvailability(accommodation, reservationRequest);
-        reservationServiceHelper.validateUserReservationOverlap(user.getId(), reservationRequest);
-        reservationServiceHelper.validateAccommodationReservationOverlap(accommodationId, reservationRequest);
+        reservationServiceHelper.validateCreateReservation(accommodation, user, reservationRequest);
 
         Reservation newReservation =  reservationMapper.toEntity(
                 reservationRequest,

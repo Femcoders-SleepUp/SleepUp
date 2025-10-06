@@ -54,6 +54,19 @@ public class ReservationServiceHelper {
         return totalAmount;
     }
 
+    public void validateCreateReservation(Accommodation accommodation, User user, ReservationRequest reservationRequest){
+        validateGuestIsNotOwner(accommodation, user);
+        validateAccommodationAvailability(accommodation, reservationRequest);
+        validateUserReservationOverlap(user.getId(), reservationRequest);
+        validateAccommodationReservationOverlap(accommodation.getId(), reservationRequest);
+
+    }
+
+    public void validateGuestIsNotOwner(Accommodation accommodation, User user) {
+        if (accommodation.getManagedBy().getId().equals(user.getId())){
+            throw new ReservationAccommodationOwnerException();}
+    }
+
     public void validateReservationDates(ReservationRequest reservationRequest) {
         EntityUtil.validateCheckInOutDates(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
     }
