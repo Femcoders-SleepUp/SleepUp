@@ -1,4 +1,5 @@
 package com.SleepUp.SU.user.admin;
+
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
 import com.SleepUp.SU.reservation.entity.Reservation;
@@ -16,8 +17,10 @@ import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.EntityUtil;
 import com.SleepUp.SU.utils.email.EmailServiceHelper;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
+import com.SleepUp.SU.utils.exceptions.UserNotFoundByUsernameException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserAdminServiceImpl implements UserAdminService {
+public class UserAdminServiceImpl implements UserAdminService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -55,7 +58,7 @@ public class UserAdminServiceImpl implements UserAdminService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(Long userId, UserRequestAdmin userRequestAdmin) {;
+    public UserResponse updateUser(Long userId, UserRequestAdmin userRequestAdmin) {
         User user = userServiceHelper.getUserEntityById(userId);
         User updatedUser = userServiceHelper.updateUserDataAdmin(userRequestAdmin, user);
         return userMapper.toResponse(updatedUser);
@@ -93,7 +96,11 @@ public class UserAdminServiceImpl implements UserAdminService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userServiceHelper.getUserEntityByUsername(username);
-        return new CustomUserDetails(user);
+        try {
+            User user = userServiceHelper.getUserEntityByUsername(username);
+            return new CustomUserDetails(user);
+        } catch (UserNotFoundByUsernameException ex) {
+            throw new UsernameNotFoundException("User with username '" + username + "' not found", ex);
+        }
     }
 }
