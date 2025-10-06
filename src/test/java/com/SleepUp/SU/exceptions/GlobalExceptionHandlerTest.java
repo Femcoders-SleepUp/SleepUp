@@ -86,8 +86,7 @@ public class GlobalExceptionHandlerTest {
     @Test
     public void testHandleBadRequest_AccommodationUnavailable() {
         Accommodation accommodation = mock(Accommodation.class);
-        ReservationRequest reservationRequest = mock(ReservationRequest.class);
-        AccommodationUnavailableException ex = new AccommodationUnavailableException(accommodation, reservationRequest);
+        AccommodationUnavailableException ex = new AccommodationUnavailableException(accommodation);
         ResponseEntity<ErrorResponse> response = handler.handleBadRequest(ex, request);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         String expectedMessage = String.format("Accommodation is only available from %s to %s", accommodation.getAvailableFrom(), accommodation.getAvailableTo());

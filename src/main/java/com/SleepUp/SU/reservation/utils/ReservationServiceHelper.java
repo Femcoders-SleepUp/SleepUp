@@ -84,7 +84,7 @@ public class ReservationServiceHelper {
 
         if (reservationRequest.checkInDate().isBefore(availableFrom) ||
                 reservationRequest.checkOutDate().isAfter(availableTo)) {
-            throw new AccommodationUnavailableException(accommodation, reservationRequest);
+            throw new AccommodationUnavailableException(accommodation);
             }
 
         if (reservationRequest.guestNumber() > accommodation.getGuestNumber()) {
