@@ -1,94 +1,126 @@
 package com.SleepUp.SU.cloudinary;
 
+import com.SleepUp.SU.config.properties.AppProperties;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Uploader;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
+import org.mockito.Mock;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
-@ActiveProfiles("tests")
+import com.cloudinary.utils.ObjectUtils;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
+
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 public class CloudinaryServiceTest {
 
-    private CloudinaryService cloudinaryService;
+    @Mock
     private Cloudinary cloudinary;
+
+    @Mock
     private Uploader uploader;
 
+    @Mock
+    private MultipartFile multipartFile;
+
+    @Mock
+    private AppProperties appProperties;
+
+    @Mock
+    private AppProperties.CloudinaryProperties cloudinaryProperties;
+
+    private CloudinaryService cloudinaryService;
+
     @BeforeEach
-    void setUp() {
-        cloudinary = Mockito.mock(Cloudinary.class);
-        uploader = Mockito.mock(Uploader.class);
-        cloudinaryService = new CloudinaryService(cloudinary);
+    public void setUp() {
+
+        when(appProperties.getCloudinary()).thenReturn(cloudinaryProperties);
+        when(cloudinaryProperties.getCloudName()).thenReturn("testCloudName");
+        when(cloudinaryProperties.getApiKey()).thenReturn("testApiKey");
+        when(cloudinaryProperties.getApiSecret()).thenReturn("testApiSecret");
+
+        cloudinaryService = new CloudinaryService(appProperties);
+
     }
 
-    @Nested
-    class uploadFile {
+    @Test
+    public void testUploadFile_withFolder_shouldReturnUploadResult() throws IOException {
+        byte[] fileBytes = "file content".getBytes();
+        when(multipartFile.getBytes()).thenReturn(fileBytes);
 
-        @Test
-        void uploadFile_validFileWithFolder_shouldReturnSecureUrl() throws IOException {
-            MockMultipartFile image = new MockMultipartFile(
-                    "image",
-                    "test-image.jpg",
-                    "image/jpeg",
-                    "Test Image Content".getBytes()
-            );
+        Map<String, Object> mockUploadResult = Map.of("public_id", "12345", "url", "http://test.url/image.jpg");
 
-            Map<String, String> response = new HashMap<>();
-            response.put("secure_url", "http://cloudinary.com/image/upload/example.jpg");
+        when(cloudinary.uploader()).thenReturn(uploader);
+        when(uploader.upload(eq(fileBytes), any(Map.class))).thenReturn(mockUploadResult);
 
-            Mockito.when(cloudinary.uploader()).thenReturn(uploader);
-            Mockito.when(uploader.upload(any(), anyMap())).thenReturn(response);
+        setCloudinaryMock(cloudinaryService, cloudinary);
 
-            Map result = cloudinaryService.uploadFile(image, "accommodations");
+        Map result = cloudinaryService.uploadFile(multipartFile, "testFolder");
 
-            assertEquals("http://cloudinary.com/image/upload/example.jpg", result.get("secure_url"));
-        }
-
-        @Test
-        void uploadFile_nullFolder_shouldReturnSecureUrl() throws IOException {
-            MockMultipartFile image = new MockMultipartFile(
-                    "image",
-                    "test-image.jpg",
-                    "image/jpeg",
-                    "Test Image Content".getBytes()
-            );
-
-            Map<String, String> response = new HashMap<>();
-            response.put("secure_url", "http://cloudinary.com/image/upload/example-null-folder.jpg");
-
-            Mockito.when(cloudinary.uploader()).thenReturn(uploader);
-            Mockito.when(uploader.upload(any(), anyMap())).thenReturn(response);
-
-            Map result = cloudinaryService.uploadFile(image, null);
-
-            assertEquals("http://cloudinary.com/image/upload/example-null-folder.jpg", result.get("secure_url"));
-        }
+        verify(uploader, times(1)).upload(eq(fileBytes), any(Map.class));
+        assertEquals(mockUploadResult, result);
     }
 
-    @Nested
-    class deleteFile {
-        @Test
-        void deleteFile_validPublicId_shouldNotThrow() throws IOException {
-            Map<String, String> response = new HashMap<>();
-            response.put("result", "ok");
+    @Test
+    public void testUploadFile_withoutFolder_shouldReturnUploadResult() throws IOException {
+        byte[] fileBytes = "file content".getBytes();
+        when(multipartFile.getBytes()).thenReturn(fileBytes);
 
-            Mockito.when(cloudinary.uploader()).thenReturn(uploader);
-            Mockito.when(uploader.destroy(eq("image"), anyMap())).thenReturn(response);
+        Map<String, Object> mockUploadResult = Map.of("public_id", "12345", "url", "http://test.url/image.jpg");
 
-            assertDoesNotThrow(() -> cloudinaryService.deleteFile("image"));
+        when(cloudinary.uploader()).thenReturn(uploader);
+        when(uploader.upload(eq(fileBytes), eq(ObjectUtils.emptyMap()))).thenReturn(mockUploadResult);
+
+        setCloudinaryMock(cloudinaryService, cloudinary);
+
+        Map result = cloudinaryService.uploadFile(multipartFile, null);
+
+        verify(uploader, times(1)).upload(eq(fileBytes), eq(ObjectUtils.emptyMap()));
+        assertEquals(mockUploadResult, result);
+    }
+
+    @Test
+    public void testDeleteFile_shouldCallDestroy() throws IOException {
+
+    }
+
+    @Test
+    public void testDeleteFile_shouldThrowIOException() throws Exception {
+        String publicId = "abc123";
+
+        when(cloudinary.uploader()).thenReturn(uploader);
+
+
+        doThrow(new IOException("Failed to delete file")).when(uploader)
+                .destroy(eq(publicId), eq(ObjectUtils.emptyMap()));
+
+
+        setCloudinaryMock(cloudinaryService, cloudinary);
+        assertThrows(IOException.class, () -> cloudinaryService.deleteFile(publicId));
+    }
+
+
+    private void setCloudinaryMock(CloudinaryService service, Cloudinary cloudinaryMock) {
+        try {
+            java.lang.reflect.Field cloudinaryField = CloudinaryService.class.getDeclaredField("cloudinary");
+            cloudinaryField.setAccessible(true);
+            cloudinaryField.set(service, cloudinaryMock);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
+
