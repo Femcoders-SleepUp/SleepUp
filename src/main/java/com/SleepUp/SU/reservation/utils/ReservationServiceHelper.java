@@ -38,8 +38,15 @@ public class ReservationServiceHelper {
         return getReservationEntityById(reservationId).getAccommodation().getId();
     }
 
-    public BigDecimal calculateReservationPrice(ReservationRequest reservationRequest, Accommodation accommodation, boolean discount) {
-        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
+    public void updatePriceWithDiscountIfDeserved(Reservation reservation, Accommodation accommodation, User user){
+        boolean discount = validateReservationAccommodationLessThanOneYear(accommodation.getId(), user.getId());
+        BigDecimal amount = calculateReservationPrice(reservation, accommodation, discount);
+
+        reservation.setTotalPrice(amount);
+    }
+
+    public BigDecimal calculateReservationPrice(Reservation reservation, Accommodation accommodation, boolean discount) {
+        long days = ChronoUnit.DAYS.between(reservation.getCheckInDate(), reservation.getCheckOutDate());
 
         BigDecimal pricePerDay = BigDecimal.valueOf(accommodation.getPrice());
         BigDecimal totalAmount = pricePerDay.multiply(BigDecimal.valueOf(days));
