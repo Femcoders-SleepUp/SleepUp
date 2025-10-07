@@ -1,5 +1,6 @@
 package com.SleepUp.SU.utils.email;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.user.entity.User;
 import jakarta.mail.MessagingException;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -26,6 +28,7 @@ public class EmailServiceImpl implements EmailService {
     private final EmailServiceHelper emailHelper;
 
     @Override
+    @Async
     public void sendWelcomeEmail(User user) {
         if (!emailHelper.canSendEmails(user)) return;
 
@@ -40,6 +43,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendOwnerReservedNotification(Reservation reservation) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -58,6 +62,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendGuestReservationConfirmationEmail(Reservation reservation, BigDecimal discountAmount) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -73,6 +78,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendGuestReservationReminderEmail(Reservation reservation) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -88,6 +94,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendOwnerReservationReminderEmail(Reservation reservation) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -103,6 +110,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendCancellationConfirmationEmail(Reservation reservation) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -118,6 +126,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendCancellationByOwnerNotificationEmail(Reservation reservation) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -133,6 +142,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendCancellationNotificationToOwnerEmail(Reservation reservation) {
         if (!emailHelper.canSendReservationEmails(reservation)) return;
 
@@ -152,6 +162,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF8_ENCODING);
 
         String htmlContent = templateEngine.process(templateName, context);
+
         helper.setTo(toEmail);
         helper.setSubject(subject);
         helper.setText(htmlContent, true);
