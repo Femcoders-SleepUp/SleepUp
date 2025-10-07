@@ -57,7 +57,7 @@ class ReservationAccessEvaluatorTest {
                 reservationAccessEvaluator.isReservationGuest(reservationId, userId);
             });
 
-            String expectedMessage = "Cause: This reservation was not created by you.";
+            String expectedMessage = " Cause: This reservation was not created by you.";
             assertEquals(expectedMessage, exception.getMessage());
 
             verify(reservationServiceHelper, times(1)).isReservationGuestTheUser(reservationId, userId);
@@ -104,7 +104,7 @@ class ReservationAccessEvaluatorTest {
                 reservationAccessEvaluator.isReservationGuestOrOwner(reservationId, userId);
             });
 
-            String expectedMessage = "Cause: This reservation was not created by you or does not belong to any of your accommodations.";
+            String expectedMessage = " Cause: This reservation was not created by you or does not belong to any of your accommodations.";
             assertEquals(expectedMessage, exception.getMessage());
 
 
@@ -139,7 +139,7 @@ class ReservationAccessEvaluatorTest {
                 reservationAccessEvaluator.isReservationAccommodationOwner(reservationId, userId);
             });
 
-            String expectedMessage = "Cause: This reservation does not belong to any of your accommodations.";
+            String expectedMessage = " Cause: This reservation does not belong to any of your accommodations.";
             assertEquals(expectedMessage, exception.getMessage());
 
 
