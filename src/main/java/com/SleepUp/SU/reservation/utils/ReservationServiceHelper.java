@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +39,15 @@ public class ReservationServiceHelper {
         return getReservationEntityById(reservationId).getAccommodation().getId();
     }
 
-    public BigDecimal calculateReservationPrice(ReservationRequest reservationRequest, Accommodation accommodation, boolean discount) {
-        long days = ChronoUnit.DAYS.between(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
+    public void updatePriceWithDiscountIfDeserved(Reservation reservation, Accommodation accommodation, User user){
+        boolean discount = validateReservationAccommodationLessThanOneYear(accommodation.getId(), user.getId());
+        BigDecimal amount = calculateReservationPrice(reservation, accommodation, discount);
+
+        reservation.setTotalPrice(amount);
+    }
+
+    public BigDecimal calculateReservationPrice(Reservation reservation, Accommodation accommodation, boolean discount) {
+        long days = ChronoUnit.DAYS.between(reservation.getCheckInDate(), reservation.getCheckOutDate());
 
         BigDecimal pricePerDay = BigDecimal.valueOf(accommodation.getPrice());
         BigDecimal totalAmount = pricePerDay.multiply(BigDecimal.valueOf(days));
@@ -54,28 +62,36 @@ public class ReservationServiceHelper {
         return totalAmount;
     }
 
+    public void validateCreateReservation(Accommodation accommodation, User user, ReservationRequest reservationRequest){
+        validateGuestIsNotOwner(accommodation, user);
+        validateAccommodationAvailability(accommodation, reservationRequest);
+        validateUserReservationOverlap(user.getId(), reservationRequest);
+        validateAccommodationReservationOverlap(accommodation.getId(), reservationRequest);
+    }
+
+    public void validateGuestIsNotOwner(Accommodation accommodation, User user) {
+        if (accommodation.getManagedBy().getId().equals(user.getId())){
+            throw new ReservationAccommodationOwnerException();}
+    }
+
     public void validateReservationDates(ReservationRequest reservationRequest) {
         EntityUtil.validateCheckInOutDates(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
     }
 
-    public void validateAccommodationAvailability(Accommodation accommodation, ReservationRequest reservationRequest) {
-        LocalDate availableFrom = accommodation.getAvailableFrom();
-        LocalDate availableTo = accommodation.getAvailableTo();
+     public void validateAccommodationAvailability(Accommodation accommodation, ReservationRequest reservationRequest) {
+        Optional.ofNullable(accommodation)
+                .map(Accommodation::getAvailableFrom)
+                .filter(availableFrom -> !reservationRequest.checkInDate().isBefore(availableFrom))
+                .orElseThrow(() -> new AccommodationUnavailableException(accommodation));
 
-        if (reservationRequest.checkInDate().isBefore(availableFrom) ||
-                reservationRequest.checkOutDate().isAfter(availableTo)) {
-            throw new AccommodationUnavailableException(
-                    String.format("Accommodation is only available from %s to %s",
-                            availableFrom, availableTo)
-            );
-        }
+        Optional.ofNullable(accommodation)
+                .map(Accommodation::getAvailableTo)
+                .filter(availableTo -> !reservationRequest.checkOutDate().isAfter(availableTo))
+                .orElseThrow(() -> new AccommodationUnavailableException(accommodation));
 
-        if (reservationRequest.guestNumber() > accommodation.getGuestNumber()) {
-            throw new AccommodationConstraintsException(
-                    String.format("Accommodation supports maximum %d guests, but %d guests requested",
-                            accommodation.getGuestNumber(), reservationRequest.guestNumber())
-            );
-        }
+        Optional.of(accommodation)
+                .filter(acc -> reservationRequest.guestNumber() <= acc.getGuestNumber())
+                .orElseThrow(() -> new AccommodationConstraintsException(accommodation, reservationRequest));
     }
 
     public void validateUserReservationOverlap(Long userId, ReservationRequest reservationRequest) {
@@ -138,18 +154,19 @@ public class ReservationServiceHelper {
     }
 
     public void validateReservationCancellable(Reservation reservation) {
-        if (reservation.getBookingStatus() == BookingStatus.CANCELLED) {
-            throw new ReservationModificationException("Cannot modify a cancelled reservation");
-        }
 
-        if (!(reservation.getBookingStatus() == BookingStatus.PENDING) && !(reservation.getBookingStatus() == BookingStatus.CONFIRMED)) {
-            throw new ReservationModificationException("Completed reservations cannot be cancelled");
-        }
+        Optional.of(reservation.getBookingStatus())
+                .filter(status -> status != BookingStatus.CANCELLED)
+                .orElseThrow(() -> new ReservationModificationException("Cannot modify a cancelled reservation"));
 
-        if (reservation.getCheckInDate().isBefore(LocalDate.now())) {
-            throw new ReservationModificationException("Cannot modify a reservation that has already started");
-        }
-    }
+        Optional.of(reservation.getCheckInDate())
+                .filter(date -> date.isAfter(LocalDate.now()) || date.isEqual(LocalDate.now()))
+                .orElseThrow(() -> new ReservationModificationException("Cannot modify a reservation that has already started"));
+
+        Optional.of(reservation.getBookingStatus())
+                .filter(status -> status != BookingStatus.CONFIRMED)
+                .orElseThrow(() -> new ReservationModificationException("Confirmed reservations cannot be cancelled"));
+   }
 
     public boolean validateReservationAccommodationLessThanOneYear(Long accommodationId, Long userId){
 

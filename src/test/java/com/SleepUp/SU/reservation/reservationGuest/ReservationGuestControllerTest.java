@@ -5,10 +5,8 @@ import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
-import com.SleepUp.SU.user.role.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,12 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -93,12 +86,10 @@ public class ReservationGuestControllerTest {
                     .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
                     .andExpect(jsonPath("$.emailSent").value(false));
         }
-
     }
 
     @Nested
     class UpdateReservationByIdTest {
-
 
         @Test
         void updateReservation_validRequest_shouldReturnUpdatedMessage() throws Exception {
@@ -137,7 +128,6 @@ public class ReservationGuestControllerTest {
                     .andExpect(jsonPath("$.message", allOf(containsString("reservation"), containsString("cancelled"))));
         }
 
-
         @Test
         void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
             Long reservationId = 1L;
@@ -160,4 +150,3 @@ public class ReservationGuestControllerTest {
         }
     }
 }
-

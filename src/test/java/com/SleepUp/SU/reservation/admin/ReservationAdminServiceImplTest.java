@@ -20,12 +20,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -33,7 +30,6 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class ReservationAdminServiceImplTest {
-
 
     @Mock
     private ReservationRepository reservationRepository;
@@ -55,7 +51,6 @@ public class ReservationAdminServiceImplTest {
 
     private ReservationResponseSummary response1;
     private ReservationResponseSummary response2;
-
 
     @BeforeEach
     void setUp() {
@@ -94,7 +89,7 @@ public class ReservationAdminServiceImplTest {
     @Nested
     class getAllReservationsToAdminReservationTest{
         @Test
-        void getAllReservationsToAdmin_shouldReturnAllReservations() {
+        void getAllReservations_reservationsExist_shouldReturnSummaryList() {
            Reservation reservation1 = new Reservation();
            Reservation reservation2 = new Reservation();
 

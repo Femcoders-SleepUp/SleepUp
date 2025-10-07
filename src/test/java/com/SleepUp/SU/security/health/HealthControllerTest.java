@@ -33,9 +33,8 @@ class HealthControllerTest {
     @MockitoBean
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
-
     @Test
-    public void testHealthUp() throws Exception {
+    public void getHealth_statusIsUp_shouldReturnOkAndStatusUp() throws Exception {
         HealthComponent healthComponent = Health.up().build();
         when(healthEndpoint.health()).thenReturn(healthComponent);
 
@@ -45,7 +44,7 @@ class HealthControllerTest {
     }
 
     @Test
-    public void testHealthDown() throws Exception {
+    public void getHealth_statusIsDown_shouldReturnServiceUnavailableAndStatusDown() throws Exception {
         HealthComponent healthComponent = Health.down().build();
         when(healthEndpoint.health()).thenReturn(healthComponent);
 
@@ -54,4 +53,3 @@ class HealthControllerTest {
                 .andExpect(jsonPath("$.status").value("DOWN"));
     }
 }
-

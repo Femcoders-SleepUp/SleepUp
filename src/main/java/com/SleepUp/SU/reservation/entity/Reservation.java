@@ -61,4 +61,3 @@ public class Reservation {
     @Column(name = "total_price", nullable = false, precision = 19, scale = 2)
     private BigDecimal totalPrice;
 }
-

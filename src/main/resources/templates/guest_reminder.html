@@ -22,7 +22,8 @@
         You can view your reservation details and manage your stay by logging into your SleepUp dashboard.
     </p>
 
-    <div th:replace="fragments/link :: link(${dashboardUrl}, #{reservation.button})">View Reservation</div>
+    <div th:replace="fragments/link :: link(${reservationUrl}, 'View Reservation')"></div>
+
 </div>
 </body>
 </html>

@@ -1,7 +1,6 @@
 package com.SleepUp.SU.reservation.security;
 
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
-import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,7 +16,7 @@ public class ReservationAccessEvaluator {
         boolean exists = reservationServiceHelper.isReservationGuestTheUser(reservationId, userId);
         if (!exists) {
             throw new AccessDeniedException(
-                    "Cause: This reservation was not created by you."
+                    " Cause: This reservation was not created by you."
             );
 
         }
@@ -29,7 +28,7 @@ public class ReservationAccessEvaluator {
         boolean exists = reservationServiceHelper.isReservationGuestTheUser(reservationId, userId) || accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
         if (!exists) {
             throw new AccessDeniedException(
-                    "Cause: This reservation was not created by you or does not belong to any of your accommodations."
+                    " Cause: This reservation was not created by you or does not belong to any of your accommodations."
             );
 
         }
@@ -41,7 +40,7 @@ public class ReservationAccessEvaluator {
         boolean exists = accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
         if (!exists) {
             throw new AccessDeniedException(
-                    "Cause: This reservation does not belong to any of your accommodations."
+                    " Cause: This reservation does not belong to any of your accommodations."
             );
 
         }

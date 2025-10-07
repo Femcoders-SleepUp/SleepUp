@@ -137,7 +137,7 @@ class StartupValidationRunnerTest {
             });
 
             assertTrue(exception.getMessage().contains("Failed to connect to DB"));
-            assertTrue(exception.getCause() instanceof SQLException);
+            assertInstanceOf(SQLException.class, exception.getCause());
         }
     }
 }

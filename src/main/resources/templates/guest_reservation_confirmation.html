@@ -20,7 +20,7 @@
     <p th:text="#{reservation.confirmed.dashboard}">You can manage your reservation or view more details by logging into your
         SleepUp dashboard.</p>
 
-    <div th:replace="fragments/link :: link(${dashboardUrl}, #{reservation.button})">View Reservation</div>
+    <div th:replace="fragments/link :: link(${reservationUrl}, 'View Reservation')"></div>
 
 </div>
 </body>

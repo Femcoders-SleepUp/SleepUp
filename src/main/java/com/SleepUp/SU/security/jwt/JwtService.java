@@ -1,11 +1,11 @@
 package com.SleepUp.SU.security.jwt;
 
+import com.SleepUp.SU.config.properties.AppProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -23,16 +23,17 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String ROLE_CLAIM = "roles";
+    private static final long DEFAULT_REFRESH_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
 
     private final SecretKey secretKey;
     private final long jwtExpirationMs;
-    private final long jwtRefreshExpirationMs = 7 * 24 * 60 * 60 * 1000;
+    private final long jwtRefreshExpirationMs;
 
-    public JwtService(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration-ms}") long jwtExpirationMs) {
-        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-        this.jwtExpirationMs = jwtExpirationMs;
+    public JwtService(AppProperties appProperties) {
+        AppProperties.JwtProperties jwt = appProperties.getJwt();
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwt.getSecret()));
+        this.jwtExpirationMs = jwt.getExpirationMs();
+        this.jwtRefreshExpirationMs = jwt.getRefreshExpirationMs();
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
@@ -46,7 +47,6 @@ public class JwtService {
         return buildToken(claims, userDetails.getUsername(), jwtRefreshExpirationMs);
     }
 
-
     public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(ROLE_CLAIM, userDetails.getAuthorities().stream()
@@ -57,7 +57,6 @@ public class JwtService {
 
         return buildToken(claims, userDetails.getUsername(), jwtExpirationMs);
     }
-
 
     private String buildToken(Map<String, Object> claims, String subject, long expirationMs) {
         Instant now = Instant.now();

@@ -4,11 +4,10 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.user.role.Role;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
-public interface UserAdminService extends UserDetailsService {
+public interface UserAdminService {
 
     List<UserResponse> getAllUsers();
 
@@ -19,4 +18,5 @@ public interface UserAdminService extends UserDetailsService {
     UserResponse updateUser(Long userId, UserRequestAdmin userRequestAdmin);
 
     void deleteUserById(Long id);
+
 }

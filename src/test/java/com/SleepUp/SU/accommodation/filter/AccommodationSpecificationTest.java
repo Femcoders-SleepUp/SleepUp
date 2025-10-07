@@ -59,13 +59,11 @@ public class AccommodationSpecificationTest {
                 .build();
     }
 
-
     private void stubStringProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) stringPath);
         when(criteriaBuilder.lower(stringPath)).thenReturn(stringPath);
         lenient().when(criteriaBuilder.like(any(Expression.class), anyString())).thenReturn(predicate);
     }
-
 
     private void stubBooleanProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) booleanPath);
@@ -73,11 +71,9 @@ public class AccommodationSpecificationTest {
         lenient().when(criteriaBuilder.isFalse( booleanPath)).thenReturn(predicate);
     }
 
-
     private void stubDateProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) datePath);
     }
-
 
     private void stubDoubleProperty(String propertyName) {
         when(root.get(propertyName)).thenReturn((Path) doublePath);
@@ -258,6 +254,7 @@ public class AccommodationSpecificationTest {
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
 
         assertNotNull(result, "Expected non-null predicate for valid date range");
+        assertNotNull(query, "Query should not be null during predicate creation");
     }
 
     @Test

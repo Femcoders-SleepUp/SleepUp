@@ -1,7 +1,6 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.dto;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
-import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.user.entity.User;
@@ -48,7 +47,7 @@ public class ReservationMapperTest {
     }
 
     @Test
-    public void testToSummaryMapping() {
+    public void toSummary_validReservation_shouldMapToSummaryDTO() {
         ReservationResponseSummary summary = reservationMapper.toSummary(reservation);
         assertNotNull(summary);
         assertEquals(reservation.getId(), summary.id());
@@ -60,7 +59,7 @@ public class ReservationMapperTest {
     }
 
     @Test
-    public void testToDetailMapping() {
+    public void toDetail_validReservation_shouldMapToDetailDTO() {
         ReservationResponseDetail detail = reservationMapper.toDetail(reservation);
         assertNotNull(detail);
         assertEquals(reservation.getId(), detail.id());
@@ -73,7 +72,7 @@ public class ReservationMapperTest {
     }
 
     @Test
-    public void testToEntityMapping() {
+    public void toEntity_validRequest_shouldMapToReservationEntity() {
         Reservation entity = reservationMapper.toEntity(reservationRequest, bookingStatus, new User(),new Accommodation(),false);
         assertNotNull(entity);
         assertEquals(reservationRequest.guestNumber(), entity.getGuestNumber());

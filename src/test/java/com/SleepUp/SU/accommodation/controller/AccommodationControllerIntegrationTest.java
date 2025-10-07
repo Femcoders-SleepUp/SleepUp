@@ -23,7 +23,6 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -211,7 +210,6 @@ class AccommodationControllerIntegrationTest {
                     .andDo(print())
                     .andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.message").value("Unauthorized. Full authentication is required to access this resource"));
-
         }
     }
 
@@ -283,7 +281,6 @@ class AccommodationControllerIntegrationTest {
                             }))
                     .andExpect(status().isNotFound());
         }
-
     }
 
     @Nested
@@ -340,7 +337,6 @@ class AccommodationControllerIntegrationTest {
                     .andDo(print())
                     .andExpect(status().isNotFound());
         }
-
     }
 
 }

@@ -36,7 +36,6 @@ public class ReservationGuestController {
         return reservationGuestService.getReservationById(id);
     }
 
-
     @Operation(summary = "Update Reservation", description = "Update the details of an existing reservation.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully updated reservation"),

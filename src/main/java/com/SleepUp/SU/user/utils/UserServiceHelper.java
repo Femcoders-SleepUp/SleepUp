@@ -85,7 +85,6 @@ public class UserServiceHelper {
         existingUser.setPassword(password);
 
         return existingUser;
-
     }
 
     @Transactional
@@ -104,7 +103,7 @@ public class UserServiceHelper {
 
         User updatedUser = updateUser(userData, user);
 
-        Role role = userRequestAdmin.role() != null && !userRequestAdmin.role().getRoleName().isEmpty()
+        Role role = userRequestAdmin.role() != null
                 ? userRequestAdmin.role() :
                 updatedUser.getRole();
 

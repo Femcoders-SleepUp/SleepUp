@@ -4,20 +4,17 @@ import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
 import com.SleepUp.SU.reservation.dto.*;
 import com.SleepUp.SU.reservation.entity.Reservation;
-import com.SleepUp.SU.reservation.exceptions.ReservationAccommodationOwnerException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import com.SleepUp.SU.utils.EntityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -27,7 +24,7 @@ public class ReservationServiceImpl implements ReservationService{
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
-    private final EmailServiceHelper emailServiceHelper;
+    private final EmailService emailService;
     private final AccommodationServiceHelper accommodationServiceHelper;
     private final EntityUtil entityUtil;
 
@@ -49,14 +46,11 @@ public class ReservationServiceImpl implements ReservationService{
     }
 
     @Override
-    public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId){
+    public ReservationResponseDetail createReservation(ReservationRequest reservationRequest, User user, Long accommodationId) {
         reservationServiceHelper.validateReservationDates(reservationRequest);
         Accommodation accommodation = accommodationServiceHelper.getAccommodationEntityById(accommodationId);
 
-        if (accommodation.getManagedBy().getId().equals(user.getId())){throw new ReservationAccommodationOwnerException();}
-        reservationServiceHelper.validateAccommodationAvailability(accommodation, reservationRequest);
-        reservationServiceHelper.validateUserReservationOverlap(user.getId(), reservationRequest);
-        reservationServiceHelper.validateAccommodationReservationOverlap(accommodationId, reservationRequest);
+        reservationServiceHelper.validateCreateReservation(accommodation, user, reservationRequest);
 
         Reservation newReservation =  reservationMapper.toEntity(
                 reservationRequest,
@@ -64,13 +58,11 @@ public class ReservationServiceImpl implements ReservationService{
                 user, accommodation,
                 false);
 
-        boolean discount = reservationServiceHelper.validateReservationAccommodationLessThanOneYear(accommodationId, user.getId());
-        BigDecimal amount = reservationServiceHelper.calculateReservationPrice(reservationRequest, accommodation, discount);
+        reservationServiceHelper.updatePriceWithDiscountIfDeserved(newReservation, accommodation, user);
 
-        newReservation.setTotalPrice(amount);
         Reservation savedReservation = reservationRepository.save(newReservation);
 
-        emailServiceHelper.sendOwnerReservedNotification(savedReservation);
+        emailService.sendOwnerReservedNotification(savedReservation);
         return reservationMapper.toDetail(savedReservation);
     }
 

@@ -34,7 +34,6 @@ public class UserControllerTest {
 
         List<UserResponse> response = userAdminController.listAllUsers();
 
-
         assertEquals(2, response.size());
     }
 }

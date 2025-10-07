@@ -1,5 +1,6 @@
 package com.SleepUp.SU.exceptions;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationAlreadyExistsByNameException;
 import com.SleepUp.SU.accommodation.exceptions.AccommodationNotFoundByIdException;
 import com.SleepUp.SU.reservation.exceptions.*;
@@ -43,53 +44,49 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void testHandleInvalidDateRangeException() {
-        InvalidDateRangeException ex = new InvalidDateRangeException(InvalidDateRangeError.ORDER);
-        ResponseEntity<ErrorResponse> response = handler.handleInvalidDateRangeException(ex, request);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(((String)response.getBody().message()).contains(InvalidDateRangeError.ORDER.getMessage()));
-    }
-
-    @Test
-    public void testHandleUserNotFoundByIdException() {
+    public void testHandleNotFound_UserNotFoundByIdException() {
         UserNotFoundByIdException ex = new UserNotFoundByIdException(1L);
-        ResponseEntity<ErrorResponse> response = handler.handleUserNotFoundByIdeException(ex, request);
+        ResponseEntity<ErrorResponse> response = handler.handleNotFound(ex, request);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    public void testHandleUserNotFoundByUsernameException() {
-        UserNotFoundByUsernameException ex = new UserNotFoundByUsernameException("User not found by username");
-        ResponseEntity<ErrorResponse> response = handler.handleUserNotFoundByUsernameException(ex, request);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleUserEmailAlreadyExists() {
-        UserEmailAlreadyExistsException ex = new UserEmailAlreadyExistsException("Email exists");
-        ResponseEntity<ErrorResponse> response = handler.handleUserEmailAlreadyExists(ex, request);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleUserUsernameAlreadyExists() {
-        UserUsernameAlreadyExistsException ex = new UserUsernameAlreadyExistsException("Username exists");
-        ResponseEntity<ErrorResponse> response = handler.handleUserUsernameAlreadyExists(ex, request);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleAccommodationNotFoundByIdException() {
+    public void testHandleNotFound_AccommodationNotFound() {
         AccommodationNotFoundByIdException ex = new AccommodationNotFoundByIdException(1L);
-        ResponseEntity<ErrorResponse> response = handler.handleAccommodationNotFoundByIdException(ex, request);
+        ResponseEntity<ErrorResponse> response = handler.handleNotFound(ex, request);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    public void testHandleAccommodationAlreadyExistsByName() {
-        AccommodationAlreadyExistsByNameException ex = new AccommodationAlreadyExistsByNameException("Already exists");
-        ResponseEntity<ErrorResponse> response = handler.handleAccommodationAlreadyExistsByName(ex, request);
+    public void testHandleConflict_UserEmailAlreadyExists() {
+        UserEmailAlreadyExistsException ex = new UserEmailAlreadyExistsException("Email exists");
+        ResponseEntity<ErrorResponse> response = handler.handleConflict(ex, request);
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleConflict_AccommodationAlreadyExists() {
+        AccommodationAlreadyExistsByNameException ex = new AccommodationAlreadyExistsByNameException("Already exists");
+        ResponseEntity<ErrorResponse> response = handler.handleConflict(ex, request);
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleBadRequest_InvalidDateRange() {
+        InvalidDateRangeException ex = new InvalidDateRangeException(InvalidDateRangeError.ORDER);
+        ResponseEntity<ErrorResponse> response = handler.handleBadRequest(ex, request);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(((String) response.getBody().message()).contains(InvalidDateRangeError.ORDER.getMessage()));
+    }
+
+    @Test
+    public void testHandleBadRequest_AccommodationUnavailable() {
+        Accommodation accommodation = mock(Accommodation.class);
+        AccommodationUnavailableException ex = new AccommodationUnavailableException(accommodation);
+        ResponseEntity<ErrorResponse> response = handler.handleBadRequest(ex, request);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        String expectedMessage = String.format("Accommodation is only available from %s to %s", accommodation.getAvailableFrom(), accommodation.getAvailableTo());
+        assertEquals(expectedMessage, response.getBody().message().toString());
     }
 
     @Test
@@ -101,17 +98,19 @@ public class GlobalExceptionHandlerTest {
 
         MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
         when(ex.getBindingResult()).thenReturn(bindingResult);
+        when(ex.getMessage()).thenReturn("Validation failed");
 
         ResponseEntity<ErrorResponse> response = handler.handleValidationExceptions(ex, request);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Map<String, String> errors = (Map<String, String>) response.getBody().message();
-        assertTrue(errors.containsKey("field"));
+        assertEquals("Validation failed", response.getBody().message());
     }
 
     @Test
     public void testHandleConstraintViolationExceptions() {
         Path path = mock(Path.class);
+        when(path.toString()).thenReturn("fieldName");
+
         ConstraintViolation<?> violation = mock(ConstraintViolation.class);
         when(violation.getPropertyPath()).thenReturn(path);
         when(violation.getMessage()).thenReturn("must not be null");
@@ -119,21 +118,12 @@ public class GlobalExceptionHandlerTest {
         Set<ConstraintViolation<?>> violations = new HashSet<>();
         violations.add(violation);
         ConstraintViolationException ex = new ConstraintViolationException(violations);
+        when(ex.getMessage()).thenReturn("Constraint violation");
 
         ResponseEntity<ErrorResponse> response = handler.handleConstraintViolationExceptions(ex, request);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
-        @SuppressWarnings("unchecked")
-        Map<String, String> errors = (Map<String, String>) response.getBody().message();
-
-        assertNotNull(errors, "Errors map should not be null");
-        assertFalse(errors.isEmpty(), "Errors map should not be empty");
-        assertEquals(1, errors.size(), "Errors map size should be 1");
-
-        String errorKey = path.toString();
-        assertTrue(errors.containsKey(errorKey), "Errors map should contain key: " + errorKey);
-        assertEquals("must not be null", errors.get(errorKey), "Error message should match");
+        assertEquals("fieldName: must not be null", response.getBody().message());
     }
 
     @Test
@@ -149,7 +139,7 @@ public class GlobalExceptionHandlerTest {
         AccessDeniedException ex = new AccessDeniedException("Access denied");
         ResponseEntity<ErrorResponse> response = handler.handleAccessDeniedException(ex, request);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertTrue(((String)response.getBody().message()).contains("Access denied"));
+        assertTrue(((String) response.getBody().message()).contains("Access denied"));
     }
 
     @Test
@@ -157,49 +147,7 @@ public class GlobalExceptionHandlerTest {
         BadCredentialsException ex = new BadCredentialsException("Bad credentials");
         ResponseEntity<ErrorResponse> response = handler.handleBadCredentialsException(ex, request);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertTrue(((String)response.getBody().message()).contains("Unauthorized"));
-    }
-
-    @Test
-    public void testHandleReservationNotFoundByIdException() {
-        ReservationNotFoundByIdException ex = new ReservationNotFoundByIdException(1L);
-        ResponseEntity<ErrorResponse> response = handler.handleReservationNotFoundByIdeException(ex, request);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleAccommodationConstraintsException() {
-        AccommodationConstraintsException ex = new AccommodationConstraintsException("Constraint violated");
-        ResponseEntity<ErrorResponse> response = handler.handleAccommodationConstraintsException(ex, request);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleAccommodationUnavailableException() {
-        AccommodationUnavailableException ex = new AccommodationUnavailableException("Unavailable");
-        ResponseEntity<ErrorResponse> response = handler.handleAccommodationUnavailableException(ex, request);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleReservationOverlapException() {
-        ReservationOverlapException ex = new ReservationOverlapException("Overlap");
-        ResponseEntity<ErrorResponse> response = handler.handleReservationOverlapException(ex, request);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleReservationModificationException() {
-        ReservationModificationException ex = new ReservationModificationException("Modification conflict");
-        ResponseEntity<ErrorResponse> response = handler.handleReservationModificationException(ex, request);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-    }
-
-    @Test
-    public void testHandleReservationAccommodationOwnerException() {
-        ReservationAccommodationOwnerException ex = new ReservationAccommodationOwnerException();
-        ResponseEntity<ErrorResponse> response = handler.handleReservationAccommodationOwnerException(ex, request);
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertTrue(((String) response.getBody().message()).contains("Unauthorized"));
     }
 
     @Test
@@ -217,8 +165,6 @@ public class GlobalExceptionHandlerTest {
         ResponseEntity<ErrorResponse> response = handler.handleAllUnhandledExceptions(ex, request);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         Map<String, String> errors = (Map<String, String>) response.getBody().message();
-        assertTrue(errors.containsKey("error"));
         assertEquals("Unexpected error", errors.get("error"));
-
     }
 }

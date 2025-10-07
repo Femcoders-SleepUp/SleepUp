@@ -1,6 +1,5 @@
 package com.SleepUp.SU.reservation.admin;
 
-
 import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.entity.Reservation;
@@ -36,5 +35,3 @@ public class ReservationAdminServiceImpl implements ReservationAdminService {
         reservationRepository.deleteById(reservationId);
     }
 }
-
-

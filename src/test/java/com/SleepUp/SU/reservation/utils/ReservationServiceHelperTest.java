@@ -1,22 +1,19 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.utils;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.exceptions.InvalidDateRangeException;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.entity.Reservation;
-import com.SleepUp.SU.reservation.exceptions.AccommodationConstraintsException;
-import com.SleepUp.SU.reservation.exceptions.AccommodationUnavailableException;
-import com.SleepUp.SU.reservation.exceptions.ReservationOverlapException;
+import com.SleepUp.SU.reservation.exceptions.*;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
-import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
+import com.SleepUp.SU.user.entity.User;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -25,9 +22,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ReservationServiceImplHelperTest {
+public class ReservationServiceHelperTest {
 
     @InjectMocks
     private ReservationServiceHelper reservationServiceHelper;
@@ -263,6 +259,89 @@ public class ReservationServiceImplHelperTest {
                     () -> reservationServiceHelper.validateAccommodationReservationOverlap(accommodationId, request));
 
             assertTrue(exception.getMessage().contains("The accommodation is already reserved during these dates"));
+        }
+    }
+
+    @Nested
+    class ValidateReservationCancellableTests {
+
+        @Test
+        void whenBookingStatusCancelled_shouldThrowReservationModificationException() {
+            Reservation reservation = new Reservation();
+            reservation.setBookingStatus(BookingStatus.CANCELLED);
+            reservation.setCheckInDate(LocalDate.now().plusDays(1));
+
+            ReservationModificationException ex = assertThrows(ReservationModificationException.class,
+                    () -> reservationServiceHelper.validateReservationCancellable(reservation));
+
+            assertEquals("Cannot modify a cancelled reservation", ex.getMessage());
+        }
+
+        @Test
+        void whenBookingStatusConfirmed_shouldThrowReservationModificationException() {
+            Reservation reservation = new Reservation();
+            reservation.setBookingStatus(BookingStatus.CONFIRMED);
+            reservation.setCheckInDate(LocalDate.now().plusDays(1));
+
+            ReservationModificationException ex = assertThrows(ReservationModificationException.class,
+                    () -> reservationServiceHelper.validateReservationCancellable(reservation));
+
+            assertEquals("Confirmed reservations cannot be cancelled", ex.getMessage());
+        }
+
+        @Test
+        void whenCheckInDateBeforeNow_shouldThrowReservationModificationException() {
+            Reservation reservation = new Reservation();
+            reservation.setBookingStatus(BookingStatus.PENDING);
+            reservation.setCheckInDate(LocalDate.now().minusDays(1));
+
+            ReservationModificationException ex = assertThrows(ReservationModificationException.class,
+                    () -> reservationServiceHelper.validateReservationCancellable(reservation));
+
+            assertEquals("Cannot modify a reservation that has already started", ex.getMessage());
+        }
+
+        @Test
+        void whenBookingStatusPendingAndCheckInDateFuture_shouldNotThrow() {
+            Reservation reservation = new Reservation();
+            reservation.setBookingStatus(BookingStatus.PENDING);
+            reservation.setCheckInDate(LocalDate.now().plusDays(1));
+
+            assertDoesNotThrow(() -> reservationServiceHelper.validateReservationCancellable(reservation));
+        }
+    }
+
+    @Nested
+    class ValidateGuestIsNotOwnerTests {
+
+        @Test
+        void whenUserIsOwner_shouldThrowReservationAccommodationOwnerException() {
+            User owner = new User();
+            owner.setId(1L);
+
+            Accommodation accommodation = new Accommodation();
+            accommodation.setManagedBy(owner);
+
+            User guestWithSameId = new User();
+            guestWithSameId.setId(1L);
+
+            assertThrows(ReservationAccommodationOwnerException.class,
+                    () -> reservationServiceHelper.validateGuestIsNotOwner(accommodation, guestWithSameId));
+        }
+
+        @Test
+        void whenUserIsNotOwner_shouldNotThrow() {
+            User owner = new User();
+            owner.setId(1L);
+
+            Accommodation accommodation = new Accommodation();
+            accommodation.setManagedBy(owner);
+
+            User differentGuest = new User();
+            differentGuest.setId(2L);
+
+            assertDoesNotThrow(() ->
+                    reservationServiceHelper.validateGuestIsNotOwner(accommodation, differentGuest));
         }
     }
 }

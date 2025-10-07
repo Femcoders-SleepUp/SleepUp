@@ -62,7 +62,6 @@ public class AccommodationSpecification {
                 return null;
             }
 
-            assert query != null;
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<Reservation> reservationRoot = subquery.from(Reservation.class);
             subquery.select(cb.count(reservationRoot));

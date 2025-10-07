@@ -45,7 +45,7 @@ class AccommodationAccessEvaluatorTest {
         });
 
         assertEquals(
-                "Cause: You are not the owner of this accommodation.",
+                " Cause: You are not the owner of this accommodation.",
                 exception.getMessage()
         );
 

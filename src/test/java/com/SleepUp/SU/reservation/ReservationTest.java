@@ -43,31 +43,29 @@ public class ReservationTest {
     private UserRepository userRepository;
 
     @Test
-    public void testFindByUserId() {
-        Long userId = 2L; // User2 as per your sample data
+    public void repository_findByUserId_shouldReturnNonEmptyReservationList() {
+        Long userId = 2L;
 
         List<Reservation> reservations = reservationRepository.findByUser_Id(userId);
 
         assertNotNull(reservations);
         assertFalse(reservations.isEmpty());
         System.out.println(reservations);
-        // Additional assertions about data content, IDs, or count can be added
     }
 
     @Test
-    public void testFindByUserId_Service() {
-        Long userId = 2L; // User2 as per your sample data
+    public void service_getMyReservationsAllTime_shouldReturnNonEmptySummaryList() {
+        Long userId = 2L;
 
         List<ReservationResponseSummary> reservations = reservationServiceImpl.getMyReservations(userId, ReservationTime.ALL);
 
         assertNotNull(reservations);
         assertFalse(reservations.isEmpty());
         System.out.println(reservations);
-        // Additional assertions about data content, IDs, or count can be added
     }
 
     @Test
-    public void testController(){
+    public void controller_getMyReservationsAllTime_shouldReturnNonEmptySummaryList(){
         User savedUser = userRepository.findByUsername("User2")
                 .orElseThrow(() -> new RuntimeException("TestUser not found"));
         CustomUserDetails principal = new CustomUserDetails(savedUser);
@@ -79,8 +77,7 @@ public class ReservationTest {
         securityContext.setAuthentication(authenticationToken);
         SecurityContextHolder.setContext(securityContext);
         List<ReservationResponseSummary> results = reservationController.getMyReservations(principal, ReservationTime.ALL);
-        System.out.println(results.size()); // Expect > 0
+        System.out.println(results.size());
         System.out.println(results);
     }
 }
-

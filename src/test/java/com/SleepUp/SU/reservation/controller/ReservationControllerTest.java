@@ -1,8 +1,7 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.controller;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
-import com.SleepUp.SU.reservation.controller.ReservationController;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;
@@ -71,7 +70,6 @@ public class ReservationControllerTest {
 
     private CustomUserDetails principal;
     private CustomUserDetails principal2;
-
 
     @BeforeEach
     void setUp() {
@@ -257,7 +255,7 @@ public class ReservationControllerTest {
             Long reservationId = 3L;
 
             mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
-                            .with(user(principal)) // usuario normal
+                            .with(user(principal))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
                     .andExpect(status().isForbidden());
@@ -274,6 +272,5 @@ public class ReservationControllerTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("Reservation with id '" + reservationId + "' not found"));
         }
-
     }
 }

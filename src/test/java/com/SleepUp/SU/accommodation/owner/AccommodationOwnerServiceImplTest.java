@@ -7,6 +7,8 @@ import com.SleepUp.SU.accommodation.dto.AccommodationResponseSummary;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,9 +18,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Arrays;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AccommodationOwnerServiceImplTest {
@@ -107,37 +113,37 @@ public class AccommodationOwnerServiceImplTest {
         expectedSummaries = Arrays.asList(summary1, summary2);
     }
 
-//    @Nested
-//    class getAllAccommodationsByOwnerId {
-//
-//        @SuppressWarnings("unchecked")
-//        @Test
-//        void getAllAccommodationsByOwnerId_ownerHasAccommodations_shouldReturnSummariesList() {
-//            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(accommodations);
-//            when(mapperUtil.mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(expectedSummaries);
-//
-//            List<AccommodationResponseSummary> actualSummaries = accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(userId);
-//
-//            assertEquals(expectedSummaries, actualSummaries);
-//
-//            verify(accommodationRepository).findByManagedBy_Id(userId);
-//            verify(mapperUtil).mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
-//            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
-//        }
-//
-//        @SuppressWarnings("unchecked")
-//        @Test
-//        void getAllAccommodationsByOwnerId_ownerHasNoAccommodations_shouldReturnEmptyList() {
-//            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(List.of());
-//            when(mapperUtil.mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(List.of());
-//
-//            List<AccommodationResponseSummary> summaries = accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(userId);
-//
-//            assertTrue(summaries.isEmpty());
-//
-//            verify(accommodationRepository).findByManagedBy_Id(userId);
-//            verify(mapperUtil).mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
-//            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
-//        }
-//    }
+    @Nested
+    class getAllAccommodationsByOwnerId {
+
+        @SuppressWarnings("unchecked")
+        @Test
+        void getAllAccommodationsByOwnerId_ownerHasAccommodations_shouldReturnSummariesList() {
+            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(accommodations);
+            when(mapperUtil.mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(expectedSummaries);
+
+            List<AccommodationResponseSummary> actualSummaries = accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(userId);
+
+            assertEquals(expectedSummaries, actualSummaries);
+
+            verify(accommodationRepository).findByManagedBy_Id(userId);
+            verify(mapperUtil).mapEntitiesToDTOs(eq(accommodations), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
+            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        void getAllAccommodationsByOwnerId_ownerHasNoAccommodations_shouldReturnEmptyList() {
+            when(accommodationRepository.findByManagedBy_Id(userId)).thenReturn(List.of());
+            when(mapperUtil.mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class))).thenReturn(List.of());
+
+            List<AccommodationResponseSummary> summaries = accommodationOwnerServiceImpl.getAllAccommodationsByOwnerId(userId);
+
+            assertTrue(summaries.isEmpty());
+
+            verify(accommodationRepository).findByManagedBy_Id(userId);
+            verify(mapperUtil).mapEntitiesToDTOs(eq(List.of()), (Function<Accommodation, AccommodationResponseSummary>) any(Function.class));
+            verifyNoMoreInteractions(accommodationRepository, mapperUtil, accommodationMapper);
+        }
+    }
 }

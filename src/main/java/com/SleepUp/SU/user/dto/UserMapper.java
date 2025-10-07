@@ -12,8 +12,4 @@ public interface UserMapper {
 
     @Mapping(target = "password", source = "encodedPassword")
     User toEntity(UserRequest userRequest,  String encodedPassword, Role role);
-
-    @Mapping(target = "password", source = "encodedPassword")
-    User toEntityAdmin(UserRequestAdmin userRequestAdmin, String encodedPassword);
-
 }
