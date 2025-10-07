@@ -155,18 +155,19 @@ public class ReservationServiceHelper {
     }
 
     public void validateReservationCancellable(Reservation reservation) {
+
         Optional.of(reservation.getBookingStatus())
                 .filter(status -> status != BookingStatus.CANCELLED)
                 .orElseThrow(() -> new ReservationModificationException("Cannot modify a cancelled reservation"));
 
-        Optional.of(reservation.getBookingStatus())
-                .filter(status -> status == BookingStatus.PENDING || status == BookingStatus.CONFIRMED)
-                .orElseThrow(() -> new ReservationModificationException("Completed reservations cannot be cancelled"));
-
         Optional.of(reservation.getCheckInDate())
                 .filter(date -> date.isAfter(LocalDate.now()) || date.isEqual(LocalDate.now()))
                 .orElseThrow(() -> new ReservationModificationException("Cannot modify a reservation that has already started"));
-    }
+
+        Optional.of(reservation.getBookingStatus())
+                .filter(status -> status != BookingStatus.CONFIRMED)
+                .orElseThrow(() -> new ReservationModificationException("Confirmed reservations cannot be cancelled"));
+   }
 
     public boolean validateReservationAccommodationLessThanOneYear(Long accommodationId, Long userId){
 

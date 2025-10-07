@@ -36,14 +36,28 @@ class EmailServiceImplTest {
 
     private MimeMessage mimeMessage;
 
+    private User guest;
+
+    private Reservation reservation;
+
+    private Context context;
+
     @BeforeEach
     void setUp() {
         mimeMessage = mock(MimeMessage.class);
         lenient().when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+        guest = new User();
+        guest.setEmail("guest@example.com");
+
+        reservation = new Reservation();
+        reservation.setUser(guest);
+
+        context = new Context();
     }
 
     @Test
-    void testSendWelcomeEmail_Success() throws Exception {
+    void sendWelcomeEmail_userCanReceiveEmails_shouldSendEmail() throws Exception {
         User user = new User();
         user.setEmail("test@example.com");
         when(emailHelper.canSendEmails(user)).thenReturn(true);
@@ -56,7 +70,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendWelcomeEmail_FailureOnCanSend() {
+    void sendWelcomeEmail_userCannotReceiveEmails_shouldNotSendEmail() {
         User user = new User();
         user.setEmail("fail@example.com");
         when(emailHelper.canSendEmails(user)).thenReturn(false);
@@ -65,7 +79,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendOwnerReservedNotification_Success() throws Exception {
+    void sendOwnerReservedNotification_reservationValid_shouldSendNotification() throws Exception {
         User owner = new User();
         owner.setEmail("owner@example.com");
         User guest = new User();
@@ -85,7 +99,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendGuestReservationConfirmationEmail_Success() throws Exception {
+    void sendGuestReservationConfirmationEmail_reservationValid_shouldSendConfirmation() throws Exception {
         User guest = new User();
         guest.setEmail("guest@example.com");
         Reservation reservation = new Reservation();
@@ -99,7 +113,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendGuestReservationReminderEmail_Success() throws Exception {
+    void sendCancellationByGuestNotificationEmail_reservationValid_shouldSendNotification() throws Exception {
         User guest = new User();
         guest.setEmail("guest@example.com");
         Reservation reservation = new Reservation();
@@ -113,7 +127,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendOwnerReservationReminderEmail_Success() throws Exception {
+    void sendOwnerReservationReminderEmail_reservationValid_shouldSendNotification() throws Exception {
         User owner = new User();
         owner.setEmail("owner@example.com");
         User guest = new User();
@@ -132,7 +146,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendCancellationConfirmationEmail_Success() throws Exception {
+    void sendCancellationConfirmationEmail_reservationValid_shouldSendEmail() throws Exception {
         User user = new User();
         user.setEmail("user@example.com");
         Reservation reservation = new Reservation();
@@ -146,7 +160,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendCancellationByOwnerNotificationEmail_Success() throws Exception {
+    void sendCancellationByOwnerNotificationEmail_reservationValid_shouldSendNotification() throws Exception {
         User guest = new User();
         guest.setEmail("guest@example.com");
         Reservation reservation = new Reservation();
@@ -165,7 +179,7 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendCancellationNotificationToOwnerEmail_Success() throws Exception {
+    void sendCancellationNotificationToOwnerEmail_reservationValid_shouldSendNotification() throws Exception {
         User owner = new User();
         owner.setEmail("owner@example.com");
         Reservation reservation = new Reservation();
@@ -182,7 +196,51 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendWelcomeEmail_LogsMailSendException() throws Exception {
+    void sendCancellationByOwnerNotificationEmail_whenMessagingException_shouldLogError() throws Exception {
+        when(emailHelper.canSendReservationEmails(reservation)).thenReturn(true);
+        when(emailHelper.createFullContext(reservation, guest, null)).thenReturn(context);
+        when(templateEngine.process(eq("guest_cancellationByOwner"), any(Context.class))).thenReturn("<html>Email content</html>");
+
+        doThrow(new MailSendException("SMTP Connection failed"))
+                .when(mailSender).send(any(MimeMessage.class));
+
+        emailService.sendCancellationByOwnerNotificationEmail(reservation);
+
+        verify(emailHelper).canSendReservationEmails(reservation);
+        verify(emailHelper).createFullContext(reservation, guest, null);
+        verify(mailSender).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendCancellationByOwnerNotificationEmail_whenIllegalArgumentException_shouldCatchAndLog() throws Exception {
+        when(emailHelper.canSendReservationEmails(reservation)).thenReturn(true);
+        when(emailHelper.createFullContext(reservation, guest, null)).thenReturn(context);
+
+        doThrow(new IllegalArgumentException("Invalid argument"))
+                .when(mailSender).send(any(MimeMessage.class));
+
+        when(templateEngine.process(eq("guest_cancellationByOwner"), any(Context.class))).thenReturn("<html>Email content</html>");
+
+        emailService.sendCancellationByOwnerNotificationEmail(reservation);
+
+        verify(mailSender).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendCancellationByOwnerNotificationEmail_whenTemplateEngineThrowsException_shouldCatchAndLog() throws Exception {
+        when(emailHelper.canSendReservationEmails(reservation)).thenReturn(true);
+        when(emailHelper.createFullContext(reservation, guest, null)).thenReturn(context);
+        when(templateEngine.process(anyString(), any(Context.class)))
+                .thenThrow(new RuntimeException("Template not found"));
+
+        emailService.sendCancellationByOwnerNotificationEmail(reservation);
+
+        verify(templateEngine).process(anyString(), any(Context.class));
+        verify(mailSender, never()).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendWelcomeEmail_mailSendingFails_shouldNotThrowException() throws Exception {
         User user = new User();
         user.setEmail("test@example.com");
         when(emailHelper.canSendEmails(user)).thenReturn(true);
@@ -195,6 +253,5 @@ class EmailServiceImplTest {
 
         verify(mailSender).send(any(MimeMessage.class));
     }
-
 
 }
