@@ -3,12 +3,14 @@ package com.SleepUp.SU.security.health;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.actuate.health.Health;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 
 public class DatabaseHealthIndicatorTest {
 

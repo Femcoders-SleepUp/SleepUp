@@ -190,7 +190,6 @@ class ReservationOwnerServiceImplTest {
 
             ReservationResponseDetail result = reservationOwnerServiceImpl.updateStatus(id, authRequest);
 
-            // Status remains same
             assertThat(existing.getBookingStatus()).isEqualTo(currentStatus);
             assertThat(result).isSameAs(detailDto);
 
