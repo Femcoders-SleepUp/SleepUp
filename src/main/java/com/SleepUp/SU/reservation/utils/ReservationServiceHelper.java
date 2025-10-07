@@ -84,18 +84,12 @@ public class ReservationServiceHelper {
 
         if (reservationRequest.checkInDate().isBefore(availableFrom) ||
                 reservationRequest.checkOutDate().isAfter(availableTo)) {
-            throw new AccommodationUnavailableException(
-                    String.format("Accommodation is only available from %s to %s",
-                            availableFrom, availableTo)
-            );
-        }
+            throw new AccommodationUnavailableException(accommodation);
+            }
 
         if (reservationRequest.guestNumber() > accommodation.getGuestNumber()) {
-            throw new AccommodationConstraintsException(
-                    String.format("Accommodation supports maximum %d guests, but %d guests requested",
-                            accommodation.getGuestNumber(), reservationRequest.guestNumber())
-            );
-        }
+            throw new AccommodationConstraintsException(accommodation, reservationRequest);
+            }
     }
 
     public void validateUserReservationOverlap(Long userId, ReservationRequest reservationRequest) {

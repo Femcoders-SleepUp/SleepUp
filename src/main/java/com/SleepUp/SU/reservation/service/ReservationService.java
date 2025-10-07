@@ -5,6 +5,7 @@ import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.reservationTime.ReservationTime;
 import com.SleepUp.SU.user.entity.User;
+import jakarta.mail.MessagingException;
 
 import java.util.List;
 

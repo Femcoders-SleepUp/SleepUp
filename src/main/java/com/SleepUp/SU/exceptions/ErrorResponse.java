@@ -18,8 +18,4 @@ public record ErrorResponse
     public ErrorResponse (HttpStatus status, Object message, HttpServletRequest req){
         this(ZonedDateTime.now(ZoneOffset.UTC), status.value(), status.getReasonPhrase(), message, req.getRequestURI());
     }
-
-    public ErrorResponse (HttpStatus status, String error, Object message, HttpServletRequest req){
-        this(ZonedDateTime.now(ZoneOffset.UTC), status.value(), error, message, req.getRequestURI());
-    }
 }

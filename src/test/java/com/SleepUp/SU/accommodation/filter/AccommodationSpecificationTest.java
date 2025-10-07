@@ -258,6 +258,7 @@ public class AccommodationSpecificationTest {
         Predicate result = spec.toPredicate(root, query, criteriaBuilder);
 
         assertNotNull(result, "Expected non-null predicate for valid date range");
+        assertNotNull(query, "Query should not be null during predicate creation");
     }
 
     @Test

@@ -8,12 +8,11 @@ import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.exceptions.ReservationNotFoundByIdException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
-import com.SleepUp.SU.reservation.reservationGuest.ReservationGuestServiceImpl;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.EntityUtil;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,17 +20,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class ReservationOwnerServiceImplTest {
 
@@ -45,7 +41,7 @@ class ReservationOwnerServiceImplTest {
     private ReservationServiceHelper reservationServiceHelper;
 
     @Mock
-    private EmailServiceHelper emailServiceHelper;
+    private EmailService emailService;
 
     @Mock
     private EntityUtil entityUtil;
@@ -174,6 +170,5 @@ class ReservationOwnerServiceImplTest {
             verify(reservationMapper).toDetail(existing);
         }
     }
-
 
 }
