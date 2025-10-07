@@ -286,7 +286,7 @@ public class ReservationServiceHelperTest {
             ReservationModificationException ex = assertThrows(ReservationModificationException.class,
                     () -> reservationServiceHelper.validateReservationCancellable(reservation));
 
-            assertEquals("Confirmed reservations cannot be cancelled", ex.getMessage());
+            assertEquals("Completed reservations cannot be cancelled", ex.getMessage());
         }
 
         @Test

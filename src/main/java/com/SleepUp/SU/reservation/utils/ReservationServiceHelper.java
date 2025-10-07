@@ -160,7 +160,7 @@ public class ReservationServiceHelper {
                 .orElseThrow(() -> new ReservationModificationException("Cannot modify a cancelled reservation"));
 
         Optional.of(reservation.getBookingStatus())
-                .filter(status -> status == BookingStatus.CONFIRMED)
+                .filter(status -> status != BookingStatus.CONFIRMED)
                 .orElseThrow(() -> new ReservationModificationException("Completed reservations cannot be cancelled"));
 
         Optional.of(reservation.getCheckInDate())
