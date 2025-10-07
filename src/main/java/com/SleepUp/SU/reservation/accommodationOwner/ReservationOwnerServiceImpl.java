@@ -5,6 +5,7 @@ import com.SleepUp.SU.reservation.dto.ReservationMapper;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
 import com.SleepUp.SU.reservation.dto.ReservationResponseSummary;
 import com.SleepUp.SU.reservation.entity.Reservation;
+import com.SleepUp.SU.reservation.exceptions.ReservationModificationException;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,15 +37,31 @@ public class ReservationOwnerServiceImpl implements ReservationOwnerService{
 
     @Override
     @Transactional
-    public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest){
-        Reservation isExisting = reservationServiceHelper.getReservationEntityById(id);
-        isExisting.setBookingStatus(reservationAuthRequest.bookingStatus());
+    public ReservationResponseDetail updateStatus(Long id, ReservationAuthRequest reservationAuthRequest) {
+        Reservation existingReservation = reservationServiceHelper.getReservationEntityById(id);
+        BookingStatus currentStatus = existingReservation.getBookingStatus();
+        BookingStatus newStatus = reservationAuthRequest.bookingStatus();
 
-        BigDecimal amount = isExisting.getTotalPrice();
+        Optional.of(currentStatus)
+                .filter(status -> status != BookingStatus.CANCELLED)
+                .orElseThrow(() -> new ReservationModificationException("Cannot modify a cancelled reservation"));
 
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CONFIRMED)){emailService.sendGuestReservationConfirmationEmail(isExisting, amount);}
-        if (reservationAuthRequest.bookingStatus().equals(BookingStatus.CANCELLED)){emailService.sendCancellationByOwnerNotificationEmail(isExisting);}
+        Optional.of(newStatus)
+                .filter(status -> !status.equals(currentStatus))
+                .ifPresent(status -> {
+                    existingReservation.setBookingStatus(status);
+                    BigDecimal amount = existingReservation.getTotalPrice();
 
-        return reservationMapper.toDetail(isExisting);
+                    Optional.of(status)
+                            .filter(s -> s == BookingStatus.CONFIRMED)
+                            .ifPresent(s -> emailService.sendGuestReservationConfirmationEmail(existingReservation, amount));
+
+                    Optional.of(status)
+                            .filter(s -> s == BookingStatus.CANCELLED)
+                            .ifPresent(s -> emailService.sendCancellationByOwnerNotificationEmail(existingReservation));
+                });
+
+        return reservationMapper.toDetail(existingReservation);
     }
+
 }
