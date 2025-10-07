@@ -67,7 +67,6 @@ public class ReservationServiceHelper {
         validateAccommodationAvailability(accommodation, reservationRequest);
         validateUserReservationOverlap(user.getId(), reservationRequest);
         validateAccommodationReservationOverlap(accommodation.getId(), reservationRequest);
-
     }
 
     public void validateGuestIsNotOwner(Accommodation accommodation, User user) {

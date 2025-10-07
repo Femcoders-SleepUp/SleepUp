@@ -65,9 +65,7 @@ class ReservationOwnerControllerTest {
         User owner = reservation.getAccommodation().getManagedBy();
 
         customUserDetailsOwner = new CustomUserDetails(owner);
-
     }
-
 
     @Nested
     class GetAllReservationsForMyAccommodationTest {
@@ -103,7 +101,6 @@ class ReservationOwnerControllerTest {
         }
     }
 
-
     @Nested
     class UpdateReservationStatusTest {
         @Test
@@ -138,7 +135,6 @@ class ReservationOwnerControllerTest {
                     .andExpect(jsonPath("$.bookingStatus").value("CANCELLED"))
                     .andExpect(jsonPath("$.emailSent").value(false))
                     .andExpect(jsonPath("$.totalPrice").value(600.00));
-
         }
 
         @Test
@@ -165,8 +161,6 @@ class ReservationOwnerControllerTest {
                     .andDo(print())
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.message").value(containsString("This reservation does not belong to any of your accommodations.")));
-
         }
-
     }
 }

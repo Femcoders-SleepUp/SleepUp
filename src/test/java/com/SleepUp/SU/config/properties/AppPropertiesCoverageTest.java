@@ -67,7 +67,6 @@ class AppPropertiesCoverageTest {
         assertThat(props.getCloudinary().getApiSecret()).isEqualTo("testApiSecret");
     }
 
-
     @Configuration
     @EnableConfigurationProperties(AppProperties.class)
     static class TestConfig {

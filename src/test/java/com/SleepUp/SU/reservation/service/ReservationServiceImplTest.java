@@ -260,6 +260,5 @@ public class ReservationServiceImplTest {
             verify(reservationServiceHelper).validateReservationDates(reservationRequest);
             verifyNoInteractions(accommodationServiceHelper);
         }
-
     }
 }

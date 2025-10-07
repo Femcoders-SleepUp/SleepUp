@@ -96,7 +96,6 @@ public class AuthServiceTest {
             assertEquals("usertest@test.com", userResponse.email());
             verify(emailService).sendWelcomeEmail(userSaved);
         }
-
     }
 
     @Nested
@@ -174,8 +173,7 @@ public class AuthServiceTest {
             AuthenticationCredentialsNotFoundException exception = assertThrows(
                     AuthenticationCredentialsNotFoundException.class,
                     () -> authService.refresh(refreshRequest, mockCustomUserDetails
-)
-            );
+            ));
             assertEquals("Refresh token is blacklisted", exception.getMessage());
         }
 
@@ -190,8 +188,7 @@ public class AuthServiceTest {
             AuthenticationCredentialsNotFoundException exception = assertThrows(
                     AuthenticationCredentialsNotFoundException.class,
                     () -> authService.refresh(refreshRequest, mockCustomUserDetails
-)
-            );
+            ));
             assertEquals("Invalid or expired refresh token", exception.getMessage());
         }
     }

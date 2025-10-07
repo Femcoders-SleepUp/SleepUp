@@ -86,12 +86,10 @@ public class ReservationGuestControllerTest {
                     .andExpect(jsonPath("$.bookingStatus").value("PENDING"))
                     .andExpect(jsonPath("$.emailSent").value(false));
         }
-
     }
 
     @Nested
     class UpdateReservationByIdTest {
-
 
         @Test
         void updateReservation_validRequest_shouldReturnUpdatedMessage() throws Exception {
@@ -130,7 +128,6 @@ public class ReservationGuestControllerTest {
                     .andExpect(jsonPath("$.message", allOf(containsString("reservation"), containsString("cancelled"))));
         }
 
-
         @Test
         void cancelReservation_alreadyStarted_shouldReturnConflict() throws Exception {
             Long reservationId = 1L;
@@ -153,4 +150,3 @@ public class ReservationGuestControllerTest {
         }
     }
 }
-

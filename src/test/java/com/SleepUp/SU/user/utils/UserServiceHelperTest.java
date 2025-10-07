@@ -1,6 +1,5 @@
 package com.SleepUp.SU.user.utils;
 
-
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.dto.UserRequestAdmin;
@@ -111,7 +110,6 @@ public class UserServiceHelperTest {
 
             assertEquals("User with email 'testUser@email.com' already exists", exception.getMessage());
         }
-
     }
 
     @Test
@@ -174,7 +172,6 @@ public class UserServiceHelperTest {
             doNothing().when(entityUtil).updateField(any(), any(), any());
 
             User updatedUser = spyUserServiceHelper.updateUser(request, existingUser);
-
 
             assertEquals("oldPass", updatedUser.getPassword());
         }

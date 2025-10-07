@@ -21,7 +21,7 @@ class UserMapperImplTest {
 
         @Test
         void toResponse_userWithAllFieldsNull_shouldMapFieldsAsNull() {
-            User user = new User(); // all fields null by default
+            User user = new User();
             UserResponse response = userMapper.toResponse(user);
 
             assertThat(response).isNotNull();
@@ -160,6 +160,5 @@ class UserMapperImplTest {
             assertThat(result.getEmail()).isNull();
             assertThat(result.getName()).isNull();
         }
-
     }
 }

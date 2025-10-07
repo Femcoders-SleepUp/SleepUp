@@ -31,7 +31,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ReservationAdminServiceImplTest {
 
-
     @Mock
     private ReservationRepository reservationRepository;
 
@@ -52,7 +51,6 @@ public class ReservationAdminServiceImplTest {
 
     private ReservationResponseSummary response1;
     private ReservationResponseSummary response2;
-
 
     @BeforeEach
     void setUp() {

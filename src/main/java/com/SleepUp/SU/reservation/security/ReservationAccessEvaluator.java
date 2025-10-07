@@ -1,7 +1,6 @@
 package com.SleepUp.SU.reservation.security;
 
 import com.SleepUp.SU.accommodation.utils.AccommodationServiceHelper;
-import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;

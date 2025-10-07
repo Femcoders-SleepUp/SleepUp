@@ -1,6 +1,5 @@
 package com.SleepUp.SU.utils.schedule;
 
-
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
@@ -82,7 +81,7 @@ class SchedulingIntegrationTest {
         @Test
         void reservationReminderTask_integrationTest_withReservations() {
             when(reservationRepository.findByCheckInDate(reminderDate))
-                    .thenReturn(Arrays.asList(testReservation));
+                    .thenReturn(Collections.singletonList(testReservation));
             when(emailServiceHelper.canSendReservationEmails(any(Reservation.class)))
                     .thenReturn(true);
 
@@ -109,7 +108,7 @@ class SchedulingIntegrationTest {
         @Test
         void reservationReminderTask_integrationTest_withEmailFailure() {
             when(reservationRepository.findByCheckInDate(reminderDate))
-                    .thenReturn(Arrays.asList(testReservation));
+                    .thenReturn(Collections.singletonList(testReservation));
             when(emailServiceHelper.canSendReservationEmails(any(Reservation.class)))
                     .thenReturn(true);
             doThrow(new RuntimeException("SMTP connection failed"))

@@ -1,6 +1,5 @@
 package com.SleepUp.SU.utils.schedule;
 
-
 import com.SleepUp.SU.utils.Schedule.ScheduledTasks;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

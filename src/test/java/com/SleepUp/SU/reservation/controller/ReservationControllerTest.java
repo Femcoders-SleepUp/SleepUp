@@ -71,7 +71,6 @@ public class ReservationControllerTest {
     private CustomUserDetails principal;
     private CustomUserDetails principal2;
 
-
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
@@ -256,7 +255,7 @@ public class ReservationControllerTest {
             Long reservationId = 3L;
 
             mockMvc.perform(delete(RESERVATIONS_PATH + "/admin/{id}", reservationId)
-                            .with(user(principal)) // usuario normal
+                            .with(user(principal))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
                     .andExpect(status().isForbidden());
@@ -273,6 +272,5 @@ public class ReservationControllerTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("Reservation with id '" + reservationId + "' not found"));
         }
-
     }
 }

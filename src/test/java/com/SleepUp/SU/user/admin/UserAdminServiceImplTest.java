@@ -297,5 +297,4 @@ public class UserAdminServiceImplTest {
             verify(userServiceHelper).getUserEntityByUsername("unknownUser");
         }
     }
-
 }
