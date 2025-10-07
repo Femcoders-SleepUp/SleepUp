@@ -1,8 +1,7 @@
-package com.SleepUp.SU.reservation;
+package com.SleepUp.SU.reservation.controller;
 
 import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.accommodation.repository.AccommodationRepository;
-import com.SleepUp.SU.reservation.controller.ReservationController;
 import com.SleepUp.SU.reservation.dto.ReservationRequest;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.service.ReservationServiceImpl;

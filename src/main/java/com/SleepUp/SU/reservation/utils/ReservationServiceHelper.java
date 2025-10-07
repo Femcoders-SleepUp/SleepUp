@@ -156,8 +156,8 @@ public class ReservationServiceHelper {
             throw new ReservationModificationException("Cannot modify a cancelled reservation");
         }
 
-        if (!(reservation.getBookingStatus() == BookingStatus.PENDING) && !(reservation.getBookingStatus() == BookingStatus.CONFIRMED)) {
-            throw new ReservationModificationException("Completed reservations cannot be cancelled");
+        if (reservation.getBookingStatus() == BookingStatus.CONFIRMED) {
+            throw new ReservationModificationException("Confirmed reservations cannot be cancelled");
         }
 
         if (reservation.getCheckInDate().isBefore(LocalDate.now())) {
