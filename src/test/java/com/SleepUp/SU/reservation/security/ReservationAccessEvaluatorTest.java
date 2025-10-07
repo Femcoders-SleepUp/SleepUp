@@ -107,8 +107,6 @@ class ReservationAccessEvaluatorTest {
             String expectedMessage = " Cause: This reservation was not created by you or does not belong to any of your accommodations.";
             assertEquals(expectedMessage, exception.getMessage());
 
-
-
             verify(reservationServiceHelper).isReservationGuestTheUser(reservationId, userId);
             verify(accommodationServiceHelper).isAccommodationOwnedByUser(accommodationId, userId);
         }
@@ -141,7 +139,6 @@ class ReservationAccessEvaluatorTest {
 
             String expectedMessage = " Cause: This reservation does not belong to any of your accommodations.";
             assertEquals(expectedMessage, exception.getMessage());
-
 
             verify(accommodationServiceHelper).isAccommodationOwnedByUser(accommodationId, userId);
             verify(reservationServiceHelper).getAccommodationIdFromReservationId(reservationId);

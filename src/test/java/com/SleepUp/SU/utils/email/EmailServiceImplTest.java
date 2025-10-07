@@ -253,5 +253,4 @@ class EmailServiceImplTest {
 
         verify(mailSender).send(any(MimeMessage.class));
     }
-
 }

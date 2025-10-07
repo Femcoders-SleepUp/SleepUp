@@ -8,4 +8,3 @@ public enum Role {
         return "ROLE_" + this.name();
     }
 }
-

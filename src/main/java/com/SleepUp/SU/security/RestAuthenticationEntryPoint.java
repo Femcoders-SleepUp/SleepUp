@@ -38,8 +38,6 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 request
         );
 
-
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
-

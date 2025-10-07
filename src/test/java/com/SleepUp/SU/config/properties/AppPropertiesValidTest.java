@@ -35,4 +35,3 @@ class AppPropertiesValidTest {
     static class TestConfig {
     }
 }
-

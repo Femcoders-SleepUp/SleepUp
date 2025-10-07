@@ -41,4 +41,3 @@ public class AccommodationFilterControllerIntegrationTest {
                 .andExpect(jsonPath("$.content[0].imageUrl").value("http://example.com/images/hotel_abc.jpg"));
     }
 }
-

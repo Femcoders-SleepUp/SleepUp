@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 
-
 @Configuration
 public class SwaggerConfig {
 
@@ -46,7 +45,6 @@ public class SwaggerConfig {
                         .addResponses("InternalServerError", apiResponse(500, "Internal server error"))
                         .addResponses("NoContent", new ApiResponse()
                                 .description("Successfully processed request with no content")));
-
     }
 
     private ApiResponse apiResponse(int status, String message) {

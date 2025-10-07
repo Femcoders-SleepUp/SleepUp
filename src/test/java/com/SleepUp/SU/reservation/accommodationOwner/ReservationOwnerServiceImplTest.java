@@ -60,7 +60,6 @@ class ReservationOwnerServiceImplTest {
     private ReservationResponseSummary response1;
     private ReservationResponseSummary response2;
 
-
     @BeforeEach
     void setUp() {
         response1 = new ReservationResponseSummary(
@@ -83,7 +82,6 @@ class ReservationOwnerServiceImplTest {
                 BookingStatus.PENDING,
                 BigDecimal.valueOf(100)
         );
-
     }
 
     @Nested

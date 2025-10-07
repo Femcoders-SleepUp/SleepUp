@@ -165,7 +165,6 @@ public class AuthControllerTest {
 
         }
 
-
         @Test
         void refresh_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
             RefreshRequest request = new RefreshRequest("someRefreshToken");

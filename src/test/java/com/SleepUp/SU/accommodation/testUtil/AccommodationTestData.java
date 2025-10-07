@@ -35,7 +35,6 @@ public class AccommodationTestData {
                 .build();
     }
 
-
     public static AccommodationRequest defaultUpdateRequestBuilder() {
         return AccommodationRequest.builder()
                 .name("Updated Accommodation")

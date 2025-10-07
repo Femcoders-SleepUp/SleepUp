@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class UserUserServiceImplTest {
@@ -64,7 +63,6 @@ public class UserUserServiceImplTest {
             assertEquals("usernameTest", response.username());
             assertEquals("nameTest", response.name());
             assertEquals("email@test.com", response.email());
-
         }
 
         @Test
@@ -78,7 +76,6 @@ public class UserUserServiceImplTest {
             );
 
             assertEquals("Username by id does not exist", exception.getMessage());
-
         }
     }
 
@@ -141,7 +138,6 @@ public class UserUserServiceImplTest {
             });
         }
     }
-
 
     @Nested
     class deleteLoggedUser {

@@ -57,7 +57,6 @@ public class ReservationAdminControllerTest {
 
     private CustomUserDetails principal;
 
-
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
@@ -139,6 +138,5 @@ public class ReservationAdminControllerTest {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("Reservation with id '" + reservationId + "' not found"));
         }
-
     }
 }

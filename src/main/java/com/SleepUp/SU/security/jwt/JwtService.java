@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -48,7 +47,6 @@ public class JwtService {
         return buildToken(claims, userDetails.getUsername(), jwtRefreshExpirationMs);
     }
 
-
     public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(ROLE_CLAIM, userDetails.getAuthorities().stream()
@@ -59,7 +57,6 @@ public class JwtService {
 
         return buildToken(claims, userDetails.getUsername(), jwtExpirationMs);
     }
-
 
     private String buildToken(Map<String, Object> claims, String subject, long expirationMs) {
         Instant now = Instant.now();

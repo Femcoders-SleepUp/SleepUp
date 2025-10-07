@@ -58,7 +58,6 @@ class ReservationGuestServiceImplTest {
     private ReservationResponseSummary response1;
     private ReservationResponseSummary response2;
 
-
     @BeforeEach
     void setUp() {
         response1 = new ReservationResponseSummary(
@@ -81,7 +80,6 @@ class ReservationGuestServiceImplTest {
                 BookingStatus.PENDING,
                 BigDecimal.valueOf(100)
         );
-
     }
 
     @Nested
@@ -118,7 +116,6 @@ class ReservationGuestServiceImplTest {
             verify(reservationMapper).toDetail(isExisting);
         }
     }
-
 
     @Nested
     class CancelReservation {
@@ -176,7 +173,6 @@ class ReservationGuestServiceImplTest {
             assertEquals("Cannot modify a cancelled reservation", exception.getMessage());
         }
     }
-
 
     private Reservation createTestReservation() {
         Reservation reservation = new Reservation();

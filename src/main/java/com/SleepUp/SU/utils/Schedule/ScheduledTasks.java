@@ -14,7 +14,6 @@ public class ScheduledTasks {
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-
     @Scheduled(cron = "0 0 2 * * *")
     public void dailyMaintenanceTask() {
         log.info("Daily maintenance task started at: {}",

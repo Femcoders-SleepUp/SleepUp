@@ -19,7 +19,6 @@ import com.cloudinary.utils.ObjectUtils;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -53,7 +52,6 @@ public class CloudinaryServiceTest {
         when(cloudinaryProperties.getApiSecret()).thenReturn("testApiSecret");
 
         cloudinaryService = new CloudinaryService(appProperties);
-
     }
 
     @Test
@@ -93,25 +91,17 @@ public class CloudinaryServiceTest {
     }
 
     @Test
-    public void testDeleteFile_shouldCallDestroy() throws IOException {
-
-    }
-
-    @Test
     public void testDeleteFile_shouldThrowIOException() throws Exception {
         String publicId = "abc123";
 
         when(cloudinary.uploader()).thenReturn(uploader);
 
-
         doThrow(new IOException("Failed to delete file")).when(uploader)
                 .destroy(eq(publicId), eq(ObjectUtils.emptyMap()));
-
 
         setCloudinaryMock(cloudinaryService, cloudinary);
         assertThrows(IOException.class, () -> cloudinaryService.deleteFile(publicId));
     }
-
 
     private void setCloudinaryMock(CloudinaryService service, Cloudinary cloudinaryMock) {
         try {
@@ -123,4 +113,3 @@ public class CloudinaryServiceTest {
         }
     }
 }
-
