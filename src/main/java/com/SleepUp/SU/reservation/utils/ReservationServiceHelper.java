@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,18 +79,20 @@ public class ReservationServiceHelper {
         EntityUtil.validateCheckInOutDates(reservationRequest.checkInDate(), reservationRequest.checkOutDate());
     }
 
-    public void validateAccommodationAvailability(Accommodation accommodation, ReservationRequest reservationRequest) {
-        LocalDate availableFrom = accommodation.getAvailableFrom();
-        LocalDate availableTo = accommodation.getAvailableTo();
+     public void validateAccommodationAvailability(Accommodation accommodation, ReservationRequest reservationRequest) {
+        Optional.ofNullable(accommodation)
+                .map(Accommodation::getAvailableFrom)
+                .filter(availableFrom -> !reservationRequest.checkInDate().isBefore(availableFrom))
+                .orElseThrow(() -> new AccommodationUnavailableException(accommodation));
 
-        if (reservationRequest.checkInDate().isBefore(availableFrom) ||
-                reservationRequest.checkOutDate().isAfter(availableTo)) {
-            throw new AccommodationUnavailableException(accommodation);
-            }
+        Optional.ofNullable(accommodation)
+                .map(Accommodation::getAvailableTo)
+                .filter(availableTo -> !reservationRequest.checkOutDate().isAfter(availableTo))
+                .orElseThrow(() -> new AccommodationUnavailableException(accommodation));
 
-        if (reservationRequest.guestNumber() > accommodation.getGuestNumber()) {
-            throw new AccommodationConstraintsException(accommodation, reservationRequest);
-            }
+        Optional.of(accommodation)
+                .filter(acc -> reservationRequest.guestNumber() <= acc.getGuestNumber())
+                .orElseThrow(() -> new AccommodationConstraintsException(accommodation, reservationRequest));
     }
 
     public void validateUserReservationOverlap(Long userId, ReservationRequest reservationRequest) {
@@ -152,17 +155,17 @@ public class ReservationServiceHelper {
     }
 
     public void validateReservationCancellable(Reservation reservation) {
-        if (reservation.getBookingStatus() == BookingStatus.CANCELLED) {
-            throw new ReservationModificationException("Cannot modify a cancelled reservation");
-        }
+        Optional.of(reservation.getBookingStatus())
+                .filter(status -> status != BookingStatus.CANCELLED)
+                .orElseThrow(() -> new ReservationModificationException("Cannot modify a cancelled reservation"));
 
-        if (!(reservation.getBookingStatus() == BookingStatus.PENDING) && !(reservation.getBookingStatus() == BookingStatus.CONFIRMED)) {
-            throw new ReservationModificationException("Completed reservations cannot be cancelled");
-        }
+        Optional.of(reservation.getBookingStatus())
+                .filter(status -> status == BookingStatus.PENDING || status == BookingStatus.CONFIRMED)
+                .orElseThrow(() -> new ReservationModificationException("Completed reservations cannot be cancelled"));
 
-        if (reservation.getCheckInDate().isBefore(LocalDate.now())) {
-            throw new ReservationModificationException("Cannot modify a reservation that has already started");
-        }
+        Optional.of(reservation.getCheckInDate())
+                .filter(date -> date.isAfter(LocalDate.now()) || date.isEqual(LocalDate.now()))
+                .orElseThrow(() -> new ReservationModificationException("Cannot modify a reservation that has already started"));
     }
 
     public boolean validateReservationAccommodationLessThanOneYear(Long accommodationId, Long userId){

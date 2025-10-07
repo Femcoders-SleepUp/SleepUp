@@ -45,8 +45,6 @@ public class GlobalExceptionHandlerTest {
         when(request.getRequestURI()).thenReturn("/test");
     }
 
-    // === Grouped Handlers ===
-
     @Test
     public void testHandleNotFound_UserNotFoundByIdException() {
         UserNotFoundByIdException ex = new UserNotFoundByIdException(1L);
@@ -93,8 +91,6 @@ public class GlobalExceptionHandlerTest {
         assertEquals(expectedMessage, response.getBody().message().toString());
     }
 
-    // === Validation Handlers ===
-
     @Test
     public void testHandleValidationExceptions() {
         FieldError fieldError = new FieldError("obj", "field", "must not be blank");
@@ -131,8 +127,6 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("fieldName: must not be null", response.getBody().message());
     }
-
-    // === Special Cases ===
 
     @Test
     public void testHandleHttpMessageNotReadableException() {
