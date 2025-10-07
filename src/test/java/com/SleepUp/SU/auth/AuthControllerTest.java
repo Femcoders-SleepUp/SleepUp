@@ -5,6 +5,7 @@ import com.SleepUp.SU.user.dto.UserRequest;
 import com.SleepUp.SU.user.entity.CustomUserDetails;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.repository.UserRepository;
+import com.SleepUp.SU.utils.email.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.mail.internet.MimeMessage;
@@ -22,7 +23,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import static org.hamcrest.Matchers.hasLength;
 import static org.mockito.Mockito.*;
@@ -62,6 +64,12 @@ public class AuthControllerTest {
     @MockitoBean
     private JavaMailSender mailSender;
 
+    @MockitoBean
+    private SpringTemplateEngine templateEngine;
+
+    @MockitoBean
+    private EmailService emailService;
+
     private CustomUserDetails principal;
 
     @BeforeEach
@@ -76,11 +84,11 @@ public class AuthControllerTest {
 
         @Test
         void register_validRequest_shouldReturnCreatedUser() throws Exception {
-            JavaMailSenderImpl javaMailSenderImpl = new JavaMailSenderImpl();
-            MimeMessage mimeMessage = javaMailSenderImpl.createMimeMessage();
+            MimeMessage mimeMessage = new JavaMailSenderImpl().createMimeMessage();
 
             when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-            doNothing().when(mailSender).send(any(MimeMessage.class));
+            doNothing().when(emailService).sendWelcomeEmail(any(User.class));
+            when(templateEngine.process(anyString(), any(Context.class))).thenReturn("html");
 
             UserRequest request = new UserRequest("newUser", "New Name", "new@email.com", "password123");
 
@@ -92,9 +100,8 @@ public class AuthControllerTest {
                     .andExpect(jsonPath("$.email").value("new@email.com"))
                     .andExpect(jsonPath("$.name").value("New Name"));
 
-            verify(mailSender, times(1)).send(any(MimeMessage.class));
+            verify(emailService, times(1)).sendWelcomeEmail(any(User.class));
         }
-
 
         @Test
         void register_invalidRequest_shouldReturnBadRequest() throws Exception {
