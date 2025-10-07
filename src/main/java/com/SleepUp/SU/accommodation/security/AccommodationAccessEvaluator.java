@@ -14,7 +14,7 @@ public class AccommodationAccessEvaluator {
         boolean owner = accommodationServiceHelper.isAccommodationOwnedByUser(accommodationId, userId);
         if (!owner) {
             throw new AccessDeniedException(
-                    "Cause: You are not the owner of this accommodation."
+                    " Cause: You are not the owner of this accommodation."
             );
         }
         return owner;
