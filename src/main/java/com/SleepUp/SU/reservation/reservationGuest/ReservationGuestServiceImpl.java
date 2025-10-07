@@ -8,9 +8,10 @@ import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.dto.ApiMessageDto;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class ReservationGuestServiceImpl implements ReservationGuestService {
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
     private final ReservationServiceHelper reservationServiceHelper;
-    private final EmailServiceHelper emailServiceHelper;
+    private final EmailService emailService;
     private final ReservationService reservationService;
 
     @Override
@@ -28,8 +29,7 @@ public class ReservationGuestServiceImpl implements ReservationGuestService {
         return reservationMapper.toDetail(isExisting);
     }
 
-
-
+    @Transactional
     @Override
     public ApiMessageDto updateReservation(Long id, ReservationRequest reservationRequest, User user) {
         Reservation oldReservation = reservationServiceHelper.getReservationEntityById(id);
@@ -60,8 +60,8 @@ public class ReservationGuestServiceImpl implements ReservationGuestService {
         reservation.setBookingStatus(BookingStatus.CANCELLED);
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        emailServiceHelper.sendCancellationConfirmationEmail(reservation);
-        emailServiceHelper.sendCancellationNotificationToOwnerEmail(reservation);
+        emailService.sendCancellationConfirmationEmail(reservation);
+        emailService.sendCancellationNotificationToOwnerEmail(reservation);
 
         String message = String.format(
                 "Your reservation in %s from %s to %s has been cancelled",

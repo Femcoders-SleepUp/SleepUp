@@ -13,7 +13,7 @@ import com.SleepUp.SU.reservation.status.BookingStatus;
 import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.user.role.Role;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import com.SleepUp.SU.utils.EntityUtil;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +54,7 @@ public class ReservationServiceImplTest {
     private AccommodationServiceHelper accommodationServiceHelper;
 
     @Mock
-    private EmailServiceHelper emailServiceHelper;
+    private EmailService emailService;
 
     private ReservationResponseSummary mappedDtos;
     private Long userId;
@@ -211,7 +211,7 @@ public class ReservationServiceImplTest {
             doNothing().when(reservationServiceHelper).updatePriceWithDiscountIfDeserved(mappedReservation, accommodation, user);
             when(reservationRepository.save(mappedReservation)).thenReturn(savedReservation);
             when(reservationMapper.toDetail(savedReservation)).thenReturn(expectedResponse);
-            doNothing().when(emailServiceHelper).sendOwnerReservedNotification(savedReservation);
+            doNothing().when(emailService).sendOwnerReservedNotification(savedReservation);
 
             ReservationResponseDetail result = reservationServiceImpl.createReservation(reservationRequest, user, accommodationId);
 
@@ -224,7 +224,7 @@ public class ReservationServiceImplTest {
             verify(reservationServiceHelper).validateCreateReservation(accommodation, user, reservationRequest);
             verify(reservationServiceHelper).updatePriceWithDiscountIfDeserved(mappedReservation, accommodation, user);
             verify(reservationRepository).save(mappedReservation);
-            verify(emailServiceHelper).sendOwnerReservedNotification(savedReservation);
+            verify(emailService).sendOwnerReservedNotification(savedReservation);
         }
 
         @Test

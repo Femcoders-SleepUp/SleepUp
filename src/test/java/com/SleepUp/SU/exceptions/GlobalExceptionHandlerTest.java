@@ -45,8 +45,6 @@ public class GlobalExceptionHandlerTest {
         when(request.getRequestURI()).thenReturn("/test");
     }
 
-    // === Grouped Handlers ===
-
     @Test
     public void testHandleNotFound_UserNotFoundByIdException() {
         UserNotFoundByIdException ex = new UserNotFoundByIdException(1L);
@@ -86,15 +84,12 @@ public class GlobalExceptionHandlerTest {
     @Test
     public void testHandleBadRequest_AccommodationUnavailable() {
         Accommodation accommodation = mock(Accommodation.class);
-        ReservationRequest reservationRequest = mock(ReservationRequest.class);
         AccommodationUnavailableException ex = new AccommodationUnavailableException(accommodation);
         ResponseEntity<ErrorResponse> response = handler.handleBadRequest(ex, request);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         String expectedMessage = String.format("Accommodation is only available from %s to %s", accommodation.getAvailableFrom(), accommodation.getAvailableTo());
         assertEquals(expectedMessage, response.getBody().message().toString());
     }
-
-    // === Validation Handlers ===
 
     @Test
     public void testHandleValidationExceptions() {
@@ -132,8 +127,6 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("fieldName: must not be null", response.getBody().message());
     }
-
-    // === Special Cases ===
 
     @Test
     public void testHandleHttpMessageNotReadableException() {

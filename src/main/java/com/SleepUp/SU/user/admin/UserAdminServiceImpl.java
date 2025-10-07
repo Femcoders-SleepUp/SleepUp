@@ -15,7 +15,7 @@ import com.SleepUp.SU.user.utils.UserServiceHelper;
 import com.SleepUp.SU.user.dto.UserMapper;
 import com.SleepUp.SU.user.dto.UserResponse;
 import com.SleepUp.SU.utils.EntityUtil;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByIdException;
 import com.SleepUp.SU.utils.exceptions.UserNotFoundByUsernameException;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class UserAdminServiceImpl implements UserAdminService, UserDetailsServic
     private final UserServiceHelper userServiceHelper;
     private final AccommodationRepository accommodationRepository;
     private final ReservationRepository reservationRepository;
-    private final EmailServiceHelper emailServiceHelper;
+    private final EmailService emailService;
 
     @Override
     public List<UserResponse> getAllUsers() {
@@ -52,7 +52,7 @@ public class UserAdminServiceImpl implements UserAdminService, UserDetailsServic
     @Override
     public UserResponse createUser(UserRequest userRequest, Role role) {
         User savedUser = userServiceHelper.createUser(userRequest, role);
-        emailServiceHelper.sendWelcomeEmail(savedUser);
+        emailService.sendWelcomeEmail(savedUser);
         return userMapper.toResponse(savedUser);
     }
 
