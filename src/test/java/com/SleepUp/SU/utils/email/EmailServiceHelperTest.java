@@ -118,7 +118,6 @@ class EmailServiceHelperTest {
 
             assertFalse(helper.canSendReservationEmails(res));
 
-            // Test with empty string email
             owner.setEmail("");
             assertFalse(helper.canSendReservationEmails(res));
         }
