@@ -1,5 +1,6 @@
 package com.SleepUp.SU.reservation.reservationGuest;
 
+import com.SleepUp.SU.accommodation.entity.Accommodation;
 import com.SleepUp.SU.reservation.entity.Reservation;
 import com.SleepUp.SU.reservation.repository.ReservationRepository;
 import com.SleepUp.SU.reservation.dto.ReservationResponseDetail;
@@ -11,7 +12,7 @@ import com.SleepUp.SU.reservation.utils.ReservationServiceHelper;
 import com.SleepUp.SU.utils.EntityUtil;
 import com.SleepUp.SU.user.entity.User;
 import com.SleepUp.SU.utils.dto.ApiMessageDto;
-import com.SleepUp.SU.utils.email.EmailServiceHelper;
+import com.SleepUp.SU.utils.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class ReservationGuestServiceImplTest {
     private ReservationServiceHelper reservationServiceHelper;
 
     @Mock
-    private EmailServiceHelper emailServiceHelper;
+    private EmailService emailService;
 
     @Mock
     private EntityUtil entityUtil;
@@ -122,23 +123,28 @@ class ReservationGuestServiceImplTest {
     @Nested
     class CancelReservation {
 
-//        @Test
-//        void cancelReservation_validReservation_shouldReturnCancelledDetail() {
-//            Long reservationId = 1L;
-//            Reservation testReservation = createTestReservation();
-//            testReservation.setId(reservationId);
-//
-//            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
-//
-//            when(reservationServiceHelper.getReservationEntityById(reservationId)).thenReturn(testReservation);
-//            when(reservationRepository.save(testReservation)).thenReturn(testReservation);
-//            when(reservationMapper.toDetail(testReservation)).thenReturn(expectedResponse);
-//
-//            ApiMessageDto result = reservationGuestServiceImpl.cancelReservation(reservationId);
-//
-//            assertNotNull(result);
-////            assertEquals(BookingStatus.CANCELLED, result.bookingStatus());
-//        }
+        @Test
+        void cancelReservation_validReservation_shouldReturnCancelledDetail() {
+            Long reservationId = 1L;
+
+            Reservation testReservation = createTestReservation();
+            testReservation.setId(reservationId);
+
+            Accommodation testAccommodation = new Accommodation();
+            testAccommodation.setId(accommodationId);
+            testAccommodation.setName("Accommodation test");
+
+            testReservation.setAccommodation(testAccommodation);
+
+            ReservationResponseDetail expectedResponse = expectedCancelledResponse();
+
+            when(reservationServiceHelper.getReservationEntityById(reservationId)).thenReturn(testReservation);
+            when(reservationRepository.save(testReservation)).thenReturn(testReservation);
+
+            ApiMessageDto result = reservationGuestServiceImpl.cancelReservation(reservationId);
+
+            assertNotNull(result);
+        }
 
         @Test
         void cancelReservation_reservationNotFound_shouldThrowException() {
