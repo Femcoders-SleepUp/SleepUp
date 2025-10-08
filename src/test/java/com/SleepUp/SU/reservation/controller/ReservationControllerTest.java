@@ -116,8 +116,8 @@ public class ReservationControllerTest {
         void createReservation_validData_shouldReturnCreatedReservation() throws Exception {
             ReservationRequest request = new ReservationRequest(
                     1,
-                    LocalDate.of(2025, 10, 7),
-                    LocalDate.of(2025, 10, 8)
+                    LocalDate.now(),
+                    LocalDate.now().plusDays(4)
             );
 
             Long accommodationId = 2L;
